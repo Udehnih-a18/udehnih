@@ -5,19 +5,29 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
-@Builder
 @Getter
 public class Report {
-    String id;
-    @Setter
-    String title;
-    @Setter
-    String description;
-    String author;
-    LocalDateTime createdAt;
-    LocalDateTime updatedAt;
+    private final String idReport;
+    private final LocalDateTime createdAt;
+    private final LocalDateTime updatedAt;
+    private final String createdBy;
+    private final String author;
 
-    public Report(String id, String title, String description, String author){
+    @Setter
+    private String title;
+
+    @Setter
+    private String description;
+
+    public Report(String createdBy, String author, String title, String description) {
+        this.idReport = UUID.randomUUID().toString();
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+        this.createdBy = createdBy;
+        this.author = author;
+        this.title = title;
+        this.description = description;
     }
 }
