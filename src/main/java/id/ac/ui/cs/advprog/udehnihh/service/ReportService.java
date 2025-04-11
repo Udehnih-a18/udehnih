@@ -13,25 +13,29 @@ public class ReportService {
     }
 
     public Report createReport(String createdBy, String author, String title, String description) {
-        // TODO: Implement method
-        return null;
+        Report report = new Report(createdBy, author, title, description);
+        reportRepository.create(report);
+        return report;
     }
 
     public List<Report> getAllReports() {
-        // TODO: Implement method
-        return null;
+        return reportRepository.findAll();
     }
 
     public Report getReportById(String id) {
-        // TODO: Implement method
-        return null;
+        return reportRepository.findById(id);
     }
 
     public void updateReport(String id, String title, String description) {
-        // TODO: Implement method
+        Report report = reportRepository.findById(id);
+        if (report != null) {
+            report.setTitle(title);
+            report.setDescription(description);
+            reportRepository.update(id, report);
+        }
     }
 
     public void deleteReport(String id) {
-        // TODO: Implement method
+        reportRepository.delete(id);
     }
 }
