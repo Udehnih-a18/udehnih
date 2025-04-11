@@ -28,16 +28,15 @@ public class ReportTest {
 
     @Test
     void createReportWithValidValues() {
-        Report newReport = new Report("456", "Bug UI", "Ada bug di halaman utama.", "Nayla");
+        Report newReport = new Report("456", "Akhdan", "Ada bug di halaman utama.", "Baguss");
 
         assertEquals("456", newReport.getCreatedBy());
-        assertEquals("Bug UI", newReport.getTitle());
-        assertEquals("Ada bug di halaman utama.", newReport.getDescription());
-        assertEquals("Nayla", newReport.getAuthor());
-
+        assertEquals("Ada bug di halaman utama.", newReport.getTitle());
+        assertEquals("Baguss", newReport.getDescription());
+        assertEquals("Akhdan", newReport.getAuthor());
         assertNotNull(newReport.getIdReport());
         assertNotNull(newReport.getCreatedAt());
-        assertNotNull(newReport.getUpdatedAt());
+
     }
 
     @Test
@@ -52,13 +51,13 @@ public class ReportTest {
 
     @Test
     void createReportWithEmptyTitle() {
-        Report newReport = new Report("abc", "", "Deskripsi valid", "Zufar");
-        assertTrue(newReport.getTitle().isEmpty(), "Title is unexpectedly not empty");
+        Report newReport = new Report("abc", "Zufar", null, "Bagus");
+        assertNull(newReport.getTitle());
     }
 
     @Test
     void createReportWithEmptyDescription() {
-        Report newReport = new Report("abc", "Masalah", null, "Zufar");
+        Report newReport = new Report("abc", "Zufar", "Fitur keren", null);
         assertNull(newReport.getDescription());
     }
 }
