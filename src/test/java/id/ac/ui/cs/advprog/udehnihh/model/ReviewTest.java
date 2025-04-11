@@ -1,5 +1,7 @@
 package id.ac.ui.cs.advprog.udehnihh.model;
 
+import id.ac.ui.cs.advprog.udehnihh.model.Review;
+
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -30,7 +32,8 @@ public class ReviewTest {
     void testEmptyRatingAndReview() {
         assertThrows(IllegalArgumentException.class, () -> {
             Review review = new Review("c7dc8511-d196-4a30-94a3-800d2e1c71ec",
-                    "c175aa39-d000-4516-987e-18957f81ea59", "41df544b-8c54-40ac-9ac2-ff9ce312f92d");
+                    "c175aa39-d000-4516-987e-18957f81ea59", "41df544b-8c54-40ac-9ac2-ff9ce312f92d",
+                    0, "");
         });
     }
 
@@ -39,7 +42,7 @@ public class ReviewTest {
         assertThrows(IllegalArgumentException.class, () -> {
             Review review = new Review("c7dc8511-d196-4a30-94a3-800d2e1c71ec",
                     "c175aa39-d000-4516-987e-18957f81ea59", "41df544b-8c54-40ac-9ac2-ff9ce312f92d",
-                    "Lumayan membantu.");
+                    0, "Lumayan membantu.");
         });
     }
 }
