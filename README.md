@@ -24,13 +24,10 @@ Setelah melakukan pembayaran, transaksi baru selesai setelah Admin mengubah stat
 Untuk saat ini, *design pattern* yang cocok untuk modul Payment adalah sebagai berikut:
 
 #### 1. **Command Pattern**
-
-
-**Kenapa:**  
-Untuk meng-handle aksi pengguna seperti "konfirmasi pembayaran", 
-"pembatalan", atau "ajukan refund", Command pattern bisa membantu agar setiap aksi menjadi 
-kelas terpisah dengan logikanya sendiri.
-
+Ada beberapa aksi berbeda yang dapat dilakukan pengguna, seperti 
+membayar course, membatalkan transaksi, atau mengajukan refund.
+Menggunakan **Command pattern** bisa memisahkan tiap aksi menjadi kelas masing-masing
+dengan logikanya sendiri.
 
 ### 2. **State Pattern**
 Transaksi bisa memiliki status `PENDING`, `PAID`, atau `FAILED`. 
@@ -38,21 +35,12 @@ Dibandingkan dengan menggunakan if-else berulang, penggunaan **State pattern** d
 setiap status sebagai sebuah state dengan behavior masing-masing.
 
 ### 3. **Strategy Pattern**
-**Kenapa:**  
-Untuk menangani **berbagai metode pembayaran** (Transfer Bank vs Kartu Kredit), 
-Strategy pattern cocok banget. 
-Setiap metode pembayaran bisa punya class-nya sendiri dengan behavior masing-masing.
-
-Lalu implementasi untuk:
-- `BankTransferPaymentStrategy`
-- `CreditCardPaymentStrategy`
+**Strategy pattern** digunakan untuk menangani dua metode pembayaran yang berbeda,
+yakni Transfer Bank dan Kartu Kredit.
+Dengan pattern ini, setiap metode pembayaran didefinisikan di classnya masing-masing
+dengan perilaku yang berbeda.
 
 ### 4. **Factory Pattern**
-**Kenapa:**  
-Untuk membuat instance dari strategi pembayaran sesuai metode yang dipilih oleh user (`BANK_TRANSFER`, `CREDIT_CARD`), Factory pattern bisa bantu supaya tidak hardcoded.
-
-### 5. **Repository Pattern (Spring Data JPA)**
-**Kenapa:**  
-Standar Spring Boot buat persistence, jadi semua transaksi, user, kursus bisa disimpan dan diambil lewat repository.
-
+**Factory Pattern** bisa membantu membuat instance strategi pembayaran 
+sesuai metode yang dipilih oleh pengguna agar tidak terlalu hard-coded.
 
