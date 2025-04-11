@@ -1,0 +1,3 @@
+@Repository
+public class TransactionRepository {
+}
