@@ -1,4 +1,7 @@
 package id.ac.ui.cs.advprog.udehnihh.authentication.model;
+
+import enums.Gender;
+import enums.Role;
 import lombok.*;
 import jakarta.persistence.*;
 
@@ -15,8 +18,9 @@ public class User {
     private String email;
     private String fullName;
     private String password;
-    private String role;
-    private String gender;
+    @Builder.Default
+    private Role role = Role.STUDENT;
+    private Gender gender;
 
     @CreationTimestamp
     private LocalDateTime registrationDate;

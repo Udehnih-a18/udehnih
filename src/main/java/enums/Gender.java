@@ -1,4 +1,4 @@
-package id.ac.ui.cs.advprog.udehnihh.authentication.enums;
+package enums;
 
 import lombok.Getter;
 
