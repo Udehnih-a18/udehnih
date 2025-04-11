@@ -1,18 +1,10 @@
 @Service
-public class PaymentService {
-    @Autowired
-    private TransactionRepository repo;
+public interface PaymentService {
+    public Transaction createTransaction(Transaction tx, PaymentRequest request)
+    public void confirmTransfer(UUID transactionId);
+    public List<Transaction> getTransactionHistory(UUID studentId);
+    public void cancelTransaction(UUID transactionId);
+    public void requestRefund(UUID transactionId);
+    public void updateTransactionStatus(UUID transactionId, TransactionStatus status);
 
-    @Autowired
-    private PaymentStrategyFactory strategyFactory;
-
-    public Transaction createTransaction(Transaction tx, PaymentRequest request) {
-        PaymentStrategy strategy = strategyFactory.getStrategy(tx.getMethod());
-        strategy.pay(tx, request);
-        return repo.save(tx);
-    }
-
-    public List<Transaction> getTransactionsForStudent(UUID studentId) {
-        return repo.findByStudentId(studentId);
-    }
 }
