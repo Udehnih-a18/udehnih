@@ -1,29 +1,28 @@
 package id.ac.ui.cs.advprog.udehnihh.repository;
 
 import id.ac.ui.cs.advprog.udehnihh.model.Report;
-import java.util.List;
+import java.util.*;
 
 public class ReportRepository {
+    private final Map<String, Report> reports = new HashMap<>();
 
     public void create(Report report) {
-        // TODO: Implement method
+        reports.put(report.getIdReport(), report);
     }
 
     public List<Report> findAll() {
-        // TODO: Implement method
-        return null;
+        return new ArrayList<>(reports.values());
     }
 
     public Report findById(String id) {
-        // TODO: Implement method
-        return null;
+        return reports.get(id);
     }
 
     public void update(String id, Report updatedReport) {
-        // TODO: Implement method
+        reports.put(id, updatedReport);
     }
 
     public void delete(String id) {
-        // TODO: Implement method
+        reports.remove(id);
     }
 }
