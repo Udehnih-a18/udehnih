@@ -15,17 +15,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install Koyeb CLI (if not exists)
+      - name: Install Koyeb CLI
         run: |
-          if ! command -v koyeb &> /dev/null; then
-            echo "Koyeb CLI not found. Installing..."
-            curl -Lo koyeb.tar.gz https://github.com/koyeb/koyeb-cli/releases/latest/download/koyeb-linux-amd64.tar.gz
-            tar -xzf koyeb.tar.gz
-            sudo mv koyeb /usr/local/bin/
-          else
-            echo "Koyeb CLI already installed."
-          fi
+          echo "Installing Koyeb CLI..."
+          # Download the CLI directly from Koyeb's official install script
+          curl -sSL https://www.koyeb.com/install.sh | sudo bash
+          # Verify installation
+          koyeb --version || { echo "Failed to install Koyeb CLI"; exit 1; }
 
-      - name: Redeploy Koyeb service
+      - name: Authenticate and redeploy Koyeb service
         run: |
-          koyeb service redeploy udehnih-a18 --app udehnih --token ${{ secrets.KOYEB_API_TOKEN }}
+          echo "Redeploying service on Koyeb..."
+          koyeb service redeploy udehnih-a18 --app udehnih --token ${{ secrets.KOYEB_API_TOKEN }} || { echo "Deployment failed"; exit 1; }
+          echo "Deployment triggered successfully!"
