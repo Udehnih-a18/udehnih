@@ -1,4 +1,4 @@
-name: Deploy to Koyeb
+name: Deploy to Koyeb via CLI
 
 on:
   workflow_run:
@@ -10,13 +10,20 @@ jobs:
   deploy:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Deploy to Koyeb
+      - name: Install Koyeb CLI (if not exists)
         run: |
-          curl -X POST "https://app.koyeb.com/v1/apps/udehnih/deploy" \
-          -H "Authorization: Bearer ${{ secrets.KOYEB_API_TOKEN }}" \
-          -H "Content-Type: application/json" \
-          -d '{"git":{"branch":"main"}}'
+          if ! command -v koyeb &> /dev/null; then
+            echo "Koyeb CLI not found. Installing..."
+            curl -sL https://raw.githubusercontent.com/koyeb/koyeb-cli/main/install.sh | bash
+          else
+            echo "Koyeb CLI already installed."
+          fi
+
+      - name: Redeploy Koyeb service
+        run: |
+          koyeb service redeploy udehnih-a18 --app udehnih --token ${{ secrets.KOYEB_API_TOKEN }}
