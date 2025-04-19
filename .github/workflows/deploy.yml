@@ -12,22 +12,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout the repository
-        uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      - name: Set up Koyeb CLI
+      - name: Install Koyeb CLI
         run: |
-          curl -fsSL https://cli.koyeb.com/install.sh | bash
-          sudo mv koyeb /usr/local/bin/koyeb
+          curl -fsSL https://cli.koyeb.com/install.sh | sh
+          sudo mv /tmp/koyeb /usr/local/bin/koyeb
 
-      - name: Authenticate with Koyeb CLI
-        run: |
-          koyeb auth login --api-token ${{ secrets.KOYEB_API_TOKEN }}
+      - name: Login to Koyeb
+        run: koyeb login --token ${{ secrets.KOYEB_API_TOKEN }}
 
       - name: Deploy to Koyeb
         run: |
-          koyeb apps deploy --app udehnih --wait
-
-      - name: Clean up
-        run: |
-          # Any cleanup steps (optional)
+          koyeb service redeploy udehnih/udehnih
