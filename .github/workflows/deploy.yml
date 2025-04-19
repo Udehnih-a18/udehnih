@@ -19,7 +19,9 @@ jobs:
         run: |
           if ! command -v koyeb &> /dev/null; then
             echo "Koyeb CLI not found. Installing..."
-            curl -sL https://raw.githubusercontent.com/koyeb/koyeb-cli/main/install.sh | bash
+            curl -Lo koyeb.tar.gz https://github.com/koyeb/koyeb-cli/releases/latest/download/koyeb-linux-amd64.tar.gz
+            tar -xzf koyeb.tar.gz
+            sudo mv koyeb /usr/local/bin/
           else
             echo "Koyeb CLI already installed."
           fi
