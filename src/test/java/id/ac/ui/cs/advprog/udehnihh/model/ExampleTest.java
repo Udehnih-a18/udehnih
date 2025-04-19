@@ -9,7 +9,7 @@ public class ExampleTest {
     @Test
     void testItung(){
         Example example = new Example(10);
-        assertEquals(99, example.getAngka(), "Sengaja dibuat gagal untuk ngetes CI/CD");
+        assertEquals(101, example.getAngka(), "Sengaja dibuat gagal untuk ngetes CI/CD");
 
     }
 
