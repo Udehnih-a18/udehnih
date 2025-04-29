@@ -16,11 +16,11 @@ public class ReportTest {
     void setUp() {
         this.reports = new ArrayList<>();
 
-        Report report1 = new Report("123", "Fitur tidak berjalan",
-                "Fitur pada aplikasi ini tidak berjalan dengan benar dan cenderung rusak. Tolong diperbaiki!", "Zufar");
+        Report report1 = new Report("123", "Zufar",
+                "Problem", "Fitur pada aplikasi ini tidak berjalan dengan benar dan cenderung rusak. Tolong diperbaiki!");
 
-        Report report2 = new Report("456", "Course tidak tersimpan",
-                "Fitur course pada aplikasi ini tidak berjalan dengan benar dan cenderung rusak. Tolong diperbaiki!", "Rafli");
+        Report report2 = new Report("456", "Rafli",
+                "Course tidak tersimpan!", "Fitur course pada aplikasi ini tidak berjalan dengan benar dan cenderung rusak. Tolong diperbaiki!");
 
         this.reports.add(report1);
         this.reports.add(report2);
