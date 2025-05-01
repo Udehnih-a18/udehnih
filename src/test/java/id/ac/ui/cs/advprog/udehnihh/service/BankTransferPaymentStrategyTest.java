@@ -1,3 +1,9 @@
+package id.ac.ui.cs.advprog.udehnihh.service;
+
+import id.ac.ui.cs.advprog.udehnihh.payment.service.BankTransferPaymentStrategy;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 class BankTransferPaymentStrategyTest {
 
     private BankTransferPaymentStrategy strategy;

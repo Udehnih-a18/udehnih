@@ -1,3 +1,5 @@
+package id.ac.ui.cs.advprog.udehnihh.payment.service;
+
 public class PaymentServiceImpl implements PaymentService {
     @Autowired
     private TransactionRepository repo;

@@ -1,4 +1,7 @@
-class CreditCardPaymentStrategyTest {
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+class CreditCardTransactionPaymentStrategyTest {
 
     private CreditCardPaymentStrategy strategy;
 
