@@ -19,6 +19,7 @@ public class Transaction {
     private double price;
 
     private PaymentMethod method;
+    private String accountNumber;
 
     private TransactionStatus status;
 

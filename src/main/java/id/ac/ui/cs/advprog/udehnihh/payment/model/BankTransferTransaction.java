@@ -1,4 +1,7 @@
 package id.ac.ui.cs.advprog.udehnihh.payment.model;
 
-public class BankTransferTransaction {
+import id.ac.ui.cs.advprog.udehnihh.payment.enums.AvailableBanks;
+
+public class BankTransferTransaction extends Transaction {
+    private AvailableBanks bank;
 }
