@@ -27,6 +27,16 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
+    public List<Report> getAllReports() {
+        return reportRepository.findAll();
+    }
+
+    @Override
+    public List<Report> getReportsByAuthor(String author) {
+        return reportRepository.findAllByAuthor(author);
+    }
+
+    @Override
     public Report updateReport(String reportId, String title, String description) {
         Report report = reportRepository.findById(reportId);
         if (report != null) {
