@@ -47,7 +47,7 @@ public class AuthControllerTest {
                         .param("email", "test@example.com")
                         .param("password", "123456"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/"));
+                .andExpect(redirectedUrl("/homepage"));
     }
 
     @Test
