@@ -1,16 +1,15 @@
-package id.ac.ui.cs.advprog.udehnihh.payment.service;
+package id.ac.ui.cs.advprog.udehnihh.payment.strategy;
 
 import id.ac.ui.cs.advprog.udehnihh.payment.enums.PaymentMethod;
 import id.ac.ui.cs.advprog.udehnihh.payment.enums.TransactionStatus;
 import id.ac.ui.cs.advprog.udehnihh.payment.model.CreditCardTransaction;
-import id.ac.ui.cs.advprog.udehnihh.payment.strategy.CreditCardPaymentStrategy;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class CreditCardTransactionPaymentStrategyTest {
+class CreditCardPaymentStrategyTest {
 
     private CreditCardPaymentStrategy strategy;
 
