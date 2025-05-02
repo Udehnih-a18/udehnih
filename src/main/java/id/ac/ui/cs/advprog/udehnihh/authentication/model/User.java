@@ -13,13 +13,20 @@ import org.hibernate.annotations.CreationTimestamp;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Entity
+@Table(name = "users")
 public class User {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
     private String email;
     private String fullName;
     private String password;
     @Builder.Default
+    @Enumerated(EnumType.STRING)
     private Role role = Role.STUDENT;
+    @Enumerated(EnumType.STRING)
     private Gender gender;
 
     @CreationTimestamp
