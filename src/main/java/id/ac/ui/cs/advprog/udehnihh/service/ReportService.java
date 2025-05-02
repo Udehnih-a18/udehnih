@@ -8,4 +8,8 @@ public interface ReportService {
     public Report updateReport(String reportId, String title, String description);
     public void deleteReport(String id);
     public Report getReportById(String id);
+    public List<Report> getReportsByAuthor(String authorId);
+    public List<Report> getAllReports();
+
+
 }
