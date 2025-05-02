@@ -17,18 +17,18 @@ public class PaymentServiceImpl implements PaymentService {
     private TransactionRepository transactionRepository;
 
     @Autowired
-    public PaymentServiceImpl(TransactionRepository repo) {
-        this.transactionRepository = transactionRepository;
-    }
+    private PaymentStrategyFactory strategyFactory;
 
     @Autowired
-    private PaymentStrategyFactory strategyFactory;
+    public PaymentServiceImpl(PaymentStrategyFactory strategyFactory) {
+        this.strategyFactory = strategyFactory;
+    }
 
     @Override
     public Transaction createTransaction(Transaction tx) {
         PaymentStrategy strategy = strategyFactory.getStrategy(tx.getMethod());
         strategy.pay(tx);
-        return transactionRepository.save(tx);
+        return transactionRepository.create(tx);
     }
 
     @Override
@@ -41,7 +41,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public Transaction findById(UUID transactionId) {
-        return transactionRepository.findTransactionById();
+        return transactionRepository.findTransactionById(transactionId);
     }
 
     @Override
