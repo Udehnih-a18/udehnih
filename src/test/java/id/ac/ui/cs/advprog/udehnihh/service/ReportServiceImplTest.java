@@ -173,4 +173,56 @@ public class ReportServiceImplTest {
         assertEquals(report.getAuthor(), result.getAuthor());
         assertEquals(report.getCreatedBy(), result.getCreatedBy());
     }
+    @Test
+    @DisplayName("Should get all reports successfully")
+    void testGetAllReports() {
+        when(reportRepository.findAll()).thenReturn(reports);
+
+        List<Report> result = reportService.getAllReports();
+
+        verify(reportRepository, times(1)).findAll();
+        assertEquals(2, result.size());
+        assertEquals(reports, result);
+    }
+
+    @Test
+    @DisplayName("Should get reports by author successfully")
+    void testGetReportsByAuthor() {
+        String author = "student1";
+        List<Report> authorReports = List.of(reports.get(0));
+
+        when(reportRepository.findAllByAuthor(author)).thenReturn(authorReports);
+
+        List<Report> result = reportService.getReportsByAuthor(author);
+
+        verify(reportRepository, times(1)).findAllByAuthor(author);
+        assertEquals(1, result.size());
+        assertEquals(authorReports, result);
+    }
+
+    @Test
+    @DisplayName("Should return empty list when no reports found for author")
+    void testGetReportsByAuthorWhenNoneExist() {
+        String author = "nonexistentAuthor";
+        List<Report> emptyList = new ArrayList<>();
+
+        when(reportRepository.findAllByAuthor(author)).thenReturn(emptyList);
+
+        List<Report> result = reportService.getReportsByAuthor(author);
+
+        verify(reportRepository, times(1)).findAllByAuthor(author);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    @DisplayName("Should return empty list when repository has no reports")
+    void testGetAllReportsWhenEmpty() {
+        List<Report> emptyList = new ArrayList<>();
+        when(reportRepository.findAll()).thenReturn(emptyList);
+
+        List<Report> result = reportService.getAllReports();
+
+        verify(reportRepository, times(1)).findAll();
+        assertTrue(result.isEmpty());
+    }
 }
