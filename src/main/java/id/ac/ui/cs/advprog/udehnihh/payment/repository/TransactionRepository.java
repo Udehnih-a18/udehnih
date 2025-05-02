@@ -6,10 +6,11 @@ import org.springframework.stereotype.Repository;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 
 @Repository
 public abstract class TransactionRepository<T extends Transaction> {
-    private List<T> transactions = new ArrayList<>();
+    protected List<T> transactions = new ArrayList<>();
 
     public T create(T transaction) {
         transactions.add(transaction);
@@ -31,5 +32,9 @@ public abstract class TransactionRepository<T extends Transaction> {
 
     public void delete(T transaction) {
         transactions.remove(transaction);
+    }
+
+    public List<Transaction> findByStudentId(UUID studentId) {
+        return null;
     }
 }
