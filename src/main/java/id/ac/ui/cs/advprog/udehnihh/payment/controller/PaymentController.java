@@ -4,6 +4,7 @@ import id.ac.ui.cs.advprog.udehnihh.payment.enums.TransactionStatus;
 import id.ac.ui.cs.advprog.udehnihh.payment.model.Transaction;
 import id.ac.ui.cs.advprog.udehnihh.payment.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,14 +18,14 @@ public class PaymentController {
     private PaymentService service;
 
     @PostMapping("/create")
-    public ResponseEntity<Transaction> pay(@RequestBody PaymentRequest request) {
+    public ResponseEntity<Transaction> pay(@RequestBody Transaction transaction) {
         Transaction tx = new Transaction();
-        tx.setCourseName(request.getCourseName());
-        tx.setTutorName(request.getTutorName());
-        tx.setPrice(request.getPrice());
-        tx.setMethod(request.getMethod());
+        tx.setCourseName(transaction.getCourseName());
+        tx.setTutorName(transaction.getTutorName());
+        tx.setPrice(transaction.getPrice());
+        tx.setMethod(transaction.getMethod());
         tx.setStatus(TransactionStatus.PENDING); // default
-        tx.setStudent(request.getStudent()); // set student
+        tx.setStudent(transaction.getStudent()); // set student
 
         Transaction saved = service.createTransaction(tx, request);
         return ResponseEntity.ok(saved);

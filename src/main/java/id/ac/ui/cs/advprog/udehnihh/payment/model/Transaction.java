@@ -13,10 +13,7 @@ import java.util.UUID;
 public class Transaction {
     private String id = UUID.randomUUID().toString();
 
-    private String courseName;
-    private String tutorName;
-
-    private double price;
+    private Course course;
 
     private PaymentMethod method;
     private String accountNumber;
