@@ -48,16 +48,11 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public void updateTransactionStatus(UUID transactionId, TransactionStatus status) {
-
+        transactionRepository.findTransactionById(transactionId).setStatus(status);
     }
 
     @Override
     public void cancelTransaction(UUID transactionId) {
-
-    }
-
-    @Override
-    public void requestRefund(UUID transactionId) {
-
+        transactionRepository.findTransactionById(transactionId).setStatus(TransactionStatus.CANCELLED);
     }
 }
