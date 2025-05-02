@@ -33,6 +33,10 @@ public class ReportRepository {
         return result;
     }
 
+    public List<Report> findAll() {
+        return reportData;
+    }
+
     public Report findById(String id) {
         for (Report report : reportData) {
             if (report.getIdReport().equals(id)) {
