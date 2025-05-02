@@ -10,11 +10,10 @@ import java.util.UUID;
 
 @Service
 public interface PaymentService {
-    public Transaction createTransaction();
-    public void confirmTransfer(UUID transactionId);
+    public Transaction createTransaction(Transaction tx);
     public List<Transaction> getTransactionHistory(UUID studentId);
+    public Transaction findById(UUID transactionId);
+    public void updateTransactionStatus(UUID transactionId, TransactionStatus status);
     public void cancelTransaction(UUID transactionId);
     public void requestRefund(UUID transactionId);
-    public void updateTransactionStatus(UUID transactionId, TransactionStatus status);
-
 }
