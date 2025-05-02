@@ -19,9 +19,9 @@ class UserTest {
         registrationDate = LocalDateTime.now();
 
         user = new User();
-        user.setEmail("madeline@example.com");
-        user.setFullName("Madeline Clairine Gultom");
-        user.setPassword("securepassword");
+        user.setEmail("user@example.com");
+        user.setFullName("User Example");
+        user.setPassword("password123");
         user.setRole(Role.valueOf("STUDENT"));
         user.setGender(Gender.valueOf("FEMALE"));
         user.setRegistrationDate(registrationDate);
@@ -31,17 +31,17 @@ class UserTest {
 
     @Test
     void testEmail() {
-        assertEquals("madeline@example.com", user.getEmail());
+        assertEquals("user@example.com", user.getEmail());
     }
 
     @Test
     void testFullName() {
-        assertEquals("Madeline Clairine Gultom", user.getFullName());
+        assertEquals("User Example", user.getFullName());
     }
 
     @Test
     void testPassword() {
-        assertEquals("securepassword", user.getPassword());
+        assertEquals("password123", user.getPassword());
     }
 
     @Test
