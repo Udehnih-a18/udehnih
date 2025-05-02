@@ -1,9 +1,20 @@
+package id.ac.ui.cs.advprog.udehnihh.service;
+
+import id.ac.ui.cs.advprog.udehnihh.payment.model.Transaction;
+import id.ac.ui.cs.advprog.udehnihh.payment.repository.TransactionRepository;
+import id.ac.ui.cs.advprog.udehnihh.payment.strategy.BankTransferPaymentStrategy;
+import id.ac.ui.cs.advprog.udehnihh.payment.strategy.CreditCardPaymentStrategy;
+import id.ac.ui.cs.advprog.udehnihh.payment.service.PaymentService;
+import id.ac.ui.cs.advprog.udehnihh.payment.factory.PaymentStrategyFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class PaymentServiceTest {

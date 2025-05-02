@@ -1,6 +1,9 @@
-package id.ac.ui.cs.advprog.udehnihh.payment.strategy;
+package id.ac.ui.cs.advprog.udehnihh.payment.factory;
 
 import id.ac.ui.cs.advprog.udehnihh.payment.enums.PaymentMethod;
+import id.ac.ui.cs.advprog.udehnihh.payment.strategy.BankTransferPaymentStrategy;
+import id.ac.ui.cs.advprog.udehnihh.payment.strategy.CreditCardPaymentStrategy;
+import id.ac.ui.cs.advprog.udehnihh.payment.strategy.PaymentStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
