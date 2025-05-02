@@ -1,4 +1,4 @@
-package id.ac.ui.cs.advprog.udehnihh.service;
+package id.ac.ui.cs.advprog.udehnihh.payment.service;
 
 import id.ac.ui.cs.advprog.udehnihh.payment.enums.PaymentMethod;
 import id.ac.ui.cs.advprog.udehnihh.payment.enums.TransactionStatus;
