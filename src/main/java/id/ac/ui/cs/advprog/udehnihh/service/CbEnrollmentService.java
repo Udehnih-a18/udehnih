@@ -1,0 +1,60 @@
+package id.ac.ui.cs.advprog.udehnihh.service;
+
+import id.ac.ui.cs.advprog.udehnihh.dto.EnrollmentDto;
+import id.ac.ui.cs.advprog.udehnihh.repository.*;
+import id.ac.ui.cs.advprog.udehnihh.model.*;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+
+
+@Service
+@RequiredArgsConstructor
+public class CbEnrollmentService {
+
+    private final CbEnrollmentRepository enrollRepo;
+    private final CbCourseRepository courseRepo;
+
+    @PreAuthorize("hasRole('STUDENT')")
+    public UUID enroll(User student, UUID courseId) {
+        Course course = courseRepo.findById(courseId)
+                .orElseThrow(() -> new IllegalArgumentException("Course not found"));
+
+        // sudah enrol?
+        boolean exists = enrollRepo.existsByStudentIdAndCourseId(student.getId(), courseId);
+        if (exists) throw new IllegalStateException("Already enrolled");
+
+        Enrollment e = new Enrollment();
+        e.setStudent(student);
+        e.setCourse(course);
+        e.setEnrollmentDate(LocalDateTime.now());
+
+        if (course.getPrice() == 0) {
+            e.setPaymentStatus(Enrollment.PaymentStatus.PAID);
+        } else {
+            // trigger payment workflow; PENDING sampai status PAID
+            e.setPaymentStatus(Enrollment.PaymentStatus.PENDING);
+            // TODO: call PaymentService / publish event
+        }
+
+        return enrollRepo.save(e).getId();
+    }
+
+    @PreAuthorize("hasRole('STUDENT')")
+    public List<EnrollmentDto> myCourses(User student) {
+        return enrollRepo.findByStudentId(student.getId()).stream()
+                .filter(e -> e.getPaymentStatus() == Enrollment.PaymentStatus.PAID
+                          || e.getCourse().getPrice() == 0)
+                .map(e -> new EnrollmentDto(
+                        e.getId(),
+                        e.getCourse().getId(),
+                        e.getCourse().getName(),
+                        e.getEnrollmentDate(),
+                        e.getPaymentStatus().name()))
+                .toList();
+    }
+}
