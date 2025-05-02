@@ -1,4 +1,9 @@
 package id.ac.ui.cs.advprog.udehnihh.service;
+import id.ac.ui.cs.advprog.udehnihh.model.Course;
+import id.ac.ui.cs.advprog.udehnihh.repository.CourseRepository;
+import id.ac.ui.cs.advprog.udehnihh.strategy.CourseSearchStrategy;
+import java.util.List;
+import java.util.Optional;
 
 public class CourseService {
     private final CourseRepository courseRepository;

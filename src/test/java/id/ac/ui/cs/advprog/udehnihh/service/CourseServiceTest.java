@@ -1,7 +1,18 @@
 package id.ac.ui.cs.advprog.udehnihh.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
+import java.util.List;
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import id.ac.ui.cs.advprog.udehnihh.model.Course;
+import id.ac.ui.cs.advprog.udehnihh.repository.CourseRepository;
+import id.ac.ui.cs.advprog.udehnihh.strategy.CourseSearchStrategy;
 
 public class CourseServiceTest {
     private CourseRepository courseRepository;

@@ -1,4 +1,7 @@
 package id.ac.ui.cs.advprog.udehnihh.factory;
+import id.ac.ui.cs.advprog.udehnihh.model.Course;
+import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
+import java.util.ArrayList;
 
 public class CourseFactory {
     public Course createFreeCourse(String name, String description, User tutor) {

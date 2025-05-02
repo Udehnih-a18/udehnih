@@ -1,4 +1,15 @@
 package id.ac.ui.cs.advprog.udehnihh.service;
+import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
+import id.ac.ui.cs.advprog.udehnihh.exception.AlreadyEnrolledException;
+import id.ac.ui.cs.advprog.udehnihh.exception.ResourceNotFoundException;
+import id.ac.ui.cs.advprog.udehnihh.model.Course;
+import id.ac.ui.cs.advprog.udehnihh.model.Enrollment;
+import id.ac.ui.cs.advprog.udehnihh.observer.EnrollmentObserver;
+import id.ac.ui.cs.advprog.udehnihh.repository.CourseRepository;
+import id.ac.ui.cs.advprog.udehnihh.repository.EnrollmentRepository;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class EnrollmentService {
     private final EnrollmentRepository enrollmentRepository;

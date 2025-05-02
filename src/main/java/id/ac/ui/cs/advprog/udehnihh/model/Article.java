@@ -30,4 +30,8 @@ public class Article {
 
     @Column(name = "content_text", nullable = false, length = 1000)
     private String contentText;
+    
+    @ManyToOne
+    @JoinColumn(name = "section_id", nullable = false)
+    private Section section;
 }

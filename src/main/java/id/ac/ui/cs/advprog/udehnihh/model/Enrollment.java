@@ -1,15 +1,43 @@
 package id.ac.ui.cs.advprog.udehnihh.model;
 
-import org.springframework.security.core.userdetails.User;
+import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+@Table(name = "enrollments")
 public class Enrollment {
-    private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+    
+    @ManyToOne
+    @JoinColumn(name = "student_id", nullable = false)
     private User student;
-    private Course course;
+    
+    @ManyToOne
+    @JoinColumn(name = "course_id", nullable = false)
+    private User course;
+    
+    @Column(name = "enrollment_date", nullable = false)
     private LocalDateTime enrollmentDate;
-    private String paymentStatus; // PENDING, PAID, FAILED
-
-    // Getters, setters, constructors
+    
+    @Enumerated(EnumType.STRING)
+    @Column(name = "payment_status", nullable = false)
+    private PaymentStatus paymentStatus;
+    
+    // Enum for payment status
+    public enum PaymentStatus {
+        PENDING, PAID, FAILED
+    }
 }
