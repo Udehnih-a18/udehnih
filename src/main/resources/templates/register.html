@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Udehnih - Register</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-teal-50 min-h-screen flex items-center justify-center">
+    <div class="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl border border-teal-200">
+        <h2 class="text-3xl font-bold text-teal-600 mb-6 text-center">Join Udehnih! ✨</h2>
+        
+        <form th:action="@{/auth/register}" method="post" class="space-y-4" th:object="${user}">
+            <div>
+                <label class="block text-teal-700 font-semibold mb-1" for="fullName">Full Name</label>
+                <input type="text" th:field="*{fullName}" id="fullName" required
+                       class="w-full px-4 py-2 border border-teal-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
+            </div>
+            <div>
+                <label class="block text-teal-700 font-semibold mb-1" for="email">Email</label>
+                <input type="email" th:field="*{email}" id="email" required
+                       class="w-full px-4 py-2 border border-teal-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
+            </div>
+            <div>
+                <label class="block text-teal-700 font-semibold mb-1" for="password">Password</label>
+                <input type="password" th:field="*{password}" id="password" required
+                       class="w-full px-4 py-2 border border-teal-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
+            </div>
+            <div>
+                <label class="block text-teal-700 font-semibold mb-1" for="phoneNumber">Phone Number</label>
+                <input type="text" th:field="*{phoneNumber}" id="phoneNumber" required
+                       class="w-full px-4 py-2 border border-teal-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
+            </div>
+            <div>
+                <label class="block text-teal-700 font-semibold mb-1" for="birthDate">Birthdate</label>
+                <input type="date" th:field="*{birthDate}" id="birthDate" required
+                       class="w-full px-4 py-2 border border-teal-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
+            </div>
+
+            <!-- Hidden fields -->
+            <input type="hidden" th:field="*{gender}" value="Student">
+            <input type="hidden" th:field="*{registrationDate}" th:value="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}">
+
+            <button type="submit"
+                    class="w-full bg-teal-600 text-white py-2 rounded-lg hover:bg-teal-700 transition">
+                Register Now 💫
+            </button>
+        </form>
+
+        <p class="mt-4 text-sm text-teal-700 text-center">
+            Already have an account? <a href="/auth/login" class="text-teal-900 font-semibold hover:underline">Login</a>
+        </p>
+    </div>
+</body>
+</html>
