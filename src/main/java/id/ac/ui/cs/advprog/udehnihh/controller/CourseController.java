@@ -8,7 +8,7 @@ import id.ac.ui.cs.advprog.udehnihh.model.Course;
 import id.ac.ui.cs.advprog.udehnihh.model.Section;
 import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
 import id.ac.ui.cs.advprog.udehnihh.repository.ArticleRepository;
-import id.ac.ui.cs.advprog.udehnihh.repository.CourseRepository;
+import id.ac.ui.cs.advprog.udehnihh.repository.CourseCreationRepository;
 import id.ac.ui.cs.advprog.udehnihh.repository.SectionRepository;
 import id.ac.ui.cs.advprog.udehnihh.authentication.repository.UserRepository;
 
@@ -23,7 +23,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class CourseController {
 
-    private final CourseRepository courseRepository;
+    private final CourseCreationRepository courseRepository;
     private final SectionRepository sectionRepository;
     private final ArticleRepository articleRepository;
     private final UserRepository userRepository;

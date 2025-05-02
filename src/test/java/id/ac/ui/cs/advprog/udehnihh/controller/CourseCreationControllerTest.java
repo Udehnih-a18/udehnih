@@ -17,13 +17,13 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-class CourseControllerTest {
+class CourseCreationControllerTest {
 
     @InjectMocks
     private CourseController courseController;
 
     @Mock
-    private CourseRepository courseRepository;
+    private CourseCreationRepository courseRepository;
 
     @Mock
     private SectionRepository sectionRepository;

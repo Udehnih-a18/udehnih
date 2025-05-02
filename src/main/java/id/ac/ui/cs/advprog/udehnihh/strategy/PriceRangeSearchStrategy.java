@@ -1,12 +1,12 @@
 package id.ac.ui.cs.advprog.udehnihh.strategy;
 import id.ac.ui.cs.advprog.udehnihh.model.Course;
-import id.ac.ui.cs.advprog.udehnihh.repository.CourseRepository;
+import id.ac.ui.cs.advprog.udehnihh.repository.CourseCreationRepository;
 import java.util.List;
 
 public class PriceRangeSearchStrategy implements CourseSearchStrategy {
-    private final CourseRepository courseRepository;
+    private final CourseCreationRepository courseRepository;
 
-    public PriceRangeSearchStrategy(CourseRepository courseRepository) {
+    public PriceRangeSearchStrategy(CourseCreationRepository courseRepository) {
         this.courseRepository = courseRepository;
     }
 

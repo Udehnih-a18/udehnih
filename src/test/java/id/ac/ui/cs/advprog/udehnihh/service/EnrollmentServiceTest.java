@@ -6,19 +6,19 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import id.ac.ui.cs.advprog.udehnihh.observer.EnrollmentObserver;
-import id.ac.ui.cs.advprog.udehnihh.repository.CourseRepository;
+import id.ac.ui.cs.advprog.udehnihh.repository.CourseCreationRepository;
 import id.ac.ui.cs.advprog.udehnihh.repository.EnrollmentRepository;
 
 public class EnrollmentServiceTest {
     private EnrollmentRepository enrollmentRepository;
-    private CourseRepository courseRepository;
+    private CourseCreationRepository courseRepository;
     private EnrollmentService enrollmentService;
     private EnrollmentObserver observer;
 
     @BeforeEach
     public void setup() {
         enrollmentRepository = mock(EnrollmentRepository.class);
-        courseRepository = mock(CourseRepository.class);
+        courseRepository = mock(CourseCreationRepository.class);
         enrollmentService = new EnrollmentService(enrollmentRepository, courseRepository);
         observer = mock(EnrollmentObserver.class);
         enrollmentService.addObserver(observer);
