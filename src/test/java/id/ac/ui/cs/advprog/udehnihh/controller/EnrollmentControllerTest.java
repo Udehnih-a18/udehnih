@@ -1,4 +1,9 @@
 package id.ac.ui.cs.advprog.udehnihh.controller;
+import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
+import id.ac.ui.cs.advprog.udehnihh.model.Course;
+import id.ac.ui.cs.advprog.udehnihh.model.Enrollment;
+import id.ac.ui.cs.advprog.udehnihh.service.EnrollmentService;
+import org.junit.jupiter.api.Test;
 
 @WebMvcTest(EnrollmentController.class)
 public class EnrollmentControllerTest {

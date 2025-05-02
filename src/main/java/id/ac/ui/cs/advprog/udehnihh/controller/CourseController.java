@@ -6,6 +6,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import id.ac.ui.cs.advprog.udehnihh.service.CourseService;
+import id.ac.ui.cs.advprog.udehnihh.model.Course;
+import id.ac.ui.cs.advprog.udehnihh.exception.ResourceNotFoundException;
+import org.springframework.ui.Model;
+
 @Controller
 @RequestMapping("/courses")
 public class CourseController {

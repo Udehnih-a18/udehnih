@@ -1,5 +1,23 @@
 package id.ac.ui.cs.advprog.udehnihh.controller;
 
+import id.ac.ui.cs.advprog.udehnihh.model.Course;
+import id.ac.ui.cs.advprog.udehnihh.service.CourseService;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.view.RedirectView;
+import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
+
+import java.util.Arrays;
+import java.util.List;
+
 @WebMvcTest(CourseController.class)
 public class CourseControllerTest {
 
