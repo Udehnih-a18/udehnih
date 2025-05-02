@@ -28,8 +28,6 @@ public class CourseController {
     private final ArticleRepository articleRepository;
     private final UserRepository userRepository;
 
-    // ===================== COURSE =====================
-
     @PostMapping
     public ResponseEntity<Course> createCourse(@RequestBody CourseRequest request) {
         Optional<User> tutor = userRepository.findById(request.getTutorId());
