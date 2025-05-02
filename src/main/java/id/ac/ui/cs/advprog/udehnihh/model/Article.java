@@ -1,11 +1,33 @@
 package id.ac.ui.cs.advprog.udehnihh.model;
 
-public class Article {
-    private Long id;
-    private String title;
-    private String content;
-    private String type; // text, image, link
-    private Section section;
+import java.util.UUID;
 
-    // Getters, setters, constructors
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+@Entity
+@Table(name = "articles")
+public class Article {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
+    @Column(name = "content_type", nullable = false)
+    private String contentType;
+
+    @Column(name = "content_url", nullable = false)
+    private String contentUrl;
+
+    @Column(name = "content_description", nullable = false)
+    private String contentDescription;
+
+    @Column(name = "content_title", nullable = false)
+    private String contentTitle;
+
+    @Column(name = "content_text", nullable = false, length = 1000)
+    private String contentText;
 }

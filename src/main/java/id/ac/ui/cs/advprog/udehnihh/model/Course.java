@@ -1,16 +1,36 @@
 package id.ac.ui.cs.advprog.udehnihh.model;
 
-import org.springframework.security.core.userdetails.User;
+import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
+@Getter
+@Setter
+@Entity
+@Table(name = "courses")
 public class Course {
-    private Long id;
-    private String name;
-    private String description;
-    private User tutor;
-    private Double price;
-    private List<Section> sections;
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
-    // Getters, setters, constructors
+    @Column(nullable = false)
+    private String name;
+
+    @Column(nullable = false, length = 1000)
+    private String description;
+
+    @ManyToOne
+    @JoinColumn(name = "tutor_id", nullable = false)
+    private User tutor;
+
+    @Column(nullable = false)
+    private Double price;
+
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Section> sections = new ArrayList<>();
 }
