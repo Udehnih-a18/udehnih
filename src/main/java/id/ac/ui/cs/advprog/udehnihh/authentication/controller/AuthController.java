@@ -28,7 +28,7 @@ public class AuthController {
         try {
             User user = userService.authenticate(email, password);
             session.setAttribute("user", user);
-            return "redirect:/";
+            return "redirect:/homepage";
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());
             return "login";
@@ -45,7 +45,7 @@ public class AuthController {
     public String processRegister(@ModelAttribute User user, Model model) {
         try {
             userService.registerUser(user);
-            return "redirect:/login";
+            return "redirect:/auth/login";
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());
             return "register";
