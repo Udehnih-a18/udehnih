@@ -20,7 +20,7 @@ import static org.mockito.Mockito.*;
 class CourseCreationControllerTest {
 
     @InjectMocks
-    private CourseController courseController;
+    private CourseCreationController courseController;
 
     @Mock
     private CourseCreationRepository courseRepository;

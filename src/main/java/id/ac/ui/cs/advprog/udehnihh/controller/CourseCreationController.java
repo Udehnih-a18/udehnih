@@ -21,7 +21,7 @@ import java.util.*;
 @RestController
 @RequestMapping("/courses")
 @RequiredArgsConstructor
-public class CourseController {
+public class CourseCreationController {
 
     private final CourseCreationRepository courseRepository;
     private final SectionRepository sectionRepository;
