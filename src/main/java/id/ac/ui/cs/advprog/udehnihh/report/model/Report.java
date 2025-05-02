@@ -1,6 +1,5 @@
-package id.ac.ui.cs.advprog.udehnihh.model;
+package id.ac.ui.cs.advprog.udehnihh.report.model;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 

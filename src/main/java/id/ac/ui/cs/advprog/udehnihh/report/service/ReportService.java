@@ -1,6 +1,7 @@
-package id.ac.ui.cs.advprog.udehnihh.service;
+package id.ac.ui.cs.advprog.udehnihh.report.service;
 
-import id.ac.ui.cs.advprog.udehnihh.model.Report;
+import id.ac.ui.cs.advprog.udehnihh.report.model.Report;
+
 import java.util.List;
 
 public interface ReportService {

@@ -1,6 +1,6 @@
-package id.ac.ui.cs.advprog.udehnihh.repository;
+package id.ac.ui.cs.advprog.udehnihh.report.repository;
 
-import id.ac.ui.cs.advprog.udehnihh.model.Report;
+import id.ac.ui.cs.advprog.udehnihh.report.model.Report;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;

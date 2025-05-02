@@ -1,4 +1,4 @@
-package id.ac.ui.cs.advprog.udehnihh.model;
+package id.ac.ui.cs.advprog.udehnihh.report.model;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
