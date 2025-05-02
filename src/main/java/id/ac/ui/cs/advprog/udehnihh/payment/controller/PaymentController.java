@@ -1,10 +1,12 @@
 package id.ac.ui.cs.advprog.udehnihh.payment.controller;
 
-import id.ac.ui.cs.advprog.udehnihh.payment.enums.TransactionStatus;
+import id.ac.ui.cs.advprog.udehnihh.payment.model.BankTransferTransaction;
+import id.ac.ui.cs.advprog.udehnihh.payment.model.CreditCardTransaction;
 import id.ac.ui.cs.advprog.udehnihh.payment.model.Transaction;
-import id.ac.ui.cs.advprog.udehnihh.payment.service.PaymentService;
+import id.ac.ui.cs.advprog.udehnihh.payment.service.PaymentServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,24 +17,36 @@ import java.util.UUID;
 public class PaymentController {
 
     @Autowired
-    private PaymentService service;
+    private PaymentServiceImpl service;
+
+    @GetMapping("/bankTransfer")
+    public String bankTransferPage(Model model) {
+        BankTransferTransaction bankTransferTransaction = new BankTransferTransaction();
+        model.addAttribute("bankTransferTransaction", bankTransferTransaction);
+        return "PayByBankTransfer";
+    }
 
     @PostMapping("/create")
-    public ResponseEntity<Transaction> pay(@RequestBody Transaction transaction) {
-        Transaction tx = new Transaction();
-        tx.setCourseName(transaction.getCourseName());
-        tx.setTutorName(transaction.getTutorName());
-        tx.setPrice(transaction.getPrice());
-        tx.setMethod(transaction.getMethod());
-        tx.setStatus(TransactionStatus.PENDING); // default
-        tx.setStudent(transaction.getStudent()); // set student
-
-        Transaction saved = service.createTransaction(tx, request);
+    public ResponseEntity<Transaction> payByBankTransfer(@ModelAttribute("bankTransferTransaction") BankTransferTransaction bankTransferTransaction) {
+        Transaction saved = service.createTransaction(bankTransferTransaction);
         return ResponseEntity.ok(saved);
     }
 
-    @GetMapping("/student/{id}")
+    @GetMapping("/creditCard")
+    public String creditCardPage(Model model) {
+        CreditCardTransaction creditCardTransaction = new CreditCardTransaction();
+        model.addAttribute("creditCardTransaction", creditCardTransaction);
+        return "PayByCreditCard";
+    }
+
+    @PostMapping("/create")
+    public ResponseEntity<Transaction> payByCreditCard(@ModelAttribute("bankTransferTransaction") CreditCardTransaction creditCardTransaction) {
+        Transaction saved = service.createTransaction(creditCardTransaction);
+        return ResponseEntity.ok(saved);
+    }
+
+    @GetMapping("/transactionHistory")
     public List<Transaction> history(@PathVariable UUID id) {
-        return service.getTransactionsForStudent(id);
+        return service.getTransactionHistory(id);
     }
 }

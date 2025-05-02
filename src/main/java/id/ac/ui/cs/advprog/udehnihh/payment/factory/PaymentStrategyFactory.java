@@ -1,4 +1,4 @@
-package id.ac.ui.cs.advprog.udehnihh.payment.service;
+package id.ac.ui.cs.advprog.udehnihh.payment.strategy;
 
 import id.ac.ui.cs.advprog.udehnihh.payment.enums.PaymentMethod;
 import org.springframework.beans.factory.annotation.Autowired;
