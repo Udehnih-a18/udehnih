@@ -8,16 +8,41 @@ jobs:
   test:
     name: Run tests
     runs-on: ubuntu-22.04
+
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: udehnih
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres" 
+          --health-interval=10s 
+          --health-timeout=5s 
+          --health-retries=5
+
     steps:
       - name: Check out the Git repository
         uses: actions/checkout@v4
+
       - name: Set up Java toolchain
         uses: actions/setup-java@v4
         with:
           distribution: "temurin"
           java-version: "21"
           cache: "gradle"
+
       - name: Add gradlew permission
         run: chmod +x gradlew
+
+      - name: Set up PostgreSQL JDBC connection
+        run: |
+          echo "spring.datasource.url=jdbc:postgresql://localhost:5432/udehnih" >> src/main/resources/application.properties
+          echo "spring.datasource.username=postgres" >> src/main/resources/application.properties
+          echo "spring.datasource.password=password" >> src/main/resources/application.properties
+
       - name: Run unit tests
         run: ./gradlew test
