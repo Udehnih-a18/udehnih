@@ -21,7 +21,7 @@ public abstract class TransactionRepository<T extends Transaction> {
         return transactions.iterator();
     }
 
-    public T findTransactionById(int id) {
+    public T findTransactionById(UUID id) {
         for (T transaction : transactions) {
             if (transaction.getId().equals(id)) {
                 return transaction;

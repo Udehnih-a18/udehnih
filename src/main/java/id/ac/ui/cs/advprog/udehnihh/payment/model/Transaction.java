@@ -31,9 +31,13 @@ public class Transaction {
 
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    public Transaction(Course course, PaymentMethod method, User student) {
+    public Transaction(Course course, User student, PaymentMethod method, String accountNumber) {
         this.courseName = course.getName;
-        this.courseTutorName = course.getTutorName;
-        this.coursePrice = course.getPrice;
+        this.tutorName = course.getTutorName;
+        this.price = course.getPrice;
+        this.student = student;
+        this.method = method;
+        this.accountNumber = accountNumber;
+        this.status = TransactionStatus.PENDING;
     }
 }
