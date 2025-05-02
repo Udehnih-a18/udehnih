@@ -22,11 +22,6 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public Report getReportById(String id) {
-        return reportRepository.findById(id);
-    }
-
-    @Override
     public Report updateReport(String reportId, String title, String description) {
         Report report = reportRepository.findById(reportId);
         if (report != null) {
@@ -37,10 +32,5 @@ public class ReportServiceImpl implements ReportService {
         } else {
             throw new NoSuchElementException();
         }
-    }
-
-    @Override
-    public void deleteReport(String id) {
-        reportRepository.delete(id);
     }
 }
