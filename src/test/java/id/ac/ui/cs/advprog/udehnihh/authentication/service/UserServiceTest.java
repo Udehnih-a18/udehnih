@@ -4,7 +4,6 @@ import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
 import id.ac.ui.cs.advprog.udehnihh.authentication.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
