@@ -1,67 +1,43 @@
 package id.ac.ui.cs.advprog.udehnihh.model;
 
 import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+@Table(name = "enrollments")
 public class Enrollment {
-    private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+    
+    @ManyToOne
+    @JoinColumn(name = "student_id", nullable = false)
     private User student;
-    private Course course;
+    
+    @ManyToOne
+    @JoinColumn(name = "course_id", nullable = false)
+    private User course;
+    
+    @Column(name = "enrollment_date", nullable = false)
     private LocalDateTime enrollmentDate;
-    private String paymentStatus; // PENDING, PAID, FAILED
-
-    public Enrollment() {
-    }
-
-    // Constructor
-    public Enrollment(Long id, User student, Course course, LocalDateTime enrollmentDate, String paymentStatus) {
-        this.id = id;
-        this.student = student;
-        this.course = course;
-        this.enrollmentDate = enrollmentDate;
-        this.paymentStatus = paymentStatus;
-    }
-
-    // Getters
-    public Long getId() {
-        return id;
-    }
-
-    public User getStudent() {
-        return student;
-    }
-
-    public Course getCourse() {
-        return course;
-    }
-
-    public LocalDateTime getEnrollmentDate() {
-        return enrollmentDate;
-    }
-
-    public String getPaymentStatus() {
-        return paymentStatus;
-    }
-
-    // Setters
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setStudent(User student) {
-        this.student = student;
-    }
-
-    public void setCourse(Course course) {
-        this.course = course;
-    }
-
-    public void setEnrollmentDate(LocalDateTime enrollmentDate) {
-        this.enrollmentDate = enrollmentDate;
-    }
-
-    public void setPaymentStatus(String paymentStatus) {
-        this.paymentStatus = paymentStatus;
+    
+    @Enumerated(EnumType.STRING)
+    @Column(name = "payment_status", nullable = false)
+    private PaymentStatus paymentStatus;
+    
+    // Enum for payment status
+    public enum PaymentStatus {
+        PENDING, PAID, FAILED
     }
 }
