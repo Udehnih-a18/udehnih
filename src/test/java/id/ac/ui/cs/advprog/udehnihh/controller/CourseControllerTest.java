@@ -1,83 +1,148 @@
 package id.ac.ui.cs.advprog.udehnihh.controller;
 
+import id.ac.ui.cs.advprog.udehnihh.dto.CourseRequest;
 import id.ac.ui.cs.advprog.udehnihh.model.Course;
-import id.ac.ui.cs.advprog.udehnihh.service.CourseService;
+import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
+import id.ac.ui.cs.advprog.udehnihh.authentication.repository.UserRepository;
+import id.ac.ui.cs.advprog.udehnihh.repository.*;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.view.RedirectView;
-import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
+import org.mockito.*;
+import org.springframework.http.ResponseEntity;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
-@WebMvcTest(CourseController.class)
-public class CourseControllerTest {
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-    @Autowired
-    private MockMvc mockMvc;
+class CourseControllerTest {
 
-    @MockBean
-    private CourseService courseService;
+    @InjectMocks
+    private CourseController courseController;
 
-    @Test
-    public void testListCourses() throws Exception {
-        // Arrange
-        List<Course> courses = Arrays.asList(
-                new Course(1L, "Java Basic", "Learn Java", new User(), 50000.0, new ArrayList<>()),
-                new Course(2L, "Web Development", "Learn HTML, CSS, JS", new User(), 75000.0, new ArrayList<>())
-        );
-        when(courseService.getAllCourses()).thenReturn(courses);
+    @Mock
+    private CourseRepository courseRepository;
 
-        // Act & Assert
-        mockMvc.perform(get("/courses"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("course-list"))
-                .andExpect(model().attribute("courses", hasSize(2)));
+    @Mock
+    private SectionRepository sectionRepository;
+
+    @Mock
+    private ArticleRepository articleRepository;
+
+    @Mock
+    private UserRepository userRepository;
+
+    private AutoCloseable closeable;
+
+    private UUID userId;
+    private User tutor;
+    private CourseRequest courseRequest;
+    private Course course;
+
+    @BeforeEach
+    void setUp() {
+        closeable = MockitoAnnotations.openMocks(this);
+        userId = UUID.randomUUID();
+        tutor = new User();
+        tutor.setId(userId);
+
+        courseRequest = new CourseRequest();
+        courseRequest.setName("Course Name");
+        courseRequest.setDescription("Course Desc");
+        courseRequest.setPrice(100000.0);
+        courseRequest.setTutorId(userId);
+
+        course = new Course();
+        course.setId(UUID.randomUUID());
+        course.setName(courseRequest.getName());
+        course.setDescription(courseRequest.getDescription());
+        course.setPrice(courseRequest.getPrice());
+        course.setTutor(tutor);
     }
 
     @Test
-    public void testCourseDetail() throws Exception {
-        // Arrange
-        Course course = new Course(1L, "Java Basic", "Learn Java", new User(), 50000.0, new ArrayList<>());
-        when(courseService.getCourseById(1L)).thenReturn(Optional.of(course));
+    void testCreateCourseSuccess() {
+        when(userRepository.findById(userId)).thenReturn(Optional.of(tutor));
+        when(courseRepository.save(any(Course.class))).thenReturn(course);
 
-        // Act & Assert
-        mockMvc.perform(get("/courses/1"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("course-detail"))
-                .andExpect(model().attributeExists("course"));
+        ResponseEntity<Course> response = courseController.createCourse(courseRequest);
+
+        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(course.getName(), response.getBody().getName());
+        verify(courseRepository, times(1)).save(any(Course.class));
     }
 
     @Test
-    public void testCourseDetail_NotFound() throws Exception {
-        // Arrange
-        when(courseService.getCourseById(1L)).thenReturn(Optional.empty());
+    void testCreateCourseUserNotFound() {
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        // Act & Assert
-        mockMvc.perform(get("/courses/1"))
-                .andExpect(status().isNotFound());
+        ResponseEntity<Course> response = courseController.createCourse(courseRequest);
+
+        assertEquals(400, response.getStatusCodeValue());
+        verify(courseRepository, never()).save(any());
     }
 
     @Test
-    public void testSearchCourses() throws Exception {
-        // Arrange
-        List<Course> courses = Arrays.asList(
-                new Course(1L, "Java Basic", "Learn Java", new User(), 50000.0, new ArrayList<>())
-        );
-        when(courseService.searchCourses("Java")).thenReturn(courses);
+    void testGetCoursesByTutor() {
+        UUID tutorId = UUID.randomUUID();
+        List<Course> courseList = List.of(course);
+        when(courseRepository.findByTutorId(tutorId)).thenReturn(courseList);
 
-        // Act & Assert
-        mockMvc.perform(get("/courses/search").param("query", "Java"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("course-list"))
-                .andExpect(model().attribute("courses", hasSize(1)));
+        ResponseEntity<List<Course>> response = courseController.getCoursesByTutor(tutorId);
+
+        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(courseList, response.getBody());
+    }
+
+    @Test
+    void testGetCourseDetailFound() {
+        UUID courseId = UUID.randomUUID();
+        when(courseRepository.findById(courseId)).thenReturn(Optional.of(course));
+
+        ResponseEntity<Course> response = courseController.getCourseDetail(courseId);
+
+        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(course.getName(), response.getBody().getName());
+    }
+
+    @Test
+    void testGetCourseDetailNotFound() {
+        UUID courseId = UUID.randomUUID();
+        when(courseRepository.findById(courseId)).thenReturn(Optional.empty());
+
+        ResponseEntity<Course> response = courseController.getCourseDetail(courseId);
+
+        assertEquals(404, response.getStatusCodeValue());
+        assertNull(response.getBody());
+    }
+
+    @Test
+    void testDeleteCourseSuccess() {
+        UUID courseId = UUID.randomUUID();
+        when(courseRepository.existsById(courseId)).thenReturn(true);
+        doNothing().when(courseRepository).deleteById(courseId);
+
+        ResponseEntity<Void> response = courseController.deleteCourse(courseId);
+
+        assertEquals(204, response.getStatusCodeValue());
+        verify(courseRepository).deleteById(courseId);
+    }
+
+    @Test
+    void testDeleteCourseNotFound() {
+        UUID courseId = UUID.randomUUID();
+        when(courseRepository.existsById(courseId)).thenReturn(false);
+
+        ResponseEntity<Void> response = courseController.deleteCourse(courseId);
+
+        assertEquals(404, response.getStatusCodeValue());
+        verify(courseRepository, never()).deleteById(courseId);
+    }
+
+    @AfterEach
+    void tearDown() throws Exception {
+        closeable.close();
     }
 }
