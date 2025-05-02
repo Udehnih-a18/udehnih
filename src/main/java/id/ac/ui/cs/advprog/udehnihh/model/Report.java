@@ -9,17 +9,19 @@ import java.util.UUID;
 
 @Getter
 public class Report {
-    private final String idReport;
-    private final LocalDateTime createdAt;
-    private final LocalDateTime updatedAt;
-    private final String createdBy;
-    private final String author;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private String createdBy;
+    private String author;
 
     @Setter
     private String title;
 
     @Setter
     private String description;
+
+    @Setter
+    private String idReport;
 
     public Report(String createdBy, String author, String title, String description) {
         this.idReport = UUID.randomUUID().toString();
