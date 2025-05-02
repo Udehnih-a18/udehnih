@@ -2,9 +2,12 @@ package id.ac.ui.cs.advprog.udehnihh.authentication.service;
 
 import java.util.UUID;
 
+import org.springframework.stereotype.Service;
+
 import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
 import id.ac.ui.cs.advprog.udehnihh.authentication.repository.UserRepository;
 
+@Service
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
