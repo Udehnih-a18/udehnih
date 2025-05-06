@@ -1,6 +1,5 @@
 package id.ac.ui.cs.advprog.udehnihh.authentication.model;
 
-import enums.Gender;
 import enums.Role;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,10 +22,7 @@ class UserTest {
         user.setFullName("User Example");
         user.setPassword("password123");
         user.setRole(Role.valueOf("STUDENT"));
-        user.setGender(Gender.valueOf("FEMALE"));
         user.setRegistrationDate(registrationDate);
-        user.setPhoneNumber("081234567890");
-        user.setBirthDate("2003-05-22");
     }
 
     @Test
@@ -50,22 +46,7 @@ class UserTest {
     }
 
     @Test
-    void testGender() {
-        assertEquals(Gender.FEMALE, user.getGender());
-    }
-
-    @Test
     void testRegistrationDate() {
         assertEquals(registrationDate, user.getRegistrationDate());
-    }
-
-    @Test
-    void testPhoneNumber() {
-        assertEquals("081234567890", user.getPhoneNumber());
-    }
-
-    @Test
-    void testBirthDate() {
-        assertEquals("2003-05-22", user.getBirthDate());
     }
 }

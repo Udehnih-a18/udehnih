@@ -39,13 +39,13 @@ dependencies {
     runtimeOnly("com.h2database:h2")
     runtimeOnly("org.postgresql:postgresql")
 
-    implementation("io.jsonwebtoken:jjwt-api:0.11.5")
-    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
-    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
+    // implementation("io.jsonwebtoken:jjwt-api:0.11.5")
+    // runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
+    // runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
 
-    implementation("org.springframework.boot:spring-boot-starter-security")
+    // implementation("org.springframework.boot:spring-boot-starter-security")
 
-    implementation("jakarta.validation:jakarta.validation-api:3.0.2")
+    // implementation("jakarta.validation:jakarta.validation-api:3.0.2")
 }
 
 tasks.withType<Test> {
@@ -58,6 +58,10 @@ tasks.test {
     }
 
     finalizedBy(tasks.jacocoTestReport)
+}
+
+tasks.withType<JavaCompile> {
+    options.compilerArgs.add("-parameters")
 }
 
 tasks.jacocoTestReport {
