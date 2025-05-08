@@ -8,6 +8,13 @@ plugins {
 
 }
 
+sonar {
+    properties {
+        property("sonar.projectKey", "udehnih")
+        property("sonar.projectName", "udehnih")
+    }
+}
+
 group = "id.ac.ui.cs.advprog"
 version = "0.0.1-SNAPSHOT"
 
