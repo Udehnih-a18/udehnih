@@ -1,6 +1,5 @@
 package id.ac.ui.cs.advprog.udehnihh.authentication.model;
 
-import enums.Role;
 import lombok.*;
 import jakarta.persistence.*;
 
@@ -8,6 +7,8 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.hibernate.annotations.CreationTimestamp;
+
+import id.ac.ui.cs.advprog.udehnihh.authentication.enums.Role;
 
 @Getter
 @Setter
