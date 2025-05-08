@@ -27,7 +27,7 @@ public class Enrollment {
     
     @ManyToOne
     @JoinColumn(name = "course_id", nullable = false)
-    private User course;
+    private Course course;
     
     @Column(name = "enrollment_date", nullable = false)
     private LocalDateTime enrollmentDate;

@@ -6,6 +6,8 @@ import id.ac.ui.cs.advprog.udehnihh.model.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,6 +20,7 @@ public class CbEnrollmentService {
 
     private final CbEnrollmentRepository enrollRepo;
     private final CbCourseRepository courseRepo;
+    private final ApplicationEventPublisher eventPublisher;
 
     @PreAuthorize("hasRole('STUDENT')")
     public UUID enroll(User student, UUID courseId) {
@@ -38,7 +41,7 @@ public class CbEnrollmentService {
         } else {
             // trigger payment workflow; PENDING sampai status PAID
             e.setPaymentStatus(Enrollment.PaymentStatus.PENDING);
-            // TODO: call PaymentService / publish event
+            eventPublisher.publishEvent(new EnrollmentPaymentPendingEvent(this, e));
         }
 
         return enrollRepo.save(e).getId();
@@ -56,5 +59,23 @@ public class CbEnrollmentService {
                         e.getEnrollmentDate(),
                         e.getPaymentStatus().name()))
                 .toList();
+    }
+}
+
+class EnrollmentPaymentPendingEvent {
+    private final Object source;
+    private final Enrollment enrollment;
+
+    public EnrollmentPaymentPendingEvent(Object source, Enrollment enrollment) {
+        this.source = source;
+        this.enrollment = enrollment;
+    }
+
+    public Object getSource() {
+        return source;
+    }
+
+    public Enrollment getEnrollment() {
+        return enrollment;
     }
 }
