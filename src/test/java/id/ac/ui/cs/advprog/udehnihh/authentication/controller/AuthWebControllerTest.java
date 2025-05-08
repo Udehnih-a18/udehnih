@@ -12,8 +12,8 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(AuthController.class)
-public class AuthControllerTest {
+@WebMvcTest(AuthWebController.class)
+public class AuthWebControllerTest {
 
     @Autowired
     private MockMvc mockMvc;

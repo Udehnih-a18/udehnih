@@ -1,8 +1,9 @@
 package id.ac.ui.cs.advprog.udehnihh.authentication.model;
 
-import enums.Role;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import id.ac.ui.cs.advprog.udehnihh.authentication.enums.Role;
 
 import java.time.LocalDateTime;
 
