@@ -13,7 +13,7 @@ import id.ac.ui.cs.advprog.udehnihh.authentication.service.UserService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/users")
 @RequiredArgsConstructor
 public class UserController {
 
