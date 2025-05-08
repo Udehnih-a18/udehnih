@@ -1,10 +1,11 @@
 plugins {
     java
     jacoco
+    id("org.sonarqube") version "6.0.1.5171"
     id("org.springframework.boot") version "3.4.4"
     id("io.spring.dependency-management") version "1.1.7"
-    kotlin("jvm") version "1.9.22"
-    kotlin("plugin.spring") version "1.9.22"
+    id("co.uzzu.dotenv.gradle") version "2.0.0"
+
 }
 
 group = "id.ac.ui.cs.advprog"
@@ -28,7 +29,7 @@ repositories {
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("org.springframework.boot:spring-boot-starter-web") 
+    implementation("org.springframework.boot:spring-boot-starter-web")
     runtimeOnly("org.postgresql:postgresql:42.7.1")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
@@ -44,6 +45,9 @@ dependencies {
     testImplementation("com.h2database:h2")
     runtimeOnly("com.h2database:h2")
     runtimeOnly("org.postgresql:postgresql")
+
+    implementation("me.paulschwarz:spring-dotenv:4.0.0")
+
 
     // implementation("io.jsonwebtoken:jjwt-api:0.11.5")
     // runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")

@@ -44,7 +44,7 @@ public class UserControllerTest {
     void testGetUserByIdReturnsUser() throws Exception {
         when(userService.getUserById(UUID.fromString("6b0db3f4-b10f-441a-b8b7-5d24a8e7994c"))).thenReturn(user);
 
-        mockMvc.perform(get("/user/6b0db3f4-b10f-441a-b8b7-5d24a8e7994c"))
+        mockMvc.perform(get("/users/6b0db3f4-b10f-441a-b8b7-5d24a8e7994c"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.email").value("user@example.com"))
                 .andExpect(jsonPath("$.fullName").value("User Example"));
