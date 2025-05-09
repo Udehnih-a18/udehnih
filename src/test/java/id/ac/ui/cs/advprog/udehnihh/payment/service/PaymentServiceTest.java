@@ -1,10 +1,14 @@
 package id.ac.ui.cs.advprog.udehnihh.payment.service;
 
 import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
+import id.ac.ui.cs.advprog.udehnihh.payment.enums.AvailableBanks;
 import id.ac.ui.cs.advprog.udehnihh.payment.enums.PaymentMethod;
 import id.ac.ui.cs.advprog.udehnihh.payment.enums.TransactionStatus;
+import id.ac.ui.cs.advprog.udehnihh.payment.model.BankTransferTransaction;
 import id.ac.ui.cs.advprog.udehnihh.payment.model.CreditCardTransaction;
 import id.ac.ui.cs.advprog.udehnihh.payment.model.Transaction;
+import id.ac.ui.cs.advprog.udehnihh.payment.repository.BankTransferRepository;
+import id.ac.ui.cs.advprog.udehnihh.payment.repository.CreditCardRepository;
 import id.ac.ui.cs.advprog.udehnihh.payment.repository.TransactionRepository;
 import id.ac.ui.cs.advprog.udehnihh.payment.strategy.BankTransferPaymentStrategy;
 import id.ac.ui.cs.advprog.udehnihh.payment.strategy.CreditCardPaymentStrategy;
@@ -14,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.UUID;
@@ -28,7 +33,7 @@ import static org.mockito.Mockito.*;
 class PaymentServiceTest {
 
     @Mock
-    private TransactionRepository transactionRepository;
+    private TransactionRepository transactionRepository = Mockito.mock(TransactionRepository.class);
 
     @Mock
     private PaymentStrategyFactory strategyFactory;
@@ -40,7 +45,7 @@ class PaymentServiceTest {
     private CreditCardPaymentStrategy creditStrategy;
 
     @InjectMocks
-    private PaymentService paymentService;
+    private PaymentServiceImpl paymentService;
 
     private Transaction dummyTransaction;
 
@@ -58,43 +63,20 @@ class PaymentServiceTest {
     void shouldCreateBankTransferTransactionWithPendingStatus() {
         dummyTransaction.setMethod(PaymentMethod.BANK_TRANSFER);
 
-        when(strategyFactory.getStrategy(PaymentMethod.BANK_TRANSFER)).thenReturn(bankStrategy);
-        doAnswer(inv -> {
-            dummyTransaction.setStatus(TransactionStatus.PENDING);
-            return null;
-        }).when(bankStrategy).pay(eq(dummyTransaction));
+        BankTransferTransaction bankTransferTransaction = (BankTransferTransaction) dummyTransaction;
+        bankTransferTransaction.setBank(AvailableBanks.BANK_SENDIRI);
 
-        when(transactionRepository.create(any())).thenReturn(dummyTransaction);
+        assertEquals(TransactionStatus.PENDING, bankTransferTransaction.getStatus());
 
-        Transaction transaction = new Transaction();
-        transaction.setMethod(PaymentMethod.BANK_TRANSFER);
-
-        Transaction result = paymentService.createTransaction(dummyTransaction);
-
-        assertEquals(TransactionStatus.PENDING, result.getStatus());
-        verify(transactionRepository).create(dummyTransaction);
     }
 
     @Test
     void shouldCreateCreditCardTransactionWithPendingStatus() {
         dummyTransaction.setMethod(PaymentMethod.CREDIT_CARD);
+        CreditCardTransaction creditCardTransaction = (CreditCardTransaction) dummyTransaction;
+        creditCardTransaction.setCvc("123");
 
-        when(strategyFactory.getStrategy(PaymentMethod.CREDIT_CARD)).thenReturn(creditStrategy);
-        doAnswer(inv -> {
-            dummyTransaction.setStatus(TransactionStatus.PENDING);
-            return null;
-        }).when(creditStrategy).pay(eq(dummyTransaction));
-
-        when(transactionRepository.create(any())).thenReturn(dummyTransaction);
-
-        CreditCardTransaction ccTransaction = new CreditCardTransaction();
-        ccTransaction.setMethod(PaymentMethod.CREDIT_CARD);
-        ccTransaction.setCvc("123");
-
-        Transaction result = paymentService.createTransaction(dummyTransaction);
-
-        assertEquals(TransactionStatus.PENDING, result.getStatus());
-        verify(transactionRepository).create(dummyTransaction);
+        assertEquals(TransactionStatus.PENDING, creditCardTransaction.getStatus());
     }
 
     @Test

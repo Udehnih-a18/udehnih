@@ -13,9 +13,16 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 public class BankTransferTransactionTest {
     @Test
     public void constructorTest() {
+        User student = new User();
+        User tutor = new User();
+
         Course course = new Course();
-        User user = new User();
-        BankTransferTransaction bankTransferTransaction = new BankTransferTransaction(course, user, PaymentMethod.BANK_TRANSFER, "1234567890", AvailableBanks.AMPUN_BANK_JAGO);
+        course.setName("Restauratn");
+        course.setPrice(5.0);
+        course.setTutor(tutor);
+        tutor.setFullName("Robin Smith");
+
+        BankTransferTransaction bankTransferTransaction = new BankTransferTransaction(course, student, PaymentMethod.BANK_TRANSFER, "1234567890", AvailableBanks.AMPUN_BANK_JAGO);
 
         assertEquals(bankTransferTransaction.getCourseName(), course.getName());
         assertEquals(bankTransferTransaction.getTutorName(), course.getTutor().getFullName());

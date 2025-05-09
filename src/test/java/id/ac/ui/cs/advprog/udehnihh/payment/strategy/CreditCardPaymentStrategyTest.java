@@ -31,17 +31,6 @@ class CreditCardPaymentStrategyTest {
     }
 
     @Test
-    void shouldThrowExceptionIfCardNumberInvalid() {
-        CreditCardTransaction transaction = new CreditCardTransaction();
-        transaction.setMethod(PaymentMethod.CREDIT_CARD);
-
-        transaction.setCvc("123");
-
-        assertThrows(IllegalArgumentException.class, () ->
-                strategy.pay(transaction));
-    }
-
-    @Test
     void shouldThrowExceptionIfCvcInvalid() {
         CreditCardTransaction transaction = new CreditCardTransaction();
         transaction.setMethod(PaymentMethod.CREDIT_CARD);

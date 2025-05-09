@@ -13,16 +13,23 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 public class CreditCardTransactionTest {
     @Test
     public void constructorTest() {
+        User student = new User();
+        User tutor = new User();
+
         Course course = new Course();
-        User user = new User();
-        CreditCardTransaction bankTransferTransaction = new CreditCardTransaction(course, user, PaymentMethod.BANK_TRANSFER, "1234567890", "123");
+        course.setName("Restauratn");
+        course.setPrice(5.0);
+        course.setTutor(tutor);
+        tutor.setFullName("Robin Smith");
 
-        assertEquals(bankTransferTransaction.getCourseName(), course.getName());
-        assertEquals(bankTransferTransaction.getTutorName(), course.getTutor().getFullName());
-        assertEquals(bankTransferTransaction.getPrice(), course.getPrice());
-        assertEquals(bankTransferTransaction.getAccountNumber(), "1234567890");
+        CreditCardTransaction credirCardTransaction = new CreditCardTransaction(course, student, PaymentMethod.CREDIT_CARD, "1234567890", "123");
 
-        assertEquals(bankTransferTransaction.getStatus(), TransactionStatus.PENDING);
-        assertEquals(bankTransferTransaction.getMethod(), PaymentMethod.CREDIT_CARD);
+        assertEquals(credirCardTransaction.getCourseName(), course.getName());
+        assertEquals(credirCardTransaction.getTutorName(), course.getTutor().getFullName());
+        assertEquals(credirCardTransaction.getPrice(), course.getPrice());
+        assertEquals(credirCardTransaction.getAccountNumber(), "1234567890");
+
+        assertEquals(credirCardTransaction.getStatus(), TransactionStatus.PENDING);
+        assertEquals(credirCardTransaction.getMethod(), PaymentMethod.CREDIT_CARD);
     }
 }

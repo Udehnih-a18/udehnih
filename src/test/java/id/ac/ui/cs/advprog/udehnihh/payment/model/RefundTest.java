@@ -11,12 +11,18 @@ import org.junit.jupiter.api.Test;
 public class RefundTest {
     @Test
     public void constructorTest() {
+        User student = new User();
+        User tutor = new User();
+
         Course course = new Course();
-        User user = new User();
-        Transaction transaction = new Transaction(course, user, PaymentMethod.BANK_TRANSFER, "1234567890");
+        course.setPrice(5.0);
+        course.setTutor(tutor);
+        course.setName("Restauratn");
+
+        Transaction transaction = new Transaction(course, student, PaymentMethod.BANK_TRANSFER, "1234567890");
         Refund refund = new Refund(transaction, "salah coursee :(");
 
-        assertEquals(refund.getTransaction(), transaction);
+        assertEquals(refund.getTransaction().getId(), transaction.getId());
         assertEquals(refund.getReasonForRefund(), "salah coursee :(");
         assertEquals(refund.getStatus(), RefundStatus.ON_HOLD);
     }
