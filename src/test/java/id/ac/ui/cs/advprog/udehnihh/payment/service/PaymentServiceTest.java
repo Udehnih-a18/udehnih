@@ -3,8 +3,9 @@ package id.ac.ui.cs.advprog.udehnihh.payment.service;
 import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
 import id.ac.ui.cs.advprog.udehnihh.payment.enums.PaymentMethod;
 import id.ac.ui.cs.advprog.udehnihh.payment.enums.TransactionStatus;
+import id.ac.ui.cs.advprog.udehnihh.payment.model.CreditCardTransaction;
 import id.ac.ui.cs.advprog.udehnihh.payment.model.Transaction;
-import id.ac.ui.cs.advprog.udehnihh.payment.repository.TransactionRepositoryTest;
+import id.ac.ui.cs.advprog.udehnihh.payment.repository.TransactionRepository;
 import id.ac.ui.cs.advprog.udehnihh.payment.strategy.BankTransferPaymentStrategy;
 import id.ac.ui.cs.advprog.udehnihh.payment.strategy.CreditCardPaymentStrategy;
 import id.ac.ui.cs.advprog.udehnihh.payment.factory.PaymentStrategyFactory;
@@ -17,16 +18,17 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class PaymentServiceTest {
 
     @Mock
-    private TransactionRepositoryTest transactionRepository;
+    private TransactionRepository transactionRepository;
 
     @Mock
     private PaymentStrategyFactory strategyFactory;
@@ -49,7 +51,7 @@ class PaymentServiceTest {
         dummyTransaction.setCourseName("Spring Boot Mastery");
         dummyTransaction.setTutorName("Jane Doe");
         dummyTransaction.setPrice(250000);
-        dummyTransaction.setStudent(new User(UUID.randomUUID(), "Budi"));
+        dummyTransaction.setStudent(new User());
     }
 
     @Test
@@ -60,17 +62,17 @@ class PaymentServiceTest {
         doAnswer(inv -> {
             dummyTransaction.setStatus(TransactionStatus.PENDING);
             return null;
-        }).when(bankStrategy).pay(eq(dummyTransaction), any());
+        }).when(bankStrategy).pay(eq(dummyTransaction));
 
-        when(transactionRepository.save(any())).thenReturn(dummyTransaction);
+        when(transactionRepository.create(any())).thenReturn(dummyTransaction);
 
-        PaymentRequest request = new PaymentRequest();
-        request.setMethod(PaymentMethod.BANK_TRANSFER);
+        Transaction transaction = new Transaction();
+        transaction.setMethod(PaymentMethod.BANK_TRANSFER);
 
-        Transaction result = paymentService.createTransaction(dummyTransaction, request);
+        Transaction result = paymentService.createTransaction(dummyTransaction);
 
         assertEquals(TransactionStatus.PENDING, result.getStatus());
-        verify(transactionRepository).save(dummyTransaction);
+        verify(transactionRepository).create(dummyTransaction);
     }
 
     @Test
@@ -81,35 +83,33 @@ class PaymentServiceTest {
         doAnswer(inv -> {
             dummyTransaction.setStatus(TransactionStatus.PENDING);
             return null;
-        }).when(creditStrategy).pay(eq(dummyTransaction), any());
+        }).when(creditStrategy).pay(eq(dummyTransaction));
 
-        when(transactionRepository.save(any())).thenReturn(dummyTransaction);
+        when(transactionRepository.create(any())).thenReturn(dummyTransaction);
 
-        CreditCardPaymentRequest request = new CreditCardPaymentRequest();
-        request.setMethod(PaymentMethod.CREDIT_CARD);
-        request.setCardNumber("1234567890123456");
-        request.setCvc("123");
+        CreditCardTransaction ccTransaction = new CreditCardTransaction();
+        ccTransaction.setMethod(PaymentMethod.CREDIT_CARD);
+        ccTransaction.setCvc("123");
 
-        Transaction result = paymentService.createTransaction(dummyTransaction, request);
+        Transaction result = paymentService.createTransaction(dummyTransaction);
 
         assertEquals(TransactionStatus.PENDING, result.getStatus());
-        verify(transactionRepository).save(dummyTransaction);
+        verify(transactionRepository).create(dummyTransaction);
     }
 
     @Test
-    void shouldThrowExceptionWhenCreditCardNumberInvalid() {
+    void shouldThrowExceptionWhenCvcInvalid() {
         dummyTransaction.setMethod(PaymentMethod.CREDIT_CARD);
 
         when(strategyFactory.getStrategy(PaymentMethod.CREDIT_CARD)).thenReturn(creditStrategy);
         doThrow(new IllegalArgumentException("Invalid card number"))
-                .when(creditStrategy).pay(eq(dummyTransaction), any());
+                .when(creditStrategy).pay(eq(dummyTransaction));
 
-        CreditCardPaymentRequest request = new CreditCardPaymentRequest();
+        CreditCardTransaction request = new CreditCardTransaction();
         request.setMethod(PaymentMethod.CREDIT_CARD);
-        request.setCardNumber("123"); // invalid
-        request.setCvc("123");
+        request.setCvc("apa");
 
         assertThrows(IllegalArgumentException.class, () ->
-                paymentService.createTransaction(dummyTransaction, request));
+                paymentService.createTransaction(dummyTransaction));
     }
 }

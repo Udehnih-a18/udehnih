@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public abstract class TransactionRepository<T extends Transaction> {
+public class TransactionRepository<T extends Transaction> {
     protected List<T> transactions = new ArrayList<>();
 
     public T create(T transaction) {

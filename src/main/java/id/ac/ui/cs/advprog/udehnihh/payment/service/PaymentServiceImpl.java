@@ -16,7 +16,7 @@ import java.util.UUID;
 @Service
 public class PaymentServiceImpl implements PaymentService {
     @Autowired
-    private TransactionRepository transactionRepository;
+    private TransactionRepository transactionRepository = new TransactionRepository();
 
     @Autowired
     private PaymentStrategyFactory strategyFactory;

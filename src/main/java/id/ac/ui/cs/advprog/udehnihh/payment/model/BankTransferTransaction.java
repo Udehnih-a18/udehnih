@@ -11,6 +11,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class BankTransferTransaction extends Transaction {
     private AvailableBanks bank;
     private boolean alreadyTransferred;
