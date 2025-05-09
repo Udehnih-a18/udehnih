@@ -1,5 +1,7 @@
 package id.ac.ui.cs.advprog.udehnihh.payment.model;
 
+import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
+import id.ac.ui.cs.advprog.udehnihh.course.model.Course;
 import id.ac.ui.cs.advprog.udehnihh.payment.enums.PaymentMethod;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

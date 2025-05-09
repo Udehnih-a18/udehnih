@@ -3,8 +3,8 @@ package id.ac.ui.cs.advprog.udehnihh.course.mapper;
 import id.ac.ui.cs.advprog.udehnihh.course.dto.CourseDetailDto;
 import id.ac.ui.cs.advprog.udehnihh.course.dto.CourseSummaryDto;
 import id.ac.ui.cs.advprog.udehnihh.course.model.Course;
-import id.ac.ui.cs.advprog.udehnihh.model.*;
-import id.ac.ui.cs.advprog.udehnihh.dto.*;
+import id.ac.ui.cs.advprog.udehnihh.course.model.*;
+import id.ac.ui.cs.advprog.udehnihh.course.dto.*;
 
 import java.util.stream.Collectors;
 

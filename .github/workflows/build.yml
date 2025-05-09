@@ -38,3 +38,11 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         run: ./gradlew build sonar --info
+      - name: Show failed test output (if any)
+        if: failure()
+        run: |
+          echo "=== FAILED TEST REPORTS ==="
+          find build/reports/tests/test -name "*.html" || echo "No HTML test report found"
+          find build/reports/tests/test -name "*.xml" || echo "No XML test report found"
+          echo "=== LOG OUTPUT (tail) ==="
+          tail -n 100 build/reports/tests/test/*.xml || echo "No XML logs found"

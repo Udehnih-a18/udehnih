@@ -1,5 +1,7 @@
 package id.ac.ui.cs.advprog.udehnihh.payment.model;
 
+import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
+import id.ac.ui.cs.advprog.udehnihh.course.model.Course;
 import id.ac.ui.cs.advprog.udehnihh.payment.enums.PaymentMethod;
 import id.ac.ui.cs.advprog.udehnihh.payment.enums.TransactionStatus;
 import lombok.AllArgsConstructor;
@@ -33,7 +35,7 @@ public class Transaction {
 
     public Transaction(Course course, User student, PaymentMethod method, String accountNumber) {
         this.courseName = course.getName();
-        this.tutorName = course.getTutor().getFullName;
+        this.tutorName = course.getTutor().getFullName();
         this.price = course.getPrice();
         this.student = student;
         this.method = method;
