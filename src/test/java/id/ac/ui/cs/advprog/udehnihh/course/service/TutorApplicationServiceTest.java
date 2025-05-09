@@ -19,7 +19,7 @@ import static org.mockito.Mockito.*;
 class TutorApplicationServiceTest {
 
     @InjectMocks
-    private TutorApplicationService tutorApplicationService;
+    private TutorApplicationServiceImpl tutorApplicationService;
 
     @Mock
     private TutorApplicationRepository tutorApplicationRepository;
