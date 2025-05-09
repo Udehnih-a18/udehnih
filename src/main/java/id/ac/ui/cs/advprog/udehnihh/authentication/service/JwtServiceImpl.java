@@ -8,11 +8,12 @@ import java.security.Key;
 import java.util.Date;
 
 @Service
-public class JwtServiceImpl {
+public class JwtServiceImpl implements JwtService {
 
     private final Key jwtSecret = Keys.secretKeyFor(SignatureAlgorithm.HS256);
     private final long jwtExpirationMs = 3600000; // 1 hour
 
+    @Override
     public String generateToken(String email, String role) {
         return Jwts.builder()
                 .setSubject(email)
@@ -23,14 +24,17 @@ public class JwtServiceImpl {
                 .compact();
     }
 
+    @Override
     public String getEmailFromToken(String token) {
         return parseToken(token).getBody().getSubject();
     }
 
+    @Override
     public String getRoleFromToken(String token) {
         return parseToken(token).getBody().get("role", String.class);
     }
 
+    @Override
     public boolean validateToken(String token) {
         try {
             parseToken(token);
@@ -40,7 +44,8 @@ public class JwtServiceImpl {
         }
     }
 
-    private Jws<Claims> parseToken(String token) {
+    @Override
+    public Jws<Claims> parseToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(jwtSecret)
                 .build()
