@@ -1,60 +1,73 @@
 package id.ac.ui.cs.advprog.udehnihh.authentication.controller;
 
-import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
-import id.ac.ui.cs.advprog.udehnihh.authentication.service.UserService;
-import jakarta.servlet.http.HttpSession;
+import id.ac.ui.cs.advprog.udehnihh.authentication.dto.AuthResponse;
+import id.ac.ui.cs.advprog.udehnihh.authentication.dto.LoginRequest;
+import id.ac.ui.cs.advprog.udehnihh.authentication.dto.RegisterRequest;
+import id.ac.ui.cs.advprog.udehnihh.authentication.service.AuthService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
-@RequestMapping("/auth")
+@RestController
+@RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final UserService userService;
+    private final AuthService authService;
 
-    @GetMapping("/login")
-    public String showLoginForm() {
-        return "login";
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
+        try {
+            AuthResponse response = authService.register(request);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Registration failed");
+        }
     }
 
     @PostMapping("/login")
-    public String processLogin(@RequestParam String email,
-                                @RequestParam String password,
-                                HttpSession session,
-                                Model model) {
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
         try {
-            User user = userService.authenticate(email, password);
-            session.setAttribute("user", user);
-            return "redirect:/homepage";
-        } catch (IllegalArgumentException e) {
-            model.addAttribute("error", e.getMessage());
-            return "login";
+            AuthResponse response = authService.login(request);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid email or password");
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Login failed");
         }
     }
 
-    @GetMapping("/register")
-    public String showRegisterForm(Model model) {
-        model.addAttribute("user", new User());
-        return "register";
-    }
-
-    @PostMapping("/register")
-    public String processRegister(@ModelAttribute User user, Model model) {
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(@RequestHeader("Authorization") String authHeader) {
         try {
-            userService.registerUser(user);
-            return "redirect:/auth/login";
+            authService.logout(authHeader);
+            return ResponseEntity.ok("Logout successful");
         } catch (IllegalArgumentException e) {
-            model.addAttribute("error", e.getMessage());
-            return "register";
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Logout failed");
         }
     }
 
-    @GetMapping("/logout")
-    public String logout(HttpSession session) {
-        session.invalidate();
-        return "redirect:/login";
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<?> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        List<String> errorMessages = ex.getBindingResult()
+            .getFieldErrors()
+            .stream()
+            .map(FieldError::getDefaultMessage)
+            .collect(Collectors.toList());
+        
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(new AuthResponse(errorMessages));
     }
 }

@@ -1,7 +1,5 @@
 package id.ac.ui.cs.advprog.udehnihh.authentication.model;
 
-import enums.Gender;
-import enums.Role;
 import lombok.*;
 import jakarta.persistence.*;
 
@@ -9,6 +7,8 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.hibernate.annotations.CreationTimestamp;
+
+import id.ac.ui.cs.advprog.udehnihh.authentication.enums.Role;
 
 @Getter
 @Setter
@@ -37,15 +37,11 @@ public class User {
     @Column(name = "role", nullable = false)
     private Role role = Role.STUDENT;
 
-    @Enumerated(EnumType.STRING)
-    private Gender gender;
-
     @CreationTimestamp
     private LocalDateTime registrationDate;
 
-    @Column(name = "phone_number")
-    private String phoneNumber;
-
-    @Column(name = "birth_date")
-    private String birthDate;
+    @PrePersist
+    protected void onCreate() {
+        this.registrationDate = LocalDateTime.now();
+    }
 }
