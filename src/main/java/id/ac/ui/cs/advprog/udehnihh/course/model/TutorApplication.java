@@ -20,7 +20,7 @@ public class TutorApplication {
     private UUID id;
 
     @OneToOne
-    @Column(name = "applicant", nullable = false)
+    @JoinColumn(name = "applicant", nullable = false)
     private User applicant;
 
     @Enumerated(EnumType.STRING)

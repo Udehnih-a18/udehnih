@@ -1,7 +1,7 @@
 package id.ac.ui.cs.advprog.udehnihh.course.controller;
 
 import id.ac.ui.cs.advprog.udehnihh.course.model.TutorApplication;
-import id.ac.ui.cs.advprog.udehnihh.course.service.TutorApplicationService;
+import id.ac.ui.cs.advprog.udehnihh.course.service.TutorApplicationServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,10 +10,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/tutor-applications")
 public class TutorApplicationController {
 
-    private final TutorApplicationService tutorApplicationService;
+    private final TutorApplicationServiceImpl tutorApplicationService;
 
     @Autowired
-    public TutorApplicationController(TutorApplicationService tutorApplicationService) {
+    public TutorApplicationController(TutorApplicationServiceImpl tutorApplicationService) {
         this.tutorApplicationService = tutorApplicationService;
     }
 
