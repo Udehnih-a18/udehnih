@@ -45,8 +45,6 @@ dependencies {
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
-    runtimeOnly("org.postgresql:postgresql:42.7.1")
-
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
     
@@ -59,6 +57,9 @@ dependencies {
     implementation("io.jsonwebtoken:jjwt-api:0.11.5")
     implementation("io.jsonwebtoken:jjwt-impl:0.11.5")
     implementation("io.jsonwebtoken:jjwt-jackson:0.11.5")
+
+    implementation("me.paulschwarz:spring-dotenv:4.0.0")
+
 }
 
 tasks.withType<Test> {
