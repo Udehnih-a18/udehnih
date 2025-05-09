@@ -26,19 +26,9 @@
                 <input type="password" th:field="*{password}" id="password" required
                        class="w-full px-4 py-2 border border-teal-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
             </div>
-            <div>
-                <label class="block text-teal-700 font-semibold mb-1" for="phoneNumber">Phone Number</label>
-                <input type="text" th:field="*{phoneNumber}" id="phoneNumber" required
-                       class="w-full px-4 py-2 border border-teal-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
-            </div>
-            <div>
-                <label class="block text-teal-700 font-semibold mb-1" for="birthDate">Birthdate</label>
-                <input type="date" th:field="*{birthDate}" id="birthDate" required
-                       class="w-full px-4 py-2 border border-teal-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500">
-            </div>
 
             <!-- Hidden fields -->
-            <input type="hidden" th:field="*{gender}" value="Student">
+            <input type="hidden" th:field="*{role}" value="Student">
             <input type="hidden" th:field="*{registrationDate}" th:value="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}">
 
             <button type="submit"

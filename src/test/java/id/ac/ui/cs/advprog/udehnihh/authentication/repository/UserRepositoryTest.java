@@ -27,7 +27,7 @@ public class UserRepositoryTest {
 
     @Test
     void testFindByEmail() {
-        User foundUser = userRepository.findByEmail(user.getEmail());
+        User foundUser = userRepository.findByEmail(user.getEmail()).orElseThrow(() -> new RuntimeException("User not found"));
 
         assertNotNull(foundUser);
         assertEquals(user.getEmail(), foundUser.getEmail());

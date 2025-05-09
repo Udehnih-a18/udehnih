@@ -1,7 +1,7 @@
 package id.ac.ui.cs.advprog.udehnihh.authentication.controller;
 
 import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
-import id.ac.ui.cs.advprog.udehnihh.authentication.service.UserService;
+import id.ac.ui.cs.advprog.udehnihh.authentication.service.AuthService;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,7 +26,7 @@ public class UserControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private UserService userService;
+    private AuthService userService;
 
     private User user;
 
@@ -44,7 +44,7 @@ public class UserControllerTest {
     void testGetUserByIdReturnsUser() throws Exception {
         when(userService.getUserById(UUID.fromString("6b0db3f4-b10f-441a-b8b7-5d24a8e7994c"))).thenReturn(user);
 
-        mockMvc.perform(get("/user/6b0db3f4-b10f-441a-b8b7-5d24a8e7994c"))
+        mockMvc.perform(get("/users/6b0db3f4-b10f-441a-b8b7-5d24a8e7994c"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.email").value("user@example.com"))
                 .andExpect(jsonPath("$.fullName").value("User Example"));

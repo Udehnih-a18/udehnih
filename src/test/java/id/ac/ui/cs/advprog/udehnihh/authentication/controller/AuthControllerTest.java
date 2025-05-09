@@ -1,72 +1,83 @@
 package id.ac.ui.cs.advprog.udehnihh.authentication.controller;
 
-import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
-import id.ac.ui.cs.advprog.udehnihh.authentication.service.UserService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import id.ac.ui.cs.advprog.udehnihh.authentication.dto.AuthResponse;
+import id.ac.ui.cs.advprog.udehnihh.authentication.dto.LoginRequest;
+import id.ac.ui.cs.advprog.udehnihh.authentication.dto.RegisterRequest;
+import id.ac.ui.cs.advprog.udehnihh.authentication.service.AuthService;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(AuthController.class)
+@AutoConfigureMockMvc(addFilters = false)
 public class AuthControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
-    private UserService userService;
+    private AuthService authService;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Test
-    void testShowLoginForm() throws Exception {
-        mockMvc.perform(get("/auth/login"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("login"));
+    void testRegisterSuccess() throws Exception {
+        RegisterRequest request = new RegisterRequest("john@example.com", "John Doe", "password");
+        AuthResponse response = new AuthResponse("mocked-jwt-token");
+
+        Mockito.when(authService.register(any(RegisterRequest.class))).thenReturn(response);
+
+        mockMvc.perform(post("/api/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.token").value("mocked-jwt-token"));
     }
 
     @Test
-    void testShowRegisterForm() throws Exception {
-        mockMvc.perform(get("/auth/register"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("register"));
+    void testLoginSuccess() throws Exception {
+        LoginRequest request = new LoginRequest("john@example.com", "password");
+        AuthResponse response = new AuthResponse("mocked-jwt-token");
+
+        Mockito.when(authService.login(any(LoginRequest.class))).thenReturn(response);
+
+        mockMvc.perform(post("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.token").value("mocked-jwt-token"));
     }
 
     @Test
-    void testSuccessfulLogin() throws Exception {
-        User mockUser = new User();
-        mockUser.setEmail("test@example.com");
-        mockUser.setPassword("123456");
+    void testLoginFailure() throws Exception {
+        LoginRequest request = new LoginRequest("john@example.com", "wrongpassword");
 
-        when(userService.authenticate("test@example.com", "123456")).thenReturn(mockUser);
+        Mockito.when(authService.login(any(LoginRequest.class)))
+            .thenThrow(new RuntimeException("Invalid email or password"));
 
-        mockMvc.perform(post("/auth/login")
-                        .param("email", "test@example.com")
-                        .param("password", "123456"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/homepage"));
+        mockMvc.perform(post("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isUnauthorized())
+            .andExpect(content().string("Invalid email or password"));
     }
 
     @Test
-    void testFailedLogin() throws Exception {
-        when(userService.authenticate("wrong@example.com", "wrongpass"))
-                .thenThrow(new IllegalArgumentException("Email atau password salah"));
-
-        mockMvc.perform(post("/auth/login")
-                        .param("email", "wrong@example.com")
-                        .param("password", "wrongpass"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("login"))
-                .andExpect(model().attributeExists("error"));
-    }
-
-    @Test
-    void testLogoutRedirect() throws Exception {
-        mockMvc.perform(get("/auth/logout"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/login"));
+    void testLogoutSuccess() throws Exception {
+        mockMvc.perform(post("/api/auth/logout")
+                .header("Authorization", "Bearer mocked-jwt-token"))
+            .andExpect(status().isOk())
+            .andExpect(content().string("Logout successful"));
     }
 }
