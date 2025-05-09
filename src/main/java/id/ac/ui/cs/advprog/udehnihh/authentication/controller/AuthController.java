@@ -6,8 +6,14 @@ import id.ac.ui.cs.advprog.udehnihh.authentication.dto.RegisterRequest;
 import id.ac.ui.cs.advprog.udehnihh.authentication.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,7 +24,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody @Valid RegisterRequest request) {
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
         try {
             AuthResponse response = authService.register(request);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -30,7 +36,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody @Valid LoginRequest request) {
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
         try {
             AuthResponse response = authService.login(request);
             return ResponseEntity.ok(response);
@@ -46,8 +52,22 @@ public class AuthController {
         try {
             authService.logout(authHeader);
             return ResponseEntity.ok("Logout successful");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Logout failed");
         }
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<?> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        List<String> errorMessages = ex.getBindingResult()
+            .getFieldErrors()
+            .stream()
+            .map(FieldError::getDefaultMessage)
+            .collect(Collectors.toList());
+        
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(new AuthResponse(errorMessages));
     }
 }

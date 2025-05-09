@@ -12,6 +12,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
@@ -20,6 +22,8 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@SpringBootTest
+@AutoConfigureMockMvc(addFilters = false)
 class AuthServiceImplTest {
 
     private UserRepository userRepository;
@@ -27,6 +31,8 @@ class AuthServiceImplTest {
 
     @Mock
     private JwtServiceImpl jwtService;
+
+    @Mock
     private TokenBlacklistServiceImpl tokenBlacklistService;
 
     @InjectMocks
@@ -100,10 +106,13 @@ class AuthServiceImplTest {
     @Test
     void testLogoutStripsBearerAndBlacklistsToken() {
         String tokenWithBearer = "Bearer test.token.value";
+        String token = "test.token.value";
+
+        when(jwtService.validateToken(token)).thenReturn(true);
 
         authService.logout(tokenWithBearer);
 
-        verify(tokenBlacklistService).blacklistToken("test.token.value");
+        verify(tokenBlacklistService).blacklistToken(token);
     }
 
     @Test

@@ -18,7 +18,7 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtServiceImpl jwtService;
-    private final TokenBlacklistServiceImpl tokenBlacklistServiceImpl;
+    private final TokenBlacklistServiceImpl tokenBlacklistService;
 
     @Override
     public AuthResponse register(RegisterRequest request) {
@@ -45,11 +45,18 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public void logout(String token) {
-        if (token.startsWith("Bearer ")) {
-            token = token.substring(7);
+    public void logout(String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new IllegalArgumentException("Invalid token format");
         }
-        tokenBlacklistServiceImpl.blacklistToken(token);
+
+        String token = authHeader.substring(7);
+
+        if (!jwtService.validateToken(token)) {
+            throw new IllegalArgumentException("Invalid or expired token");
+        }
+
+        tokenBlacklistService.blacklistToken(token);
     }
 
     @Override
