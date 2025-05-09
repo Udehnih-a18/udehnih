@@ -1,10 +1,18 @@
 plugins {
     java
     jacoco
+    id("org.sonarqube") version "6.0.1.5171"
     id("org.springframework.boot") version "3.4.4"
     id("io.spring.dependency-management") version "1.1.7"
-    kotlin("jvm") version "1.9.22"
-    kotlin("plugin.spring") version "1.9.22"
+    id("co.uzzu.dotenv.gradle") version "2.0.0"
+
+}
+
+sonar {
+    properties {
+        property("sonar.projectKey", "udehnih")
+        property("sonar.projectName", "udehnih")
+    }
 }
 
 group = "id.ac.ui.cs.advprog"
