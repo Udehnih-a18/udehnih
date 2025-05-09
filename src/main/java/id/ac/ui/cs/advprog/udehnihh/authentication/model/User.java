@@ -39,4 +39,9 @@ public class User {
 
     @CreationTimestamp
     private LocalDateTime registrationDate;
+
+    @PrePersist
+    protected void onCreate() {
+        this.registrationDate = LocalDateTime.now();
+    }
 }
