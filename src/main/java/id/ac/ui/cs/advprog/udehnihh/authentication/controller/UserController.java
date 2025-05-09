@@ -9,15 +9,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
-import id.ac.ui.cs.advprog.udehnihh.authentication.service.UserService;
+import id.ac.ui.cs.advprog.udehnihh.authentication.service.AuthService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/users")
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserService userService;
+    private final AuthService userService;
 
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(@PathVariable("id") UUID id) {

@@ -1,6 +1,6 @@
-name : Continuous Integration (CI)
+name: Continuous Integration (CI)
 
-on :
+on:
   push:
   pull_request:
 
@@ -8,21 +8,6 @@ jobs:
   test:
     name: Run tests
     runs-on: ubuntu-22.04
-
-    services:
-      postgres:
-        image: postgres:latest
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: password
-          POSTGRES_DB: udehnih
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd="pg_isready -U postgres" 
-          --health-interval=10s 
-          --health-timeout=5s 
-          --health-retries=5
 
     steps:
       - name: Check out the Git repository
@@ -38,11 +23,15 @@ jobs:
       - name: Add gradlew permission
         run: chmod +x gradlew
 
-      - name: Set up PostgreSQL JDBC connection
+      - name: Create application.properties with Neon DB config
         run: |
-          echo "spring.datasource.url=jdbc:postgresql://localhost:5432/udehnih" >> src/main/resources/application.properties
-          echo "spring.datasource.username=postgres" >> src/main/resources/application.properties
-          echo "spring.datasource.password=password" >> src/main/resources/application.properties
+          echo "spring.datasource.url=jdbc:postgresql://ep-winter-thunder-a1pl0dbv-pooler.ap-southeast-1.aws.neon.tech/udehnihh?&sslmode=require" > src/main/resources/application.properties
+          echo "spring.datasource.username=${{ secrets.DB_USERNAME }}" >> src/main/resources/application.properties
+          echo "spring.datasource.password=${{ secrets.DB_PASSWORD }}" >> src/main/resources/application.properties
+          echo "spring.datasource.driver-class-name=org.postgresql.Driver" >> src/main/resources/application.properties
+          echo "spring.jpa.hibernate.ddl-auto=update" >> src/main/resources/application.properties
+          echo "spring.jpa.show-sql=true" >> src/main/resources/application.properties
+          echo "spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect" >> src/main/resources/application.properties
 
       - name: Run unit tests
         run: ./gradlew test
