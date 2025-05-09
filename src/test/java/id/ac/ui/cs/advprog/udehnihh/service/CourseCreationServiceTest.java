@@ -1,10 +1,11 @@
 package id.ac.ui.cs.advprog.udehnihh.service;
 
-import id.ac.ui.cs.advprog.udehnihh.dto.CourseRequest;
-import id.ac.ui.cs.advprog.udehnihh.model.Course;
+import id.ac.ui.cs.advprog.udehnihh.course.dto.CourseRequest;
+import id.ac.ui.cs.advprog.udehnihh.course.model.Course;
 import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
 import id.ac.ui.cs.advprog.udehnihh.authentication.repository.UserRepository;
-import id.ac.ui.cs.advprog.udehnihh.repository.CourseCreationRepository;
+import id.ac.ui.cs.advprog.udehnihh.course.repository.CourseCreationRepository;
+import id.ac.ui.cs.advprog.udehnihh.course.service.CourseCreationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;

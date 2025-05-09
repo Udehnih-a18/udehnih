@@ -1,11 +1,12 @@
 package id.ac.ui.cs.advprog.udehnihh.controller;
 
 import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
-import id.ac.ui.cs.advprog.udehnihh.dto.CourseDetailDto;
-import id.ac.ui.cs.advprog.udehnihh.dto.CourseSummaryDto;
-import id.ac.ui.cs.advprog.udehnihh.dto.EnrollmentDto;
-import id.ac.ui.cs.advprog.udehnihh.service.CbCourseService;
-import id.ac.ui.cs.advprog.udehnihh.service.CbEnrollmentService;
+import id.ac.ui.cs.advprog.udehnihh.course.controller.CbCourseController;
+import id.ac.ui.cs.advprog.udehnihh.course.dto.CourseDetailDto;
+import id.ac.ui.cs.advprog.udehnihh.course.dto.CourseSummaryDto;
+import id.ac.ui.cs.advprog.udehnihh.course.dto.EnrollmentDto;
+import id.ac.ui.cs.advprog.udehnihh.course.service.CbCourseService;
+import id.ac.ui.cs.advprog.udehnihh.course.service.CbEnrollmentService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

@@ -1,10 +1,13 @@
 package id.ac.ui.cs.advprog.udehnihh.controller;
 
-import id.ac.ui.cs.advprog.udehnihh.dto.CourseRequest;
-import id.ac.ui.cs.advprog.udehnihh.model.Course;
+import id.ac.ui.cs.advprog.udehnihh.course.controller.CourseCreationController;
+import id.ac.ui.cs.advprog.udehnihh.course.dto.CourseRequest;
+import id.ac.ui.cs.advprog.udehnihh.course.model.Course;
 import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
 import id.ac.ui.cs.advprog.udehnihh.authentication.repository.UserRepository;
-import id.ac.ui.cs.advprog.udehnihh.repository.*;
+import id.ac.ui.cs.advprog.udehnihh.course.repository.ArticleRepository;
+import id.ac.ui.cs.advprog.udehnihh.course.repository.CourseCreationRepository;
+import id.ac.ui.cs.advprog.udehnihh.course.repository.SectionRepository;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

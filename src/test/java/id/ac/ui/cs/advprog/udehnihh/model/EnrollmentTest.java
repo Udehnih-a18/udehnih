@@ -1,6 +1,8 @@
 package id.ac.ui.cs.advprog.udehnihh.model;
 
 import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
+import id.ac.ui.cs.advprog.udehnihh.course.model.Course;
+import id.ac.ui.cs.advprog.udehnihh.course.model.Enrollment;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
