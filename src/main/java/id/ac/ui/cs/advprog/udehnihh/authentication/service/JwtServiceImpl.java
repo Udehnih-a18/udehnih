@@ -8,7 +8,7 @@ import java.security.Key;
 import java.util.Date;
 
 @Service
-public class JwtServiceImpl {
+public class JwtServiceImpl implements JwtService {
 
     private final Key jwtSecret = Keys.secretKeyFor(SignatureAlgorithm.HS256);
     private final long jwtExpirationMs = 3600000; // 1 hour
@@ -40,7 +40,7 @@ public class JwtServiceImpl {
         }
     }
 
-    private Jws<Claims> parseToken(String token) {
+    public Jws<Claims> parseToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(jwtSecret)
                 .build()
