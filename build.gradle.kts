@@ -29,29 +29,28 @@ repositories {
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-web") 
-    runtimeOnly("org.postgresql:postgresql:42.7.1")
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
-    implementation("org.springframework.boot:spring-boot-starter-web")
-    compileOnly("org.projectlombok:lombok")
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+
+    runtimeOnly("org.postgresql:postgresql:42.7.1")
+
+    compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
     testImplementation("com.h2database:h2")
     runtimeOnly("com.h2database:h2")
     runtimeOnly("org.postgresql:postgresql")
 
-    // implementation("io.jsonwebtoken:jjwt-api:0.11.5")
-    // runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
-    // runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
-
-    // implementation("org.springframework.boot:spring-boot-starter-security")
-
-    // implementation("jakarta.validation:jakarta.validation-api:3.0.2")
+    implementation("io.jsonwebtoken:jjwt-api:0.11.5")
+    implementation("io.jsonwebtoken:jjwt-impl:0.11.5")
+    implementation("io.jsonwebtoken:jjwt-jackson:0.11.5")
 }
 
 tasks.withType<Test> {
