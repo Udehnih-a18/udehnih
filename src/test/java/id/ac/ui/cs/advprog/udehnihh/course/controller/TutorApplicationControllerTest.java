@@ -2,7 +2,7 @@ package id.ac.ui.cs.advprog.udehnihh.course.controller;
 
 import id.ac.ui.cs.advprog.udehnihh.course.model.TutorApplication;
 import id.ac.ui.cs.advprog.udehnihh.course.model.TutorApplication.ApplicationStatus;
-import id.ac.ui.cs.advprog.udehnihh.course.service.TutorApplicationService;
+import id.ac.ui.cs.advprog.udehnihh.course.service.TutorApplicationServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +24,7 @@ public class TutorApplicationControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private TutorApplicationService tutorApplicationService;
+    private TutorApplicationServiceImpl tutorApplicationService;
 
     private final String mockToken = "Bearer mock.jwt.token";
 
