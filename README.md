@@ -65,8 +65,8 @@ Untuk mitigasi, struktur microservices dapat menjadi solusi jangka panjang denga
 #### Code Diagram
 ![alt text](images/code-madeline.png)
 
-### Individual Container Diagram - Course Creation and Mangement (Alie)
+### Individual Container Diagram - Payment (Alie)
 #### Component Diagram
-![img.png](img.png)
+![payment-comp.png](images/payment-comp.png)
 #### Code Diagram
-![img_1.png](img_1.png)
+![payment-cod.png](images/payment-cod.png)
