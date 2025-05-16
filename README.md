@@ -19,3 +19,6 @@
 
 ### Deployment Diagram (Zufar)
 ![alt text](images/image-2.png)
+
+### Future Architecture (Madeline)
+![alt text](images/image-3.png)
