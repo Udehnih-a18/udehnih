@@ -1,0 +1,43 @@
+package id.ac.ui.cs.advprog.udehnihh.payment.strategy;
+
+import id.ac.ui.cs.advprog.udehnihh.payment.enums.PaymentMethod;
+import id.ac.ui.cs.advprog.udehnihh.payment.enums.TransactionStatus;
+import id.ac.ui.cs.advprog.udehnihh.payment.model.CreditCardTransaction;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+class CreditCardPaymentStrategyTest {
+
+    private CreditCardPaymentStrategy strategy;
+
+    @BeforeEach
+    void setup() {
+        strategy = new CreditCardPaymentStrategy();
+    }
+
+    @Test
+    void shouldSetStatusToPendingIfCardValid() {
+        CreditCardTransaction transaction = new CreditCardTransaction();
+        transaction.setMethod(PaymentMethod.CREDIT_CARD);
+
+        transaction.setCvc("123");
+
+        strategy.pay(transaction);
+
+        assertEquals(TransactionStatus.PENDING, transaction.getStatus());
+    }
+
+    @Test
+    void shouldThrowExceptionIfCvcInvalid() {
+        CreditCardTransaction transaction = new CreditCardTransaction();
+        transaction.setMethod(PaymentMethod.CREDIT_CARD);
+
+        transaction.setCvc("1"); // invalid
+
+        assertThrows(IllegalArgumentException.class, () ->
+                strategy.pay(transaction));
+    }
+}
