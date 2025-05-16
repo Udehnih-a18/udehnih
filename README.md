@@ -70,3 +70,10 @@ Untuk mitigasi, struktur microservices dapat menjadi solusi jangka panjang denga
 ![img.png](img.png)
 #### Code Diagram
 ![img_1.png](img_1.png)
+
+
+### Individual Container Diagram - Course Browsing and Enrollment (Farrel)
+#### Component Diagram
+![alt text](images/image-8.png)
+#### Code Diagram
+![alt text](images/image-9.png)
