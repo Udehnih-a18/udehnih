@@ -52,3 +52,11 @@ Pada Report System: Risiko pengunggahan konten berbahaya dan injeksi meningkat k
 Kompleksitas yang tinggi dari arsitektur monolitik ini juga meningkatkan risiko kekeliruan Staff dalam validasi (R-OPS02), terutama pada fitur yang memerlukan persetujuan manual seperti pendaftaran Tutor dan pembuatan Course.
 
 Untuk mitigasi, struktur microservices dapat menjadi solusi jangka panjang dengan memisahkan komponen-komponen kritis seperti Authentication, Payment, dan Course Management ke dalam layanan terpisah dengan database masing-masing, sehingga meminimalkan dampak kerentanan pada satu komponen terhadap keseluruhan sistem. Implementasi API Gateway dengan pembatasan rate dan autentikasi terpusat juga dapat memitigasi risiko DoS dan session hijacking. Perubahan arsitektur ke microservices, walau menawarkan manfaat keamanan seperti isolasi komponen kritis (Autentikasi, Pembayaran, Manajemen Kursus) dengan database terpisah dan implementasi API Gateway yang dapat mengurangi risiko DoS serta session hijacking, memerlukan pertimbangan matang sebelum diimplementasikan.
+
+### Individual Container Diagram (Zufar)
+
+#### Component Diagram
+![alt text](images/image-6.png)
+
+#### Code Diagram
+![alt text](images/image-7.png)
