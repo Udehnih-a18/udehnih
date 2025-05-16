@@ -1,13 +1,20 @@
-package id.ac.ui.cs.advprog.udehnihh.controller;
+package id.ac.ui.cs.advprog.udehnihh.course.controller;
 
+<<<<<<< HEAD:src/test/java/id/ac/ui/cs/advprog/udehnihh/controller/CourseCreationControllerTest.java
 import id.ac.ui.cs.advprog.udehnihh.course.controller.CourseCreationController;
+=======
+>>>>>>> origin/course:src/test/java/id/ac/ui/cs/advprog/udehnihh/course/controller/CourseCreationControllerTest.java
 import id.ac.ui.cs.advprog.udehnihh.course.dto.CourseRequest;
 import id.ac.ui.cs.advprog.udehnihh.course.model.Course;
 import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
 import id.ac.ui.cs.advprog.udehnihh.authentication.repository.UserRepository;
+<<<<<<< HEAD:src/test/java/id/ac/ui/cs/advprog/udehnihh/controller/CourseCreationControllerTest.java
 import id.ac.ui.cs.advprog.udehnihh.course.repository.ArticleRepository;
 import id.ac.ui.cs.advprog.udehnihh.course.repository.CourseCreationRepository;
 import id.ac.ui.cs.advprog.udehnihh.course.repository.SectionRepository;
+=======
+import id.ac.ui.cs.advprog.udehnihh.course.repository.*;
+>>>>>>> origin/course:src/test/java/id/ac/ui/cs/advprog/udehnihh/course/controller/CourseCreationControllerTest.java
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
