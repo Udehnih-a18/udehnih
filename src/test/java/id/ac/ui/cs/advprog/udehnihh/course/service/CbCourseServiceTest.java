@@ -1,11 +1,14 @@
-package id.ac.ui.cs.advprog.udehnihh.service;
+package id.ac.ui.cs.advprog.udehnihh.course.service;
 
 import id.ac.ui.cs.advprog.udehnihh.course.dto.CourseDetailDto;
 import id.ac.ui.cs.advprog.udehnihh.course.dto.CourseSummaryDto;
 import id.ac.ui.cs.advprog.udehnihh.course.model.Course;
 import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
 import id.ac.ui.cs.advprog.udehnihh.course.repository.CbCourseRepository;
+<<<<<<< HEAD:src/test/java/id/ac/ui/cs/advprog/udehnihh/service/CbCourseServiceTest.java
 import id.ac.ui.cs.advprog.udehnihh.course.service.CbCourseService;
+=======
+>>>>>>> e45c4ca00c105822c8133f268e61d8512744b901:src/test/java/id/ac/ui/cs/advprog/udehnihh/course/service/CbCourseServiceTest.java
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;

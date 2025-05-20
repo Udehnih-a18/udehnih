@@ -1,10 +1,13 @@
 package id.ac.ui.cs.advprog.udehnihh.course.service;
 
 import id.ac.ui.cs.advprog.udehnihh.course.dto.EnrollmentDto;
+<<<<<<< HEAD
 import id.ac.ui.cs.advprog.udehnihh.course.model.Course;
 import id.ac.ui.cs.advprog.udehnihh.course.model.Enrollment;
 import id.ac.ui.cs.advprog.udehnihh.course.repository.CbCourseRepository;
 import id.ac.ui.cs.advprog.udehnihh.course.repository.CbEnrollmentRepository;
+=======
+>>>>>>> e45c4ca00c105822c8133f268e61d8512744b901
 import id.ac.ui.cs.advprog.udehnihh.course.repository.*;
 import id.ac.ui.cs.advprog.udehnihh.course.model.*;
 import lombok.RequiredArgsConstructor;

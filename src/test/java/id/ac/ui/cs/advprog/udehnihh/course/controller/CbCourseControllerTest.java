@@ -1,7 +1,10 @@
-package id.ac.ui.cs.advprog.udehnihh.controller;
+package id.ac.ui.cs.advprog.udehnihh.course.controller;
 
 import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
+<<<<<<< HEAD:src/test/java/id/ac/ui/cs/advprog/udehnihh/controller/CbCourseControllerTest.java
 import id.ac.ui.cs.advprog.udehnihh.course.controller.CbCourseController;
+=======
+>>>>>>> e45c4ca00c105822c8133f268e61d8512744b901:src/test/java/id/ac/ui/cs/advprog/udehnihh/course/controller/CbCourseControllerTest.java
 import id.ac.ui.cs.advprog.udehnihh.course.dto.CourseDetailDto;
 import id.ac.ui.cs.advprog.udehnihh.course.dto.CourseSummaryDto;
 import id.ac.ui.cs.advprog.udehnihh.course.dto.EnrollmentDto;
