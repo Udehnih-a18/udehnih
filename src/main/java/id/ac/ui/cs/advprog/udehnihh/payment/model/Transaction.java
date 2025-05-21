@@ -42,6 +42,7 @@ public class Transaction {
 
     public Transaction() {
         this.status = TransactionStatus.PENDING;
+        this.id = UUID.randomUUID();
         this.createdAt = LocalDateTime.now();
     }
 }

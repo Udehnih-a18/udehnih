@@ -61,10 +61,7 @@ class PaymentServiceTest {
 
     @Test
     void shouldCreateBankTransferTransactionWithPendingStatus() {
-        dummyTransaction.setMethod(PaymentMethod.BANK_TRANSFER);
-
-        BankTransferTransaction bankTransferTransaction = (BankTransferTransaction) dummyTransaction;
-        bankTransferTransaction.setBank(AvailableBanks.BANK_SENDIRI);
+        BankTransferTransaction bankTransferTransaction = new BankTransferTransaction();
 
         assertEquals(TransactionStatus.PENDING, bankTransferTransaction.getStatus());
 
@@ -72,9 +69,7 @@ class PaymentServiceTest {
 
     @Test
     void shouldCreateCreditCardTransactionWithPendingStatus() {
-        dummyTransaction.setMethod(PaymentMethod.CREDIT_CARD);
-        CreditCardTransaction creditCardTransaction = (CreditCardTransaction) dummyTransaction;
-        creditCardTransaction.setCvc("123");
+        CreditCardTransaction creditCardTransaction = new CreditCardTransaction();
 
         assertEquals(TransactionStatus.PENDING, creditCardTransaction.getStatus());
     }

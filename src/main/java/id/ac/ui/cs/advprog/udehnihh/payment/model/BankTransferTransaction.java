@@ -11,10 +11,14 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@NoArgsConstructor
 public class BankTransferTransaction extends Transaction {
     private AvailableBanks bank;
     private boolean alreadyTransferred;
+
+    public BankTransferTransaction() {
+        super();
+        this.setMethod(PaymentMethod.BANK_TRANSFER);
+    }
 
     public BankTransferTransaction(Course course, User student, PaymentMethod method, String accountNumber, AvailableBanks bank) {
         super(course, student, method, accountNumber);

@@ -9,9 +9,13 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@NoArgsConstructor
 public class CreditCardTransaction extends Transaction {
     private String cvc;
+
+    public CreditCardTransaction() {
+        super();
+        this.setMethod(PaymentMethod.CREDIT_CARD);
+    }
 
     public CreditCardTransaction(Course course, User student, PaymentMethod method, String accountNumber, String cvc) {
         super(course, student, method, accountNumber);
