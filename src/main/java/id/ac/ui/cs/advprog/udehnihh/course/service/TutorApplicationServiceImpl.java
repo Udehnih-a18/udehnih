@@ -1,6 +1,7 @@
 package id.ac.ui.cs.advprog.udehnihh.course.service;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ public class TutorApplicationServiceImpl implements TutorApplicationService {
     private final TutorApplicationRepository tutorApplicationRepository;
     private final UserRepository userRepository;
     private final JwtService jwtTokenUtil;
+
 
     @Autowired
     public TutorApplicationServiceImpl(TutorApplicationRepository tutorApplicationRepository,
@@ -74,4 +76,31 @@ public class TutorApplicationServiceImpl implements TutorApplicationService {
 
         tutorApplicationRepository.delete(application);
     }
+
+
+    public void approveTutorApplication(UUID applicationId) {
+        TutorApplication application = tutorApplicationRepository.findById(applicationId)
+                .orElseThrow(() -> new IllegalArgumentException("Application not found"));
+
+        if (application.getStatus() != TutorApplication.ApplicationStatus.PENDING) {
+            throw new IllegalStateException("Application is not pending");
+        }
+        application.setStatus(TutorApplication.ApplicationStatus.ACCEPTED);
+        tutorApplicationRepository.save(application);
+        User applicant = application.getApplicant();
+        applicant.setRole(Role.TUTOR);
+        userRepository.save(applicant);
+    }
+
+
+    public void rejectTutorApplication(UUID applicationId, String rejectionReason) {
+        TutorApplication application = tutorApplicationRepository.findById(applicationId)
+                .orElseThrow(() -> new IllegalArgumentException("Application not found"));
+
+        application.setStatus(TutorApplication.ApplicationStatus.DENIED);
+        application.setRejectionReason(rejectionReason);
+        tutorApplicationRepository.save(application);
+
+    }
+
 }
