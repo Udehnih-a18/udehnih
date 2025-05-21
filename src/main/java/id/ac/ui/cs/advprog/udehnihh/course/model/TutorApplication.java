@@ -31,6 +31,9 @@ public class TutorApplication {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "rejection_reason")
+    private String rejectionReason;
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
