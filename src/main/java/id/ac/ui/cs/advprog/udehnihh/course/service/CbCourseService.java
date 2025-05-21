@@ -1,11 +1,8 @@
 package id.ac.ui.cs.advprog.udehnihh.course.service;
 
-<<<<<<< HEAD
+
 import id.ac.ui.cs.advprog.udehnihh.course.dto.CourseDetailDto;
 import id.ac.ui.cs.advprog.udehnihh.course.dto.CourseSummaryDto;
-=======
-import id.ac.ui.cs.advprog.udehnihh.course.dto.*;
->>>>>>> origin/course
 import id.ac.ui.cs.advprog.udehnihh.course.mapper.CourseMapper;
 import id.ac.ui.cs.advprog.udehnihh.course.repository.CbCourseRepository;
 import id.ac.ui.cs.advprog.udehnihh.course.spec.CourseSpecification;

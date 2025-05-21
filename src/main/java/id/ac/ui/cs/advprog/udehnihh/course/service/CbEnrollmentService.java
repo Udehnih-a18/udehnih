@@ -1,15 +1,10 @@
 package id.ac.ui.cs.advprog.udehnihh.course.service;
 
 import id.ac.ui.cs.advprog.udehnihh.course.dto.EnrollmentDto;
-<<<<<<< HEAD
 import id.ac.ui.cs.advprog.udehnihh.course.model.Course;
 import id.ac.ui.cs.advprog.udehnihh.course.model.Enrollment;
 import id.ac.ui.cs.advprog.udehnihh.course.repository.CbCourseRepository;
 import id.ac.ui.cs.advprog.udehnihh.course.repository.CbEnrollmentRepository;
-=======
->>>>>>> origin/course
-import id.ac.ui.cs.advprog.udehnihh.course.repository.*;
-import id.ac.ui.cs.advprog.udehnihh.course.model.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
