@@ -5,10 +5,6 @@ import id.ac.ui.cs.advprog.udehnihh.course.dto.CourseSummaryDto;
 import id.ac.ui.cs.advprog.udehnihh.course.model.Course;
 import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
 import id.ac.ui.cs.advprog.udehnihh.course.repository.CbCourseRepository;
-<<<<<<< HEAD:src/test/java/id/ac/ui/cs/advprog/udehnihh/service/CbCourseServiceTest.java
-import id.ac.ui.cs.advprog.udehnihh.course.service.CbCourseService;
-=======
->>>>>>> origin/course:src/test/java/id/ac/ui/cs/advprog/udehnihh/course/service/CbCourseServiceTest.java
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;

@@ -1,65 +1,112 @@
 package id.ac.ui.cs.advprog.udehnihh.course.controller;
 
 import id.ac.ui.cs.advprog.udehnihh.course.model.TutorApplication;
-import id.ac.ui.cs.advprog.udehnihh.course.model.TutorApplication.ApplicationStatus;
 import id.ac.ui.cs.advprog.udehnihh.course.service.TutorApplicationServiceImpl;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.web.servlet.MockMvc;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.http.ResponseEntity;
 
-import java.util.UUID;
+import static id.ac.ui.cs.advprog.udehnihh.course.model.TutorApplication.ApplicationStatus;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+class TutorApplicationControllerTest {
 
-@SpringBootTest
-@AutoConfigureMockMvc(addFilters = false)
-public class TutorApplicationControllerTest {
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @MockBean
+    @Mock
     private TutorApplicationServiceImpl tutorApplicationService;
 
-    private final String mockToken = "Bearer mock.jwt.token";
+    @InjectMocks
+    private TutorApplicationController tutorApplicationController;
 
-    @Test
-    void testApplyTutorApplication() throws Exception {
-        mockMvc.perform(post("/api/tutor-applications/apply")
-                .header("Authorization", mockToken))
-                .andExpect(status().isOk())
-                .andExpect(content().string("Application submitted successfully"));
+    private final String testToken = "testToken123";
+    private final String authHeader = "Bearer " + testToken;
 
-        Mockito.verify(tutorApplicationService).createApplication("mock.jwt.token");
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
-    void testGetApplicationStatus() throws Exception {
-        TutorApplication application = new TutorApplication();
-        application.setId(UUID.randomUUID());
-        application.setStatus(ApplicationStatus.PENDING);
+    void testApply_Success() {
+        // Act
+        ResponseEntity<String> response = tutorApplicationController.apply(authHeader);
 
-        Mockito.when(tutorApplicationService.getApplication("mock.jwt.token"))
-                .thenReturn(application);
-
-        mockMvc.perform(get("/api/tutor-applications/status")
-                .header("Authorization", mockToken))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value("PENDING"));
+        // Assert
+        assertEquals(200, response.getStatusCodeValue());
+        assertEquals("Application submitted successfully", response.getBody());
+        verify(tutorApplicationService, times(1)).createApplication(testToken);
     }
 
     @Test
-    void testDeleteApplication() throws Exception {
-        mockMvc.perform(delete("/api/tutor-applications/delete")
-                .header("Authorization", mockToken))
-                .andExpect(status().isOk())
-                .andExpect(content().string("Application deleted successfully"));
+    void testApply_WithoutBearerPrefix() {
+        // Arrange
+        String invalidAuthHeader = testToken;
 
-        Mockito.verify(tutorApplicationService).deleteApplication("mock.jwt.token");
+        // Act
+        ResponseEntity<String> response = tutorApplicationController.apply(invalidAuthHeader);
+
+        // Assert
+        assertEquals(200, response.getStatusCodeValue());
+        assertEquals("Application submitted successfully", response.getBody());
+        verify(tutorApplicationService, times(1)).createApplication(testToken);
+    }
+
+    @Test
+    void testGetApplicationStatus_Success() {
+        // Arrange
+        TutorApplication mockApplication = new TutorApplication();
+        mockApplication.setStatus(ApplicationStatus.PENDING);
+        when(tutorApplicationService.getApplication(testToken)).thenReturn(mockApplication);
+
+        // Act
+        ResponseEntity<TutorApplication> response = tutorApplicationController.getApplicationStatus(authHeader);
+
+        // Assert
+        assertEquals(200, response.getStatusCodeValue());
+        assertNotNull(response.getBody());
+        assertEquals(ApplicationStatus.PENDING, response.getBody().getStatus());
+        verify(tutorApplicationService, times(1)).getApplication(testToken);
+    }
+
+    @Test
+    void testGetApplicationStatus_NotFound() {
+        // Arrange
+        when(tutorApplicationService.getApplication(testToken)).thenReturn(null);
+
+        // Act
+        ResponseEntity<TutorApplication> response = tutorApplicationController.getApplicationStatus(authHeader);
+
+        // Assert
+        assertEquals(200, response.getStatusCodeValue());
+        assertNull(response.getBody());
+        verify(tutorApplicationService, times(1)).getApplication(testToken);
+    }
+
+    @Test
+    void testDeleteApplication_Success() {
+        // Act
+        ResponseEntity<String> response = tutorApplicationController.deleteApplication(authHeader);
+
+        // Assert
+        assertEquals(200, response.getStatusCodeValue());
+        assertEquals("Application deleted successfully", response.getBody());
+        verify(tutorApplicationService, times(1)).deleteApplication(testToken);
+    }
+
+    @Test
+    void testDeleteApplication_WithoutBearerPrefix() {
+        // Arrange
+        String invalidAuthHeader = testToken;
+
+        // Act
+        ResponseEntity<String> response = tutorApplicationController.deleteApplication(invalidAuthHeader);
+
+        // Assert
+        assertEquals(200, response.getStatusCodeValue());
+        assertEquals("Application deleted successfully", response.getBody());
+        verify(tutorApplicationService, times(1)).deleteApplication(testToken);
     }
 }
