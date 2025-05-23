@@ -14,7 +14,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class DeleteReportCommandTest {
+public class UpdateReportCommandTest {
 
     private ReportRepository repository;
     private User user;
@@ -26,8 +26,8 @@ public class DeleteReportCommandTest {
         user = User.builder().id(UUID.randomUUID()).build();
         report = Report.builder()
                 .idReport(UUID.randomUUID().toString())
-                .title("Delete Me")
-                .description("Please delete")
+                .title("Old Title")
+                .description("Old Description")
                 .createdBy(user)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
@@ -35,29 +35,37 @@ public class DeleteReportCommandTest {
     }
 
     @Test
-    void testExecuteDeletesReportSuccessfully() {
+    void testExecuteUpdatesReportSuccessfully() {
         when(repository.findById(report.getIdReport())).thenReturn(Optional.of(report));
-        DeleteReportCommand command = new DeleteReportCommand(report.getIdReport(), user, repository);
+        when(repository.save(any())).thenReturn(report);
+
+        UpdateReportCommand command = new UpdateReportCommand(
+                report.getIdReport(), user, "New Title", "New Description", repository);
 
         Report result = command.execute();
-        assertEquals(report, result);
-        verify(repository).deleteById(report.getIdReport());
+        assertEquals("New Title", result.getTitle());
+        assertEquals("New Description", result.getDescription());
+        verify(repository).save(report);
     }
 
     @Test
-    void testExecuteThrowsSecurityExceptionIfUserIsNotOwner() {
+    void testExecuteThrowsSecurityExceptionForDifferentUser() {
         User anotherUser = User.builder().id(UUID.randomUUID()).build();
         when(repository.findById(report.getIdReport())).thenReturn(Optional.of(report));
 
-        DeleteReportCommand command = new DeleteReportCommand(report.getIdReport(), anotherUser, repository);
+        UpdateReportCommand command = new UpdateReportCommand(
+                report.getIdReport(), anotherUser, "Fail", "Fail", repository);
+
         assertThrows(SecurityException.class, command::execute);
     }
 
     @Test
-    void testExecuteThrowsNoSuchElementIfReportNotFound() {
+    void testExecuteThrowsNoSuchElementIfNotFound() {
         when(repository.findById("invalid-id")).thenReturn(Optional.empty());
 
-        DeleteReportCommand command = new DeleteReportCommand("invalid-id", user, repository);
+        UpdateReportCommand command = new UpdateReportCommand(
+                "invalid-id", user, "Fail", "Fail", repository);
+
         assertThrows(NoSuchElementException.class, command::execute);
     }
 }

@@ -1,4 +1,5 @@
-import id.ac.ui.cs.advprog.udehnihh.report.command.GetReportByIdCommand;
+package id.ac.ui.cs.advprog.udehnihh.report.command;
+
 import id.ac.ui.cs.advprog.udehnihh.report.model.Report;
 import id.ac.ui.cs.advprog.udehnihh.report.repository.ReportRepository;
 import org.junit.jupiter.api.BeforeEach;
