@@ -1,9 +1,10 @@
+package id.ac.ui.cs.advprog.udehnihh.report.repository;
+
 import id.ac.ui.cs.advprog.udehnihh.UdehnihhApplication;
 import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
 import id.ac.ui.cs.advprog.udehnihh.authentication.enums.Role;
 import id.ac.ui.cs.advprog.udehnihh.authentication.repository.UserRepository;
 import id.ac.ui.cs.advprog.udehnihh.report.model.Report;
-import id.ac.ui.cs.advprog.udehnihh.report.repository.ReportRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
