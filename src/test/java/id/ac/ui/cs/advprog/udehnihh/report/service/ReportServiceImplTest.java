@@ -40,7 +40,7 @@ public class ReportServiceImplTest {
     @Test
     void testCreateReport() {
         when(repository.save(report)).thenReturn(report);
-        Report result = service.createReport(report);
+        Report result = service.createReport(report).join();
         assertEquals(report.getTitle(), result.getTitle());
         verify(repository).save(report);
     }
@@ -55,7 +55,7 @@ public class ReportServiceImplTest {
     @Test
     void testGetAllReports() {
         when(repository.findAll()).thenReturn(List.of(report));
-        List<Report> result = service.getAllReports();
+        List<Report> result = service.getAllReports().join();
         assertEquals(1, result.size());
     }
 
@@ -71,7 +71,7 @@ public class ReportServiceImplTest {
     void testUpdateReport() {
         when(repository.findById(report.getIdReport())).thenReturn(Optional.of(report));
         when(repository.save(any())).thenReturn(report);
-        Report updated = service.updateReport(report.getIdReport(), user, "New Title", "New Desc");
+        Report updated = service.updateReport(report.getIdReport(), user, "New Title", "New Desc").join();
         assertEquals("New Title", updated.getTitle());
     }
 

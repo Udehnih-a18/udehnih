@@ -10,8 +10,13 @@ import id.ac.ui.cs.advprog.udehnihh.report.model.Report;
 import id.ac.ui.cs.advprog.udehnihh.report.repository.ReportRepository;
 import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
 import org.springframework.stereotype.Service;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+
+import java.util.concurrent.CompletableFuture;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class ReportServiceImpl implements ReportService {
@@ -22,14 +27,41 @@ public class ReportServiceImpl implements ReportService {
         this.repository = repository;
     }
 
+    @Async("reportExecutor")
+    public CompletableFuture<Report> createReport(Report report) {
+        try {
+            CreateReportCommand command = new CreateReportCommand(report, repository);
+            Report result = command.execute();
+            return CompletableFuture.completedFuture(result);
+        } catch (Exception e) {
+            return CompletableFuture.failedFuture(e);
+        }
+    }
+
+    @Async("reportExecutor")
+    public CompletableFuture<Report> updateReport(String id, User user, String title, String desc) {
+        try {
+            UpdateReportCommand command = new UpdateReportCommand(id, user, title, desc, repository);
+            Report result = command.execute();
+            return CompletableFuture.completedFuture(result);
+        } catch (Exception e) {
+            return CompletableFuture.failedFuture(e);
+        }
+    }
+
+    @Async("reportExecutor")
+    public CompletableFuture<List<Report>> getAllReports() {
+        try {
+            GetAllReportsCommand command = new GetAllReportsCommand(repository);
+            List<Report> result = command.executeAll();
+            return CompletableFuture.completedFuture(result);
+        } catch (Exception e) {
+            return CompletableFuture.failedFuture(e);
+        }
+    }
     @Override
     public Report getReportById(String id) {
         return new GetReportByIdCommand(id, repository).execute();
-    }
-
-    @Override
-    public List<Report> getAllReports() {
-        return new GetAllReportsCommand(repository).executeAll();
     }
 
     @Override
@@ -38,17 +70,8 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public Report createReport(Report report) {
-        return new CreateReportCommand(report, repository).execute();
-    }
-
-    @Override
-    public Report updateReport(String reportId, User user, String title, String description) {
-        return new UpdateReportCommand(reportId, user, title, description, repository).execute();
-    }
-
-    @Override
     public void deleteReport(String id, User user) {
         new DeleteReportCommand(id, user, repository).execute();
     }
+
 }
