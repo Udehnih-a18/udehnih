@@ -8,4 +8,5 @@ import java.util.UUID;
 
 public interface CourseCreationRepository extends JpaRepository<Course, UUID> {
     List<Course> findByTutorId(UUID tutorId);
+    List<Course> findByStatus(Course.CourseStatus status);
 }

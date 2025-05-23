@@ -1,5 +1,7 @@
 package id.ac.ui.cs.advprog.udehnihh.course.controller;
 
+import id.ac.ui.cs.advprog.udehnihh.course.dto.request.TutorApplicationRequest;
+import id.ac.ui.cs.advprog.udehnihh.course.dto.response.TutorApplicationResponse;
 import id.ac.ui.cs.advprog.udehnihh.course.model.TutorApplication;
 import id.ac.ui.cs.advprog.udehnihh.course.service.TutorApplicationServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,20 +20,33 @@ public class TutorApplicationController {
     }
 
     @PostMapping("/apply")
-    public ResponseEntity<String> apply(@RequestHeader("Authorization") String authorizationHeader) {
+    public ResponseEntity<TutorApplicationResponse> apply(
+            @RequestHeader("Authorization") String authorizationHeader,
+            @RequestBody TutorApplicationRequest request) {
+        
         String token = authorizationHeader.replace("Bearer ", "");
 
-        tutorApplicationService.createApplication(token);
+        TutorApplication application = tutorApplicationService.createApplication(token, request);
 
-        return ResponseEntity.ok("Application submitted successfully");
+        TutorApplicationResponse response = mapToResponse(application);
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/status")
-    public ResponseEntity<TutorApplication> getApplicationStatus(@RequestHeader("Authorization") String authorizationHeader) {
+    public ResponseEntity<TutorApplicationResponse> getApplicationStatus(
+            @RequestHeader("Authorization") String authorizationHeader) {
+        
         String token = authorizationHeader.replace("Bearer ", "");
 
         TutorApplication application = tutorApplicationService.getApplication(token);
-        return ResponseEntity.ok(application);
+
+        if (application == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        TutorApplicationResponse response = mapToResponse(application);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/delete")
@@ -41,5 +56,20 @@ public class TutorApplicationController {
         tutorApplicationService.deleteApplication(token);
 
         return ResponseEntity.ok("Application deleted successfully");
+    }
+
+    // Helper method
+    private TutorApplicationResponse mapToResponse(TutorApplication application) {
+        TutorApplicationResponse response = new TutorApplicationResponse();
+
+        response.setId(application.getId());
+        response.setApplicantId(application.getApplicant().getId());
+        response.setApplicantName(application.getApplicant().getFullName());
+        response.setMotivation(application.getMotivation());
+        response.setExperience(application.getExperience());
+        response.setStatus(application.getStatus());
+        response.setCreatedAt(application.getCreatedAt());
+
+        return response;
     }
 }
