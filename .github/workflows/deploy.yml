@@ -1,12 +1,13 @@
 name: Deploying to Production
 
 on:
-  push:
-    branches:
-      - main
-      - ci-cd
+  workflow_run:
+    workflows: ["Build", "Continuous Integration (CI)", "Java CI with Gradle"]
+    types:
+      - completed
 jobs:
   build-and-deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
     steps:
