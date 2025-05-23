@@ -1,4 +1,6 @@
-package id.ac.ui.cs.advprog.udehnihh.course.dto;
+package id.ac.ui.cs.advprog.udehnihh.course.dto.request;
+
+import java.util.List;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -8,4 +10,5 @@ import lombok.Setter;
 public class SectionRequest {
     private String name;
     private String description;
+    private List<ArticleRequest> articles;
 }
