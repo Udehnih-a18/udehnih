@@ -1,4 +1,4 @@
-Apackage id.ac.ui.cs.advprog.udehnihh.report.controller;
+package id.ac.ui.cs.advprog.udehnihh.report.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
