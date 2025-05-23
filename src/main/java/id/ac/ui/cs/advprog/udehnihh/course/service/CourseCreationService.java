@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import id.ac.ui.cs.advprog.udehnihh.course.dto.CourseSummaryDto;
+import id.ac.ui.cs.advprog.udehnihh.course.dto.CourseRequest;
 import id.ac.ui.cs.advprog.udehnihh.course.mapper.CourseMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -82,10 +82,18 @@ public class CourseCreationService {
 
     }
 
-    public List<CourseSummaryDto> getAllCoursesDTO() {
+    public List<CourseRequest> getAllCoursesDTO() {
         List<Course> courses = courseCreationRepository.findAll();
         return courses.stream()
-                .map(CourseMapper::toSummary)
+                .map(course -> {
+                    CourseRequest request = new CourseRequest();
+                    request.setName(course.getName());
+                    request.setDescription(course.getDescription());
+                    request.setPrice(course.getPrice());
+                    request.setTutorId(course.getTutor().getId());
+                    request.setCourseStatus(course.getStatus());
+                    return request;
+                })
                 .toList();
     }
 
