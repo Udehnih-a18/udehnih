@@ -31,6 +31,12 @@ public class TutorApplication {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "motivation", columnDefinition = "TEXT")
+    private String motivation;
+
+    @Column(name = "experience", columnDefinition = "TEXT") 
+    private String experience;
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();

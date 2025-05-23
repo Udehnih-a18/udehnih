@@ -19,7 +19,7 @@ public class Article {
     @Column(name = "content_type", nullable = false)
     private String contentType;
 
-    @Column(name = "content_url", nullable = false)
+    @Column(name = "content_url")
     private String contentUrl;
 
     @Column(name = "content_description", nullable = false)
@@ -28,10 +28,10 @@ public class Article {
     @Column(name = "content_title", nullable = false)
     private String contentTitle;
 
-    @Column(name = "content_text", nullable = false, length = 1000)
+    @Column(name = "content_text", length = 1000)
     private String contentText;
     
     @ManyToOne
-    @JoinColumn(name = "section_id", nullable = false)
+    @JoinColumn(name = "section_id")
     private Section section;
 }
