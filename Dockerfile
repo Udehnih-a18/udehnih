@@ -34,8 +34,7 @@ USER ${USER_NAME}
 WORKDIR /opt/eshop
 
 # Copy the JAR file from the builder stage
-COPY --from=builder --chown=${USER_UID}:${USER_GID} /src/eshop/build/libs/*.jar app.jar
-
+COPY --from=builder --chown=${USER_UID}:${USER_GID} /src/eshop/build/libs/udehnihh-0.0.1-SNAPSHOT.jar app.jar
 # Expose the application port
 EXPOSE 8080
 
