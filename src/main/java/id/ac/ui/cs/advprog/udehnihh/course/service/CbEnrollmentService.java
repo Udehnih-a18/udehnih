@@ -56,8 +56,6 @@ public class CbEnrollmentService {
     @PreAuthorize("hasRole('STUDENT')")
     public List<EnrollmentDto> myCourses(User student) {
         return enrollRepo.findByStudentId(student.getId()).stream()
-                .filter(e -> e.getPaymentStatus() == Enrollment.PaymentStatus.PAID
-                          || e.getCourse().getPrice() == 0)
                 .map(e -> new EnrollmentDto(
                         e.getId(),
                         e.getCourse().getId(),
