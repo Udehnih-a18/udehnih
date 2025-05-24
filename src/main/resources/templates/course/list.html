@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Kursus - Udehnih</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Include navbar -->
+    <div th:insert="~{navbar :: navbar}"></div>
+
+    <div class="container mt-4">
+        <h1 class="mb-4">🔍 Daftar Kursus</h1>
+        
+        <!-- Search and Filter Form -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <form id="searchForm" class="row g-3">
+                    <div class="col-md-4">
+                        <label for="searchQuery" class="form-label">Cari Kursus</label>
+                        <input type="text" class="form-control" id="searchQuery" name="q" placeholder="Nama kursus...">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="minPrice" class="form-label">Harga Minimum</label>
+                        <input type="number" class="form-control" id="minPrice" name="minPrice" placeholder="0" min="0">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="maxPrice" class="form-label">Harga Maksimum</label>
+                        <input type="number" class="form-control" id="maxPrice" name="maxPrice" placeholder="1000000" min="0">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">&nbsp;</label>
+                        <button type="submit" class="btn btn-primary d-block w-100">
+                            <i class="fas fa-search"></i> Cari
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Course List -->
+        <div id="courseList" class="row">
+            <div class="col-12 text-center">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Force check navbar status
+            setTimeout(() => {
+                if (window.checkLoginStatus) {
+                    window.checkLoginStatus();
+                }
+            }, 100);
+            
+            loadCourses();
+            
+            document.getElementById('searchForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                loadCourses();
+            });
+        });
+
+        function loadCourses() {
+            const form = document.getElementById('searchForm');
+            const formData = new FormData(form);
+            const params = new URLSearchParams();
+            
+            for (const [key, value] of formData.entries()) {
+                if (value.trim()) params.append(key, value);
+            }
+
+            fetch(`/api/cb/courses?${params}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Gagal memuat daftar kursus');
+                    }
+                    return response.json();
+                })
+                .then(courses => {
+                    if (courses) renderCourses(courses);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('courseList').innerHTML = 
+                        '<div class="col-12"><div class="alert alert-danger">Gagal memuat kursus. Silakan refresh halaman.</div></div>';
+                });
+        }
+
+        function renderCourses(courses) {
+            const courseList = document.getElementById('courseList');
+            
+            if (courses.length === 0) {
+                courseList.innerHTML = `
+                    <div class="col-12">
+                        <div class="alert alert-info text-center">
+                            <i class="fas fa-info-circle"></i> Tidak ada kursus yang ditemukan
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            courseList.innerHTML = courses.map(course => `
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">${course.name}</h5>
+                            <p class="card-text text-muted mb-2">
+                                <i class="fas fa-user"></i> ${course.tutorName}
+                            </p>
+                            <p class="card-text">
+                                <strong class="text-success">
+                                    ${course.priceRp === 0 ? 'GRATIS' : `Rp ${course.priceRp.toLocaleString('id-ID')}`}
+                                </strong>
+                            </p>
+                            <div class="mt-auto">
+                                <a href="/courses/${course.id}" class="btn btn-primary w-100">
+                                    👀 Lihat Detail
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+    </script>
+
+    <!-- NAVBAR SCRIPT - WAIT FOR ELEMENTS -->
+    <script>
+        console.log('=== NAVBAR SCRIPT START ===');
+        
+        window.updateNavbar = function() {
+            console.log('updateNavbar called');
+            
+            const token = localStorage.getItem('token');
+            console.log('Token exists:', !!token);
+            
+            const guestNav = document.getElementById('guestNav');
+            const userNav = document.getElementById('userNav');
+            const myCourseLink = document.getElementById('myCourseLink');
+            const userWelcome = document.getElementById('userWelcome');
+            
+            console.log('Elements found:', {
+                guestNav: !!guestNav,
+                userNav: !!userNav,
+                myCourseLink: !!myCourseLink,
+                userWelcome: !!userWelcome
+            });
+            
+            // If elements not found, retry later
+            if (!guestNav || !userNav || !myCourseLink) {
+                console.log('Elements not ready, retrying in 100ms');
+                setTimeout(window.updateNavbar, 100);
+                return;
+            }
+            
+            if (token) {
+                console.log('Showing logged in navbar');
+                guestNav.style.display = 'none';
+                userNav.style.display = 'flex';
+                myCourseLink.style.display = 'block';
+                
+                try {
+                    const payload = JSON.parse(atob(token.split('.')[1]));
+                    const email = payload.sub || 'User';
+                    if (userWelcome) userWelcome.textContent = `👋 Hello, ${email}!`;
+                    console.log('Welcome message set to:', email);
+                } catch (e) {
+                    console.error('Error parsing token:', e);
+                    if (userWelcome) userWelcome.textContent = '👋 Hello, User!';
+                }
+            } else {
+                console.log('Showing guest navbar');
+                guestNav.style.display = 'flex';
+                userNav.style.display = 'none';
+                myCourseLink.style.display = 'none';
+            }
+        };
+
+        window.logout = function() {
+            console.log('Logout called');
+            localStorage.removeItem('token');
+            window.updateNavbar();
+            window.location.href = '/courses';
+        };
+
+        // Wait for navbar to be loaded using MutationObserver
+        function waitForNavbar() {
+            const observer = new MutationObserver((mutations) => {
+                const guestNav = document.getElementById('guestNav');
+                if (guestNav) {
+                    console.log('Navbar detected, updating...');
+                    observer.disconnect();
+                    window.updateNavbar();
+                }
+            });
+            
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+            
+            // Fallback: also try immediate execution
+            setTimeout(() => {
+                console.log('Fallback execution');
+                window.updateNavbar();
+            }, 50);
+        }
+
+        // Start waiting for navbar
+        console.log('About to wait for navbar');
+        waitForNavbar();
+        
+        console.log('=== NAVBAR SCRIPT END ===');
+    </script>
+</body>
+</html>
