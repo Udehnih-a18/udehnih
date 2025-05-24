@@ -6,7 +6,9 @@ import id.ac.ui.cs.advprog.udehnihh.authentication.dto.RegisterRequest;
 import id.ac.ui.cs.advprog.udehnihh.authentication.enums.Role;
 import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
 import id.ac.ui.cs.advprog.udehnihh.authentication.repository.UserRepository;
-
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -45,6 +47,38 @@ class AuthServiceImplTest {
         jwtService = mock(JwtServiceImpl.class);
         tokenBlacklistService = mock(TokenBlacklistServiceImpl.class);
         authService = new AuthServiceImpl(userRepository, passwordEncoder, jwtService, tokenBlacklistService);
+    }
+    @Test
+    void testGetCurrentUserReturnsUserFromContext() {
+        User user = User.builder()
+                .id(UUID.randomUUID())
+                .email("current@example.com")
+                .fullName("Current User")
+                .build();
+
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getPrincipal()).thenReturn(user);
+
+        SecurityContext context = mock(SecurityContext.class);
+        when(context.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(context);
+
+        User currentUser = authService.getCurrentUser();
+
+        assertNotNull(currentUser);
+        assertEquals("current@example.com", currentUser.getEmail());
+    }
+
+    @Test
+    void testGetCurrentUserThrowsIfNotUserInstance() {
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getPrincipal()).thenReturn("notAUser");
+
+        SecurityContext context = mock(SecurityContext.class);
+        when(context.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(context);
+
+        assertThrows(RuntimeException.class, () -> authService.getCurrentUser());
     }
 
     @Test
