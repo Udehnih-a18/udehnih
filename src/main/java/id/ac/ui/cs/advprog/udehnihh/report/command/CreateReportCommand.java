@@ -15,6 +15,13 @@ public class CreateReportCommand implements ReportCommand {
 
     @Override
     public Report execute() {
+        if (report.getTitle() == null || report.getTitle().trim().isEmpty()) {
+            throw new IllegalArgumentException("Title tidak boleh kosong");
+        }
+        if (report.getDescription() == null || report.getDescription().trim().isEmpty()) {
+            throw new IllegalArgumentException("Description tidak boleh kosong");
+        }
         return repository.save(report);
     }
+
 }
