@@ -44,15 +44,14 @@
 
         try {
             const response = await fetch("/api/auth/login", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                email,
-                password
-            }),
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ email, password }),
             });
+
+            const data = await response.json();
 
             const resultText = document.getElementById("loginResult");
 
@@ -61,10 +60,9 @@
                 resultText.innerText = "✅ Login successful!";
                 resultText.classList.remove("text-red-600");
                 resultText.classList.add("text-green-600");
-            setTimeout(() => window.location.href = "/homepage", 1000);
+                setTimeout(() => window.location.href = "/homepage", 1000);
             } else {
-                const data = await response.json();
-                resultText.innerText = `⚠️ ${Array.isArray(data.messages) ? data.messages.join(', ') : data}`;
+                resultText.innerText = `⚠️ ${Array.isArray(data.messages) ? data.messages.join(', ') : JSON.stringify(data)}`;
                 resultText.classList.remove("text-green-600");
                 resultText.classList.add("text-red-600");
             }
@@ -73,7 +71,7 @@
             resultText.innerText = "❌ Error: " + err.message;
             resultText.classList.add("text-red-600");
         }
-        });
+      });
     </script>
 </body>
 </html>
