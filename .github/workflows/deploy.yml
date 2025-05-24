@@ -5,13 +5,13 @@ on:
     workflows: ["CI Pipeline"]
     types:
       - completed
-
 jobs:
-  deploy:
+  build-and-deploy:
     if: >
       github.event.workflow_run.conclusion == 'success' &&
       github.event.workflow_run.head_branch == 'main'
     runs-on: ubuntu-latest
+
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -28,18 +28,25 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPO_NAME }}:latest
 
-      - name: Releasing New Version on AWS
+      - name: Releasing New Version
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
+            # Stop dan hapus container jika ada
             docker stop web_server || true
             docker rm web_server || true
-            docker rmi $(docker images -a -q)
+
+            # Hapus image lama (jangan semua image, cukup targetnya aja)
+            docker rmi ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPO_NAME }}:latest || true
+
+            # Login dan pull image baru
             docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} -p ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPO_NAME }}:latest
+
+            # Jalankan container baru
             docker run -d \
               --name=web_server \
               -p 8080:8080 \
