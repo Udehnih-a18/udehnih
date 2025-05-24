@@ -31,11 +31,22 @@ class CreditCardPaymentStrategyTest {
     }
 
     @Test
-    void shouldThrowExceptionIfCvcInvalid() {
+    void shouldThrowExceptionIfCvcLengthLess() {
         CreditCardTransaction transaction = new CreditCardTransaction();
         transaction.setMethod(PaymentMethod.CREDIT_CARD);
 
-        transaction.setCvc("1"); // invalid
+        transaction.setCvc("1");
+
+        assertThrows(IllegalArgumentException.class, () ->
+                strategy.pay(transaction));
+    }
+
+    @Test
+    void shouldThrowExceptionIfCvcNonNumeric() {
+        CreditCardTransaction transaction = new CreditCardTransaction();
+        transaction.setMethod(PaymentMethod.CREDIT_CARD);
+
+        transaction.setCvc("abc");
 
         assertThrows(IllegalArgumentException.class, () ->
                 strategy.pay(transaction));
