@@ -9,6 +9,7 @@ import id.ac.ui.cs.advprog.udehnihh.authentication.enums.Role;
 import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
 import id.ac.ui.cs.advprog.udehnihh.authentication.repository.UserRepository;
 import id.ac.ui.cs.advprog.udehnihh.authentication.service.JwtService;
+import id.ac.ui.cs.advprog.udehnihh.course.dto.request.TutorApplicationRequest;
 import id.ac.ui.cs.advprog.udehnihh.course.model.TutorApplication;
 import id.ac.ui.cs.advprog.udehnihh.course.repository.TutorApplicationRepository;
 
@@ -28,7 +29,7 @@ public class TutorApplicationServiceImpl implements TutorApplicationService {
         this.jwtTokenUtil = jwtTokenUtil;
     }
 
-    public TutorApplication createApplication(String token) {
+    public TutorApplication createApplication(String token, TutorApplicationRequest request) {
         String email = jwtTokenUtil.getEmailFromToken(token);
         Optional<User> optionalUser = userRepository.findByEmail(email);
 
@@ -48,6 +49,8 @@ public class TutorApplicationServiceImpl implements TutorApplicationService {
 
         TutorApplication application = new TutorApplication();
         application.setApplicant(user);
+        application.setExperience(request.getExperience());
+        application.setMotivation(request.getMotivation());
         application.setStatus(TutorApplication.ApplicationStatus.PENDING);
 
         return tutorApplicationRepository.save(application);

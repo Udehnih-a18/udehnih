@@ -1,4 +1,4 @@
-package id.ac.ui.cs.advprog.udehnihh.course.dto;
+package id.ac.ui.cs.advprog.udehnihh.course.dto.request;
 
 import lombok.Getter;
 import lombok.Setter;

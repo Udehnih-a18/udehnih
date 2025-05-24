@@ -31,6 +31,15 @@ public class Course {
     @Column(nullable = false)
     private Double price;
 
+    @Enumerated(EnumType.STRING)
+    private CourseStatus status = CourseStatus.PENDING;
+
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Section> sections = new ArrayList<>();
+
+    public enum CourseStatus {
+        PENDING,
+        APPROVED,
+        REJECTED
+    }
 }

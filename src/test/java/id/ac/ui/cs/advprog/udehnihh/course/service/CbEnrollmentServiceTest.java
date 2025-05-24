@@ -85,7 +85,7 @@ class CbEnrollmentServiceTest {
 
         assertEquals(enrollmentId, result);
         verify(enrollRepo).save(any(Enrollment.class));
-        verify(eventPublisher).publishEvent(any());
+        verify(eventPublisher).publishEvent(any(EnrollmentPaymentPendingEvent.class));
     }
 
     @Test
