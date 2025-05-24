@@ -25,6 +25,13 @@ public class UpdateReportCommand implements ReportCommand {
 
     @Override
     public Report execute() {
+        if (newTitle == null || newTitle.trim().isEmpty()) {
+            throw new IllegalArgumentException("Title tidak boleh kosong");
+        }
+        if (newDescription == null || newDescription.trim().isEmpty()) {
+            throw new IllegalArgumentException("Description tidak boleh kosong");
+        }
+
         Report report = repository.findById(reportId).orElseThrow(() -> new NoSuchElementException("Report not found"));
         if (!report.getCreatedBy().getId().equals(user.getId())) {
             throw new SecurityException("You can only update your own reports");
@@ -34,4 +41,5 @@ public class UpdateReportCommand implements ReportCommand {
         report.setUpdatedAt(LocalDateTime.now());
         return repository.save(report);
     }
+
 }
