@@ -35,12 +35,19 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            docker rmi $(docker images -a -q)
+            # Stop dan hapus container jika ada
+            docker stop web_server || true
+            docker rm web_server || true
+
+            # Hapus image lama (jangan semua image, cukup targetnya aja)
+            docker rmi ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPO_NAME }}:latest || true
+
+            # Login dan pull image baru
             docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} -p ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPO_NAME }}:latest
-            source .env
+
+            # Jalankan container baru
             docker run -d \
-            --name=web_server \
-            -p 8080:8080 \
-            -e ENV1="insert env var anda disini jika perlu" \
-            ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPO_NAME }}:latest
+              --name=web_server \
+              -p 8080:8080 \
+              ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPO_NAME }}:latest
