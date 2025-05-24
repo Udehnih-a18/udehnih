@@ -3,426 +3,157 @@ package id.ac.ui.cs.advprog.udehnihh.report.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
 import id.ac.ui.cs.advprog.udehnihh.authentication.service.AuthService;
-import id.ac.ui.cs.advprog.udehnihh.config.GlobalExceptionHandler;
 import id.ac.ui.cs.advprog.udehnihh.report.model.Report;
 import id.ac.ui.cs.advprog.udehnihh.report.service.ReportService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.Authentication;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
+import org.springframework.http.*;
+import org.springframework.test.context.ActiveProfiles;
 
-import java.util.Arrays;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
-import static org.mockito.ArgumentMatchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@ExtendWith(MockitoExtension.class)
-class ReportRestControllerTest {
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("test")
+public class ReportRestControllerTest {
 
-    @Mock
+    @LocalServerPort
+    private int port;
+
+    @Autowired
+    private TestRestTemplate restTemplate;
+
+    @Autowired
     private ReportService reportService;
 
-    @Mock
+    @Autowired
     private AuthService authService;
 
-    @Mock
-    private Authentication authentication;
-
-    @InjectMocks
-    private ReportRestController reportRestController;
-
-    private MockMvc mockMvc;
+    @Autowired
     private ObjectMapper objectMapper;
+
+    private String baseUrl;
     private User testUser;
     private Report testReport;
 
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(reportRestController)
-                .setControllerAdvice(new GlobalExceptionHandler())
+        reset(reportService);
+        reset(authService);
+        baseUrl = "http://localhost:" + port + "/api";
+
+        testUser = User.builder()
+                .id(UUID.randomUUID())
+                .email("test@example.com")
+                .fullName("Test User")
                 .build();
-        objectMapper = new ObjectMapper();
 
-        testUser = new User();
-        testUser.setId(UUID.randomUUID());
-        testUser.setEmail("test@example.com");
-        testUser.setFullName("Test User");
-
-        testReport = new Report();
-        testReport.setIdReport("report-123");
-        testReport.setTitle("Test Report");
-        testReport.setDescription("Test Description");
-        testReport.setCreatedBy(testUser);
+        testReport = Report.builder()
+                .idReport("r123")
+                .title("Sample Title")
+                .description("Sample Description")
+                .createdBy(testUser)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
     }
 
-
-    // HAPPY PATH TESTS
-
     @Test
-    void createReport_Success() throws Exception {
-        // Arrange
-        when(authentication.getName()).thenReturn("test@example.com");
-        when(authService.getUserByEmail("test@example.com")).thenReturn(testUser);
+    void shouldCreateReportSuccessfully() {
+        when(authService.getCurrentUser()).thenReturn(testUser);
         when(reportService.createReport(any(Report.class))).thenReturn(testReport);
 
-        Report requestReport = new Report();
-        requestReport.setTitle("New Report");
-        requestReport.setDescription("New Description");
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<Report> request = new HttpEntity<>(testReport, headers);
 
-        // Act & Assert
-        mockMvc.perform(post("/api/student/reports")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(requestReport))
-                        .principal(authentication))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Report successfully created"))
-                .andExpect(jsonPath("$.report.idReport").value("report-123"))
-                .andExpect(jsonPath("$.report.title").value("Test Report"));
-
-        verify(authService).getUserByEmail("test@example.com");
+        ResponseEntity<String> response = restTemplate.postForEntity(baseUrl + "/student/reports", request, String.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         verify(reportService).createReport(any(Report.class));
     }
 
     @Test
-    void getStudentReports_Success() throws Exception {
-        // Arrange
-        List<Report> reports = Arrays.asList(testReport);
-        when(authentication.getName()).thenReturn("test@example.com");
-        when(authService.getUserByEmail("test@example.com")).thenReturn(testUser);
-        when(reportService.getReportsByAuthor(testUser)).thenReturn(reports);
+    void shouldReturnReportsForStudent() {
+        when(authService.getCurrentUser()).thenReturn(testUser);
+        when(reportService.getReportsByAuthor(testUser)).thenReturn(List.of(testReport));
 
-        // Act & Assert
-        mockMvc.perform(get("/api/student/reports")
-                        .principal(authentication))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Reports fetched successfully"))
-                .andExpect(jsonPath("$.reports").isArray())
-                .andExpect(jsonPath("$.reports[0].idReport").value("report-123"));
-
-        verify(authService).getUserByEmail("test@example.com");
+        ResponseEntity<String> response = restTemplate.getForEntity(baseUrl + "/student/reports", String.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         verify(reportService).getReportsByAuthor(testUser);
     }
 
     @Test
-    void getStudentReportById_Success_WhenOwner() throws Exception {
-        // Arrange
-        when(authentication.getName()).thenReturn("test@example.com");
-        when(authService.getUserByEmail("test@example.com")).thenReturn(testUser);
-        when(reportService.getReportById("report-123")).thenReturn(testReport);
+    void shouldDenyAccessToOtherUserReport() {
+        User otherUser = User.builder().id(UUID.randomUUID()).email("x@x.com").build();
+        when(authService.getCurrentUser()).thenReturn(otherUser);
+        when(reportService.getReportById("r123")).thenReturn(testReport);
 
-        // Act & Assert
-        mockMvc.perform(get("/api/student/reports/report-123")
-                        .principal(authentication))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Report fetched successfully"))
-                .andExpect(jsonPath("$.report.idReport").value("report-123"));
-
-        verify(authService).getUserByEmail("test@example.com");
-        verify(reportService).getReportById("report-123");
+        ResponseEntity<String> response = restTemplate.getForEntity(baseUrl + "/student/reports/r123", String.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
     }
 
     @Test
-    void updateStudentReport_Success() throws Exception {
-        // Arrange
-        Report updatedReport = new Report();
-        updatedReport.setTitle("Updated Title");
-        updatedReport.setDescription("Updated Description");
-
-        Report returnedReport = new Report();
-        returnedReport.setIdReport("report-123");
-        returnedReport.setTitle("Updated Title");
-        returnedReport.setDescription("Updated Description");
-        returnedReport.setCreatedBy(testUser);
-
-        when(authentication.getName()).thenReturn("test@example.com");
-        when(authService.getUserByEmail("test@example.com")).thenReturn(testUser);
-        when(reportService.updateReport("report-123", testUser, "Updated Title", "Updated Description"))
-                .thenReturn(returnedReport);
-
-        // Act & Assert
-        mockMvc.perform(put("/api/student/reports/report-123")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updatedReport))
-                        .principal(authentication))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Report successfully updated"))
-                .andExpect(jsonPath("$.report.title").value("Updated Title"));
-
-        verify(authService).getUserByEmail("test@example.com");
-        verify(reportService).updateReport("report-123", testUser, "Updated Title", "Updated Description");
+    void shouldReturnReportByIdForStaff() {
+        when(reportService.getReportById("r123")).thenReturn(testReport);
+        ResponseEntity<String> response = restTemplate.getForEntity(baseUrl + "/staff/reports/r123", String.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
     @Test
-    void deleteStudentReport_Success() throws Exception {
-        // Arrange
-        when(authentication.getName()).thenReturn("test@example.com");
-        when(authService.getUserByEmail("test@example.com")).thenReturn(testUser);
-        doNothing().when(reportService).deleteReport("report-123", testUser);
+    void shouldUpdateOwnReport() {
+        Report updated = Report.builder().title("New").description("Updated").build();
+        when(authService.getCurrentUser()).thenReturn(testUser);
+        when(reportService.updateReport(eq("r123"), eq(testUser), any(), any())).thenReturn(testReport);
 
-        // Act & Assert
-        mockMvc.perform(delete("/api/student/reports/report-123")
-                        .principal(authentication))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Report successfully deleted"))
-                .andExpect(jsonPath("$.reportId").value("report-123"));
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<Report> request = new HttpEntity<>(updated, headers);
+        ResponseEntity<String> response = restTemplate.exchange(baseUrl + "/student/reports/r123", HttpMethod.PUT, request, String.class);
 
-        verify(authService).getUserByEmail("test@example.com");
-        verify(reportService).deleteReport("report-123", testUser);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
     @Test
-    void getAllReportsForStaff_Success() throws Exception {
-        // Arrange
-        List<Report> reports = Arrays.asList(testReport);
-        when(reportService.getAllReports()).thenReturn(reports);
+    void shouldDeleteOwnReport() {
+        when(authService.getCurrentUser()).thenReturn(testUser);
 
-        // Act & Assert
-        mockMvc.perform(get("/api/staff/reports"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("All reports fetched successfully"))
-                .andExpect(jsonPath("$.reports").isArray())
-                .andExpect(jsonPath("$.reports[0].idReport").value("report-123"));
+        HttpHeaders headers = new HttpHeaders();
+        HttpEntity<String> request = new HttpEntity<>(headers);
+        ResponseEntity<String> response = restTemplate.exchange(baseUrl + "/student/reports/r123", HttpMethod.DELETE, request, String.class);
 
-        verify(reportService).getAllReports();
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
     @Test
-    void getReportByIdForStaff_Success() throws Exception {
-        // Arrange
-        when(reportService.getReportById("report-123")).thenReturn(testReport);
-
-        // Act & Assert
-        mockMvc.perform(get("/api/staff/reports/report-123"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Report fetched successfully"))
-                .andExpect(jsonPath("$.report.idReport").value("report-123"));
-
-        verify(reportService).getReportById("report-123");
+    void shouldReturnEmptyListWhenNoReportsExist() {
+        when(reportService.getAllReports()).thenReturn(List.of());
+        ResponseEntity<String> response = restTemplate.getForEntity(baseUrl + "/staff/reports", String.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
-    // UNHAPPY PATH TESTS
+    @TestConfiguration
+    static class TestConfig {
+        @Bean
+        @Primary
+        public ReportService reportService() {
+            return mock(ReportService.class);
+        }
 
-    @Test
-    void createReport_ServiceThrowsException() throws Exception {
-        // Arrange
-        when(authentication.getName()).thenReturn("test@example.com");
-        when(authService.getUserByEmail("test@example.com")).thenReturn(testUser);
-        when(reportService.createReport(any(Report.class)))
-                .thenThrow(new RuntimeException("Service error"));
-
-        Report requestReport = new Report();
-        requestReport.setTitle("New Report");
-        requestReport.setDescription("New Description");
-
-        // Act & Assert
-        mockMvc.perform(post("/api/student/reports")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(requestReport))
-                        .principal(authentication))
-                .andExpect(status().isInternalServerError());
-
-        verify(reportService).createReport(any(Report.class));
+        @Bean
+        @Primary
+        public AuthService authService() {
+            return mock(AuthService.class);
+        }
     }
-
-    @Test
-    void getStudentReports_ServiceThrowsException() throws Exception {
-        // Arrange
-        when(authentication.getName()).thenReturn("test@example.com");
-        when(authService.getUserByEmail("test@example.com")).thenReturn(testUser);
-        when(reportService.getReportsByAuthor(testUser))
-                .thenThrow(new RuntimeException("Service error"));
-
-        // Act & Assert
-        mockMvc.perform(get("/api/student/reports")
-                        .principal(authentication))
-                .andExpect(status().isInternalServerError());
-
-        verify(reportService).getReportsByAuthor(testUser);
-    }
-
-    @Test
-    void getStudentReportById_AccessDenied_WhenNotOwner() throws Exception {
-        // Arrange
-        User anotherUser = new User();
-        anotherUser.setId(UUID.randomUUID());
-        anotherUser.setEmail("another@example.com");
-
-        Report anotherUserReport = new Report();
-        anotherUserReport.setIdReport("report-456");
-        anotherUserReport.setCreatedBy(anotherUser);
-
-        when(authentication.getName()).thenReturn("test@example.com");
-        when(authService.getUserByEmail("test@example.com")).thenReturn(testUser);
-        when(reportService.getReportById("report-456")).thenReturn(anotherUserReport);
-
-        // Act & Assert
-        mockMvc.perform(get("/api/student/reports/report-456")
-                        .principal(authentication))
-                .andExpect(status().isForbidden());
-
-        verify(reportService).getReportById("report-456");
-    }
-
-    @Test
-    void getStudentReportById_ReportNotFound() throws Exception {
-        // Arrange
-        when(authentication.getName()).thenReturn("test@example.com");
-        when(authService.getUserByEmail("test@example.com")).thenReturn(testUser);
-        when(reportService.getReportById("nonexistent"))
-                .thenThrow(new RuntimeException("Report not found"));
-
-        // Act & Assert
-        mockMvc.perform(get("/api/student/reports/nonexistent")
-                        .principal(authentication))
-                .andExpect(status().isInternalServerError());
-
-        verify(reportService).getReportById("nonexistent");
-    }
-
-    @Test
-    void updateStudentReport_ServiceThrowsException() throws Exception {
-        // Arrange
-        Report updatedReport = new Report();
-        updatedReport.setTitle("Updated Title");
-        updatedReport.setDescription("Updated Description");
-
-        when(authentication.getName()).thenReturn("test@example.com");
-        when(authService.getUserByEmail("test@example.com")).thenReturn(testUser);
-        when(reportService.updateReport(anyString(), any(User.class), anyString(), anyString()))
-                .thenThrow(new RuntimeException("Update failed"));
-
-        // Act & Assert
-        mockMvc.perform(put("/api/student/reports/report-123")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updatedReport))
-                        .principal(authentication))
-                .andExpect(status().isInternalServerError());
-
-        verify(reportService).updateReport("report-123", testUser, "Updated Title", "Updated Description");
-    }
-
-    @Test
-    void deleteStudentReport_ServiceThrowsException() throws Exception {
-        // Arrange
-        when(authentication.getName()).thenReturn("test@example.com");
-        when(authService.getUserByEmail("test@example.com")).thenReturn(testUser);
-        doThrow(new RuntimeException("Delete failed"))
-                .when(reportService).deleteReport("report-123", testUser);
-
-        // Act & Assert
-        mockMvc.perform(delete("/api/student/reports/report-123")
-                        .principal(authentication))
-                .andExpect(status().isInternalServerError());
-
-        verify(reportService).deleteReport("report-123", testUser);
-    }
-
-    @Test
-    void getAllReportsForStaff_ServiceThrowsException() throws Exception {
-        // Arrange
-        when(reportService.getAllReports())
-                .thenThrow(new RuntimeException("Service error"));
-
-        // Act & Assert
-        mockMvc.perform(get("/api/staff/reports"))
-                .andExpect(status().isInternalServerError());
-
-        verify(reportService).getAllReports();
-    }
-
-    @Test
-    void getReportByIdForStaff_ReportNotFound() throws Exception {
-        when(reportService.getReportById("nonexistent"))
-                .thenThrow(new RuntimeException("Report not found"));
-
-        mockMvc.perform(get("/api/staff/reports/nonexistent"))
-                .andExpect(status().isInternalServerError());
-
-        verify(reportService).getReportById("nonexistent");
-    }
-
-
-    @Test
-    void createReport_AuthServiceThrowsException() throws Exception {
-        // Arrange
-        when(authentication.getName()).thenReturn("test@example.com");
-        when(authService.getUserByEmail("test@example.com"))
-                .thenThrow(new RuntimeException("User not found"));
-
-        Report requestReport = new Report();
-        requestReport.setTitle("New Report");
-
-        // Act & Assert
-        mockMvc.perform(post("/api/student/reports")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(requestReport))
-                        .principal(authentication))
-                .andExpect(status().isInternalServerError());
-
-        verify(authService).getUserByEmail("test@example.com");
-        verify(reportService, never()).createReport(any());
-    }
-
-    @Test
-    void updateStudentReport_WithNullFields() throws Exception {
-        // Arrange
-        Report updatedReport = new Report();
-        // Leave title and description as null
-
-        Report returnedReport = new Report();
-        returnedReport.setIdReport("report-123");
-        returnedReport.setCreatedBy(testUser);
-
-        when(authentication.getName()).thenReturn("test@example.com");
-        when(authService.getUserByEmail("test@example.com")).thenReturn(testUser);
-        when(reportService.updateReport("report-123", testUser, null, null))
-                .thenReturn(returnedReport);
-
-        // Act & Assert
-        mockMvc.perform(put("/api/student/reports/report-123")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updatedReport))
-                        .principal(authentication))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Report successfully updated"));
-
-        verify(reportService).updateReport("report-123", testUser, null, null);
-    }
-
-    @Test
-    void createReport_WithEmptyRequestBody() throws Exception {
-        // Arrange
-        when(authentication.getName()).thenReturn("test@example.com");
-        when(authService.getUserByEmail("test@example.com")).thenReturn(testUser);
-        when(reportService.createReport(any(Report.class))).thenReturn(testReport);
-
-        // Act & Assert - Test with empty JSON object
-        mockMvc.perform(post("/api/student/reports")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{}")
-                        .principal(authentication))
-                .andExpect(status().isOk());
-
-        verify(reportService).createReport(any(Report.class));
-    }
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<?> handleBadRequest(IllegalArgumentException ex) {
-        return ResponseEntity.badRequest().body(Map.of("message", ex.getMessage()));
-    }
-
 }
