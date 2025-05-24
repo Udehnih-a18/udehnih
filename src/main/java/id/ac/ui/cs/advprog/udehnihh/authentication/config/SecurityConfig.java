@@ -7,6 +7,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -20,23 +21,31 @@ public class SecurityConfig {
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
-
+    
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .csrf().disable()
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/student/reports/**").hasRole("STUDENT")
-                        .requestMatchers(HttpMethod.POST, "/api/student/reports").hasRole("STUDENT")
-                        .requestMatchers(HttpMethod.PUT, "/api/student/reports/**").hasRole("STUDENT")
-                        .requestMatchers(HttpMethod.DELETE, "/api/student/reports/**").hasRole("STUDENT")
-                        .requestMatchers("/api/staff/reports/**").hasRole("STAFF")
+            .csrf().disable()
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/**").permitAll()
+                .requestMatchers("/api/cb/courses").permitAll()
+                .requestMatchers("/api/cb/courses/{id}").permitAll()
+                .requestMatchers("/api/cb/courses/{id}/enroll").hasRole("STUDENT")
+                .requestMatchers("/api/cb/my-courses").hasRole("STUDENT")
+                    .requestMatchers(HttpMethod.GET, "/api/student/reports/**").hasRole("STUDENT")
+                    .requestMatchers(HttpMethod.POST, "/api/student/reports").hasRole("STUDENT")
+                    .requestMatchers(HttpMethod.PUT, "/api/student/reports/{id}").hasRole("STUDENT")
+                    .requestMatchers(HttpMethod.DELETE, "/api/student/reports/{id}").hasRole("STUDENT")
+                    .requestMatchers("/api/staff/reports/**").hasRole("STAFF")
 
-                        .anyRequest().authenticated()
-                )
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .build();
+                    .anyRequest().authenticated()
+            )
+            .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .build();
     }
 
     @Bean
