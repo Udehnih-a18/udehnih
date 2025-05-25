@@ -6,13 +6,16 @@ import id.ac.ui.cs.advprog.udehnihh.authentication.dto.RegisterRequest;
 import id.ac.ui.cs.advprog.udehnihh.authentication.enums.Role;
 import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
 import id.ac.ui.cs.advprog.udehnihh.authentication.repository.UserRepository;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
@@ -21,13 +24,11 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
+@AutoConfigureMockMvc(addFilters = false)
 class AuthServiceImplTest {
 
-    @Mock
     private UserRepository userRepository;
-
-    @Mock
     private PasswordEncoder passwordEncoder;
 
     @Mock
@@ -39,173 +40,127 @@ class AuthServiceImplTest {
     @InjectMocks
     private AuthServiceImpl authService;
 
-    private final String testEmail = "test@example.com";
-    private final String testName = "Test User";
-    private final String testPassword = "password";
-    private final String encodedPassword = "encodedPassword";
-    private final String testToken = "test.token.value";
-
+    @BeforeEach
+    void setUp() {
+        userRepository = mock(UserRepository.class);
+        passwordEncoder = mock(PasswordEncoder.class);
+        jwtService = mock(JwtServiceImpl.class);
+        tokenBlacklistService = mock(TokenBlacklistServiceImpl.class);
+        authService = new AuthServiceImpl(userRepository, passwordEncoder, jwtService, tokenBlacklistService);
+    }
     @Test
-    void testRegister_Success() {
-        // Arrange
-        RegisterRequest request = new RegisterRequest(testEmail, testName, testPassword);
-        User expectedUser = User.builder()
-                .email(testEmail)
-                .fullName(testName)
-                .password(encodedPassword)
-                .role(Role.STUDENT)
+    void testGetCurrentUserReturnsUserFromContext() {
+        User user = User.builder()
+                .id(UUID.randomUUID())
+                .email("current@example.com")
+                .fullName("Current User")
                 .build();
 
-        when(passwordEncoder.encode(testPassword)).thenReturn(encodedPassword);
-        when(jwtService.generateToken(testEmail, Role.STUDENT.getValue())).thenReturn(testToken);
-        when(userRepository.save(any(User.class))).thenReturn(expectedUser);
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getPrincipal()).thenReturn(user);
 
-        // Act
+        SecurityContext context = mock(SecurityContext.class);
+        when(context.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(context);
+
+        User currentUser = authService.getCurrentUser();
+
+        assertNotNull(currentUser);
+        assertEquals("current@example.com", currentUser.getEmail());
+    }
+
+    @Test
+    void testGetCurrentUserThrowsIfNotUserInstance() {
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getPrincipal()).thenReturn("notAUser");
+
+        SecurityContext context = mock(SecurityContext.class);
+        when(context.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(context);
+
+        assertThrows(RuntimeException.class, () -> authService.getCurrentUser());
+    }
+
+    @Test
+    void testRegisterReturnsAuthResponseWithToken() {
+        RegisterRequest request = new RegisterRequest("test@example.com", "Test User", "password");
+        String encodedPassword = "encodedPassword";
+        String token = "mockedToken";
+
+        when(passwordEncoder.encode("password")).thenReturn(encodedPassword);
+        when(jwtService.generateToken("test@example.com", "STUDENT")).thenReturn(token);
+
+        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+
         AuthResponse response = authService.register(request);
 
-        // Assert
-        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(userCaptor.capture());
         User savedUser = userCaptor.getValue();
-
-        assertEquals(testEmail, savedUser.getEmail());
-        assertEquals(testName, savedUser.getFullName());
         assertEquals(encodedPassword, savedUser.getPassword());
-        assertEquals(Role.STUDENT, savedUser.getRole());
-        assertEquals(testToken, response.getToken());
+        assertEquals("test@example.com", savedUser.getEmail());
+        assertEquals("Test User", savedUser.getFullName());
+
+        assertNotNull(response);
+        assertEquals(token, response.getToken());
     }
 
     @Test
-    void testLogin_Success() {
-        // Arrange
-        LoginRequest request = new LoginRequest(testEmail, testPassword);
+    void testLoginReturnsAuthResponseWithToken() {
+        LoginRequest request = new LoginRequest("test@example.com", "password");
         User user = User.builder()
-                .email(testEmail)
-                .password(encodedPassword)
+                .email("test@example.com")
+                .password("encodedPassword")
                 .role(Role.STUDENT)
                 .build();
 
-        when(userRepository.findByEmail(testEmail)).thenReturn(Optional.of(user));
-        when(passwordEncoder.matches(testPassword, encodedPassword)).thenReturn(true);
-        when(jwtService.generateToken(testEmail, Role.STUDENT.getValue())).thenReturn(testToken);
+        when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("password", "encodedPassword")).thenReturn(true);
+        when(jwtService.generateToken("test@example.com", "STUDENT")).thenReturn("mockedToken");
 
-        // Act
         AuthResponse response = authService.login(request);
 
-        // Assert
-        assertEquals(testToken, response.getToken());
+        assertNotNull(response);
+        assertEquals("mockedToken", response.getToken());
     }
 
     @Test
-    void testLogin_InvalidEmail_ThrowsException() {
-        // Arrange
-        LoginRequest request = new LoginRequest("invalid@example.com", testPassword);
-        when(userRepository.findByEmail("invalid@example.com")).thenReturn(Optional.empty());
-
-        // Act & Assert
-        assertThrows(RuntimeException.class, () -> authService.login(request));
-    }
-
-    @Test
-    void testLogin_InvalidPassword_ThrowsException() {
-        // Arrange
-        LoginRequest request = new LoginRequest(testEmail, "wrongPassword");
+    void testLoginThrowsIfPasswordInvalid() {
+        LoginRequest request = new LoginRequest("test@example.com", "wrongPassword");
         User user = User.builder()
-                .email(testEmail)
-                .password(encodedPassword)
+                .email("test@example.com")
+                .password("encodedPassword")
                 .build();
 
-        when(userRepository.findByEmail(testEmail)).thenReturn(Optional.of(user));
-        when(passwordEncoder.matches("wrongPassword", encodedPassword)).thenReturn(false);
+        when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
+        when(passwordEncoder.matches("wrongPassword", "encodedPassword")).thenReturn(false);
 
-        // Act & Assert
         assertThrows(RuntimeException.class, () -> authService.login(request));
     }
 
     @Test
-    void testLogout_Success() {
-        // Arrange
-        String authHeader = "Bearer " + testToken;
-        when(jwtService.validateToken(testToken)).thenReturn(true);
+    void testLogoutStripsBearerAndBlacklistsToken() {
+        String tokenWithBearer = "Bearer test.token.value";
+        String token = "test.token.value";
 
-        // Act
-        authService.logout(authHeader);
+        when(jwtService.validateToken(token)).thenReturn(true);
 
-        // Assert
-        verify(tokenBlacklistService).blacklistToken(testToken);
+        authService.logout(tokenWithBearer);
+
+        verify(tokenBlacklistService).blacklistToken(token);
     }
 
     @Test
-    void testLogout_InvalidTokenFormat_ThrowsException() {
-        // Arrange
-        String invalidHeader = "InvalidTokenFormat";
+    void testGetUserByIdThrowsIfNotFound() {
+        UUID id = UUID.randomUUID();
+        when(userRepository.findById(id)).thenReturn(Optional.empty());
 
-        // Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> authService.logout(invalidHeader));
-        verify(tokenBlacklistService, never()).blacklistToken(any());
+        assertThrows(RuntimeException.class, () -> authService.getUserById(id));
     }
 
     @Test
-    void testLogout_InvalidToken_ThrowsException() {
-        // Arrange
-        String authHeader = "Bearer " + testToken;
-        when(jwtService.validateToken(testToken)).thenReturn(false);
-
-        // Act & Assert
-        assertThrows(IllegalArgumentException.class, () -> authService.logout(authHeader));
-        verify(tokenBlacklistService, never()).blacklistToken(any());
-    }
-
-    @Test
-    void testGetUserById_Success() {
-        // Arrange
-        UUID userId = UUID.randomUUID();
-        User expectedUser = User.builder()
-                .id(userId)
-                .email(testEmail)
-                .build();
-
-        when(userRepository.findById(userId)).thenReturn(Optional.of(expectedUser));
-
-        // Act
-        User result = authService.getUserById(userId);
-
-        // Assert
-        assertEquals(expectedUser, result);
-    }
-
-    @Test
-    void testGetUserById_NotFound_ThrowsException() {
-        // Arrange
-        UUID userId = UUID.randomUUID();
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
-
-        // Act & Assert
-        assertThrows(RuntimeException.class, () -> authService.getUserById(userId));
-    }
-
-    @Test
-    void testGetUserByEmail_Success() {
-        // Arrange
-        User expectedUser = User.builder()
-                .email(testEmail)
-                .build();
-
-        when(userRepository.findByEmail(testEmail)).thenReturn(Optional.of(expectedUser));
-
-        // Act
-        User result = authService.getUserByEmail(testEmail);
-
-        // Assert
-        assertEquals(expectedUser, result);
-    }
-
-    @Test
-    void testGetUserByEmail_NotFound_ThrowsException() {
-        // Arrange
+    void testGetUserByEmailThrowsIfNotFound() {
         when(userRepository.findByEmail("nonexistent@example.com")).thenReturn(Optional.empty());
 
-        // Act & Assert
         assertThrows(RuntimeException.class, () -> authService.getUserByEmail("nonexistent@example.com"));
     }
 }

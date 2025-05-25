@@ -13,4 +13,5 @@ public interface AuthService {
     void logout(String token);
     User getUserById(UUID id);
     User getUserByEmail(String email);
+    User getCurrentUser();
 }

@@ -1,7 +1,10 @@
 package id.ac.ui.cs.advprog.udehnihh.authentication.config;
 
+import id.ac.ui.cs.advprog.udehnihh.authentication.model.User; 
 import id.ac.ui.cs.advprog.udehnihh.authentication.service.JwtServiceImpl;
 import id.ac.ui.cs.advprog.udehnihh.authentication.service.TokenBlacklistService;
+import id.ac.ui.cs.advprog.udehnihh.authentication.repository.UserRepository; 
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,10 +27,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtServiceImpl jwtUtil;
     private final TokenBlacklistService tokenBlacklistService;
+    private final UserRepository userRepository; 
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-        throws ServletException, IOException {
+            throws ServletException, IOException {
 
         String path = request.getServletPath();
         if (path.startsWith("/api/auth/")) {
@@ -60,15 +64,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String role = jwtUtil.getRoleFromToken(token);
 
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            List<SimpleGrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()));
+            User userDetails = userRepository.findByEmail(email).orElse(null); 
 
-            UsernamePasswordAuthenticationToken authToken =
-                new UsernamePasswordAuthenticationToken(email, null, authorities);
+            if (userDetails != null) { 
 
-            authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-            SecurityContextHolder.getContext().setAuthentication(authToken);
-        }
+                List<SimpleGrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()));
 
+                UsernamePasswordAuthenticationToken authToken =
+                        new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
+
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+            } 
+        } 
         filterChain.doFilter(request, response);
     }
 }
