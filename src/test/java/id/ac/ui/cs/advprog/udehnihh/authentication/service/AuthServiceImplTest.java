@@ -88,7 +88,7 @@ class AuthServiceImplTest {
         String token = "mockedToken";
 
         when(passwordEncoder.encode("password")).thenReturn(encodedPassword);
-        when(jwtService.generateToken("test@example.com", "STUDENT")).thenReturn(token);
+        when(jwtService.generateToken("test@example.com", "STUDENT", "Test User")).thenReturn(token);
 
         ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
 
@@ -110,12 +110,13 @@ class AuthServiceImplTest {
         User user = User.builder()
                 .email("test@example.com")
                 .password("encodedPassword")
+                .fullName("Test User")
                 .role(Role.STUDENT)
                 .build();
 
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("password", "encodedPassword")).thenReturn(true);
-        when(jwtService.generateToken("test@example.com", "STUDENT")).thenReturn("mockedToken");
+        when(jwtService.generateToken("test@example.com", "STUDENT", "Test User")).thenReturn("mockedToken");
 
         AuthResponse response = authService.login(request);
 
