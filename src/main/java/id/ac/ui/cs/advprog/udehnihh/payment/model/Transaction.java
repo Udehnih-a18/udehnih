@@ -7,6 +7,7 @@ import id.ac.ui.cs.advprog.udehnihh.payment.enums.TransactionStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -31,26 +32,26 @@ public class Transaction {
     private double price;
 
     @Enumerated(EnumType.STRING)
-
     private PaymentMethod method;
 
-
-    private String accountNumber;
-
+    @Column(name = "status", nullable = false)
     private TransactionStatus status;
 
     @ManyToOne
     private User student;
 
+    @CreationTimestamp
     private LocalDateTime createdAt;
 
-    public Transaction(Course course, User student, PaymentMethod method, String accountNumber) {
+    @OneToOne(mappedBy = "transaction", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Refund refund;
+
+    public Transaction(Course course, User student, PaymentMethod method) {
         this.courseName = course.getName();
         this.tutorName = course.getTutor().getFullName();
         this.price = course.getPrice();
         this.student = student;
         this.method = method;
-        this.accountNumber = accountNumber;
         this.status = TransactionStatus.PENDING;
         this.createdAt = LocalDateTime.now();
     }

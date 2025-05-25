@@ -22,12 +22,11 @@ public class BankTransferTransactionTest {
         course.setTutor(tutor);
         tutor.setFullName("Robin Smith");
 
-        BankTransferTransaction bankTransferTransaction = new BankTransferTransaction(course, student, PaymentMethod.BANK_TRANSFER, "1234567890", AvailableBanks.AMPUN_BANK_JAGO);
+        BankTransferTransaction bankTransferTransaction = new BankTransferTransaction(course, student, PaymentMethod.BANK_TRANSFER, AvailableBanks.AMPUN_BANK_JAGO);
 
         assertEquals(bankTransferTransaction.getCourseName(), course.getName());
         assertEquals(bankTransferTransaction.getTutorName(), course.getTutor().getFullName());
         assertEquals(bankTransferTransaction.getPrice(), course.getPrice());
-        assertEquals(bankTransferTransaction.getAccountNumber(), "1234567890");
 
         assertEquals(bankTransferTransaction.getStatus(), TransactionStatus.PENDING);
         assertEquals(bankTransferTransaction.getBank(), AvailableBanks.AMPUN_BANK_JAGO);

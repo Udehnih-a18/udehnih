@@ -1,9 +1,12 @@
 package id.ac.ui.cs.advprog.udehnihh.authentication.model;
 
+import id.ac.ui.cs.advprog.udehnihh.course.model.Course;
+import id.ac.ui.cs.advprog.udehnihh.payment.model.Transaction;
 import lombok.*;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -39,6 +42,9 @@ public class User {
 
     @CreationTimestamp
     private LocalDateTime registrationDate;
+
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Transaction> transactionList;
 
     @PrePersist
     protected void onCreate() {

@@ -28,7 +28,7 @@ public class PaymentWebController {
 
     @PostMapping("/create")
     public ResponseEntity<Transaction> payByBankTransfer(@ModelAttribute("bankTransferTransaction") BankTransferTransaction bankTransferTransaction) {
-        Transaction saved = service.createTransaction(bankTransferTransaction);
+        Transaction saved = service.createCreditCardTransaction(bankTransferTransaction);
         return ResponseEntity.ok(saved);
     }
 
@@ -41,12 +41,12 @@ public class PaymentWebController {
 
     @PostMapping("/create")
     public ResponseEntity<Transaction> payByCreditCard(@ModelAttribute("bankTransferTransaction") CreditCardTransaction creditCardTransaction) {
-        Transaction saved = service.createTransaction(creditCardTransaction);
+        Transaction saved = service.createCreditCardTransaction(creditCardTransaction);
         return ResponseEntity.ok(saved);
     }
 
     @GetMapping("/transactionHistory")
     public List<Transaction> history(@PathVariable UUID id) {
-        return service.getTransactionHistory(id);
+        return service.getTransactionByStudent(id);
     }
 }

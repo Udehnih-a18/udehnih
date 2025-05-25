@@ -25,14 +25,13 @@ public class PaymentController {
     public ResponseEntity<Map<String, Object>> bankTransferPage() {
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Bank transfer payment form");
-        response.put("template", "PayByBankTransfer");
         response.put("transaction", new BankTransferTransaction());
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/bankTransfer/create")
     public ResponseEntity<Transaction> payByBankTransfer(@RequestBody BankTransferTransaction bankTransferTransaction) {
-        Transaction saved = service.createTransaction(bankTransferTransaction);
+        Transaction saved = service.createCreditCardTransaction(bankTransferTransaction);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
@@ -40,20 +39,19 @@ public class PaymentController {
     public ResponseEntity<Map<String, Object>> creditCardPage() {
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Credit card payment form");
-        response.put("template", "PayByCreditCard");
         response.put("transaction", new CreditCardTransaction());
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/creditCard/create")
     public ResponseEntity<Transaction> payByCreditCard(@RequestBody CreditCardTransaction creditCardTransaction) {
-        Transaction saved = service.createTransaction(creditCardTransaction);
+        Transaction saved = service.createCreditCardTransaction(creditCardTransaction);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
     @GetMapping("/transactionHistory/{id}")
     public ResponseEntity<List<Transaction>> history(@PathVariable UUID id) {
-        List<Transaction> transactions = service.getTransactionHistory(id);
+        List<Transaction> transactions = service.getTransactionByStudent(id);
         return ResponseEntity.ok(transactions);
     }
 }

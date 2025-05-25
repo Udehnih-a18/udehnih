@@ -1,14 +1,11 @@
 package id.ac.ui.cs.advprog.udehnihh.payment.service;
 
 import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
-import id.ac.ui.cs.advprog.udehnihh.payment.enums.AvailableBanks;
 import id.ac.ui.cs.advprog.udehnihh.payment.enums.PaymentMethod;
 import id.ac.ui.cs.advprog.udehnihh.payment.enums.TransactionStatus;
 import id.ac.ui.cs.advprog.udehnihh.payment.model.BankTransferTransaction;
 import id.ac.ui.cs.advprog.udehnihh.payment.model.CreditCardTransaction;
 import id.ac.ui.cs.advprog.udehnihh.payment.model.Transaction;
-import id.ac.ui.cs.advprog.udehnihh.payment.repository.BankTransferRepository;
-import id.ac.ui.cs.advprog.udehnihh.payment.repository.CreditCardRepository;
 import id.ac.ui.cs.advprog.udehnihh.payment.repository.TransactionRepository;
 import id.ac.ui.cs.advprog.udehnihh.payment.strategy.BankTransferPaymentStrategy;
 import id.ac.ui.cs.advprog.udehnihh.payment.strategy.CreditCardPaymentStrategy;
@@ -87,6 +84,6 @@ class PaymentServiceTest {
         request.setCvc("apa");
 
         assertThrows(IllegalArgumentException.class, () ->
-                paymentService.createTransaction(dummyTransaction));
+                paymentService.createCreditCardTransaction(dummyTransaction));
     }
 }
