@@ -10,4 +10,9 @@ public class HomePageController {
     public String homePage() {
         return "HomePage";
     }
+
+    @GetMapping("/")
+    public String home() {
+        return "redirect:/courses";
+    }
 }
