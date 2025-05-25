@@ -2,6 +2,7 @@ package id.ac.ui.cs.advprog.udehnihh.payment.model;
 
 import id.ac.ui.cs.advprog.udehnihh.payment.enums.RefundStatus;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
@@ -11,6 +12,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
+@Builder
 @Entity
 @Table(name = "refund")
 public class Refund {

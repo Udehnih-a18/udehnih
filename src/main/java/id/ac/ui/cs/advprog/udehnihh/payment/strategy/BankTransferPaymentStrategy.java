@@ -10,11 +10,6 @@ import java.util.UUID;
 public class BankTransferPaymentStrategy implements PaymentStrategy {
     @Override
     public void pay(Transaction transaction) {
-        // Simpan status PENDING, tunggu konfirmasi manual
-        transaction.setStatus(TransactionStatus.PENDING);
+
     }
-
-    public Transaction createBankTransferTransaction(Transaction tx);
-    public void updateAlreadyTransferred(UUID transactionId);
-
 }

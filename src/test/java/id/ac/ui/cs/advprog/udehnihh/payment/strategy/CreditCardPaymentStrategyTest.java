@@ -2,7 +2,6 @@ package id.ac.ui.cs.advprog.udehnihh.payment.strategy;
 
 import id.ac.ui.cs.advprog.udehnihh.payment.enums.PaymentMethod;
 import id.ac.ui.cs.advprog.udehnihh.payment.enums.TransactionStatus;
-import id.ac.ui.cs.advprog.udehnihh.payment.model.CreditCardTransaction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

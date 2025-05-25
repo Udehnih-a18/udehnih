@@ -40,7 +40,6 @@ public class PaymentServiceImpl implements PaymentService {
         transactionRepository.findByTransactionId(transactionId).setStatus(status);
     }
 
-
     @Override
     public void cancelTransaction(UUID transactionId) {
         transactionRepository.findByTransactionId(transactionId).setStatus(TransactionStatus.CANCELLED);

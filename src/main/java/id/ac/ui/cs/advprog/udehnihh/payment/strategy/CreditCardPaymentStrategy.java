@@ -2,7 +2,6 @@ package id.ac.ui.cs.advprog.udehnihh.payment.strategy;
 
 import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
 import id.ac.ui.cs.advprog.udehnihh.payment.enums.TransactionStatus;
-import id.ac.ui.cs.advprog.udehnihh.payment.model.CreditCardTransaction;
 import id.ac.ui.cs.advprog.udehnihh.payment.model.Transaction;
 import org.springframework.stereotype.Service;
 

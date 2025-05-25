@@ -1,7 +1,5 @@
 package id.ac.ui.cs.advprog.udehnihh.payment.controller;
 
-import id.ac.ui.cs.advprog.udehnihh.payment.model.BankTransferTransaction;
-import id.ac.ui.cs.advprog.udehnihh.payment.model.CreditCardTransaction;
 import id.ac.ui.cs.advprog.udehnihh.payment.model.Transaction;
 import id.ac.ui.cs.advprog.udehnihh.payment.service.PaymentServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
