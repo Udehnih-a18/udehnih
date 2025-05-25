@@ -28,10 +28,10 @@ public class StaffDashboardController {
     private final TutorApplicationRepository tutorApplicationRepository;
 
     // ==================== Tutor Management ====================
+
     @GetMapping("/tutors")
-    public ResponseEntity<List<TutorListRequest>> getAllTutorApplications() {
-        List<TutorListRequest> tutors = tutorApplicationRepository.findAllTutorApplicationsWithUserData();
-        return ResponseEntity.ok(tutors);
+    public ResponseEntity<TutorListRequest> getAllTutorApplications() {
+        return ResponseEntity.ok(tutorApplicationService.convertToTutorListRequest());
     }
 
     @GetMapping("/tutors/{applicationId}")
@@ -80,7 +80,6 @@ public class StaffDashboardController {
                 .email(application.getApplicant().getEmail())
                 .status(application.getStatus())
                 .registrationDate(application.getApplicant().getRegistrationDate())
-                .applicationDate(application.getCreatedAt())
                 .build();
     }
 }

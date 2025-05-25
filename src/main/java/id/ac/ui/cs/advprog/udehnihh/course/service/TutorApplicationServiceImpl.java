@@ -1,8 +1,12 @@
 package id.ac.ui.cs.advprog.udehnihh.course.service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import id.ac.ui.cs.advprog.udehnihh.course.model.Course;
+import id.ac.ui.cs.advprog.udehnihh.dashboard.dto.TutorDetailRequest;
+import id.ac.ui.cs.advprog.udehnihh.dashboard.dto.TutorListRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -102,5 +106,36 @@ public class TutorApplicationServiceImpl implements TutorApplicationService {
         tutorApplicationRepository.save(application);
 
     }
+
+
+    public TutorDetailRequest getTutorApplicationDetail(UUID applicationId) {
+        TutorApplication application = tutorApplicationRepository.findById(applicationId)
+                .orElseThrow(() -> new IllegalArgumentException("Application not found"));
+        return convertToTutorDetailRequest(application);
+    }
+
+    public TutorListRequest convertToTutorListRequest() {
+        List<TutorApplication> applications = tutorApplicationRepository.findAll();
+        return (TutorListRequest) applications.stream()
+                .map(application -> TutorListRequest.builder()
+                        .applicationId(application.getId())
+                        .fullName(application.getApplicant().getFullName())
+                        .email(application.getApplicant().getEmail())
+                        .status(application.getStatus())
+                        .build()
+                )
+                .toList();
+    }
+
+    public TutorDetailRequest convertToTutorDetailRequest(TutorApplication application) {
+        return TutorDetailRequest.builder()
+                .fullName(application.getApplicant().getFullName())
+                .email(application.getApplicant().getEmail())
+                .status(application.getStatus())
+                .registrationDate(application.getCreatedAt()) // Adjust if application has a separate field
+                .notes(application.getRejectionReason())
+                .build();
+    }
+
 
 }

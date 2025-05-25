@@ -15,12 +15,9 @@ import java.util.UUID;
 @AllArgsConstructor
 public class TutorListRequest {
     private UUID applicationId;
-    private UUID userId;
     private String fullName;
     private String email;
     private ApplicationStatus status;
-    private LocalDateTime registrationDate;
-    private String expertiseArea;
 
     public String getDetailLink() {
         return "/api/v1/staff/tutors/" + applicationId;

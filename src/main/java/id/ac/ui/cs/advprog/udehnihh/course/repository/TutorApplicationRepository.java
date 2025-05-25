@@ -16,5 +16,6 @@ public interface TutorApplicationRepository extends JpaRepository<TutorApplicati
     Optional<TutorApplication> findTutorApplicationsByStatus(ApplicationStatus status);
     boolean existsByApplicant(User user);
     void deleteByApplicant(User applicant);
-    List<TutorListRequest> findAllTutorApplicationsWithUserData();
+
+    List<TutorApplication> findAll();
 }

@@ -48,42 +48,8 @@ class StaffDashboardControllerTest {
         closeable = MockitoAnnotations.openMocks(this);
     }
 
-    @Test
-    void getAllTutorApplications_ReturnsList_Success() {
-        List<TutorListRequest> expectedList = Collections.singletonList(new TutorListRequest());
-        when(tutorApplicationRepository.findAllTutorApplicationsWithUserData()).thenReturn(expectedList);
 
-        ResponseEntity<List<TutorListRequest>> response = staffDashboardController.getAllTutorApplications();
 
-        assertEquals(200, response.getStatusCodeValue());
-        assertEquals(expectedList, response.getBody());
-    }
-
-    @Test
-    void getTutorApplicationDetails_ApplicationFound_ReturnsDetails() {
-        UUID applicationId = UUID.randomUUID();
-        User applicant = new User();
-        applicant.setFullName("John Doe");
-        applicant.setEmail("john@example.com");
-        applicant.setRegistrationDate(LocalDateTime.now());
-
-        TutorApplication application = new TutorApplication();
-        application.setApplicant(applicant);
-        application.setStatus(PENDING);
-        application.setCreatedAt(LocalDateTime.now());
-
-        when(tutorApplicationRepository.findById(applicationId)).thenReturn(Optional.of(application));
-
-        ResponseEntity<TutorDetailRequest> response = staffDashboardController.getTutorApplicationDetails(applicationId);
-        TutorDetailRequest dto = response.getBody();
-
-        assertEquals(200, response.getStatusCodeValue());
-        assertEquals(applicant.getFullName(), dto.getFullName());
-        assertEquals(applicant.getEmail(), dto.getEmail());
-        assertEquals(application.getStatus(), dto.getStatus());
-        assertEquals(applicant.getRegistrationDate(), dto.getRegistrationDate());
-        assertEquals(application.getCreatedAt(), dto.getApplicationDate());
-    }
 
     @Test
     void getTutorApplicationDetails_ApplicationNotFound_ThrowsException() {

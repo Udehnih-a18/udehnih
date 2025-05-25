@@ -7,17 +7,17 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class TutorDetailRequest {
+    private UUID applicationId;
     private String fullName;
     private String email;
-    private String expertiseArea;
     private ApplicationStatus status;
     private LocalDateTime registrationDate;
-    private LocalDateTime applicationDate;
     private String notes;
 }
