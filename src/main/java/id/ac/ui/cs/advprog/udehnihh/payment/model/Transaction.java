@@ -14,15 +14,16 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+// Base Transaction class
+@Entity
+@Table(name = "transactions")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "payment_method", discriminatorType = DiscriminatorType.STRING)
 @Getter
 @Setter
-@Builder
-@Entity
-@Table(name = "transaction")
-public class Transaction {
+public abstract class Transaction {
 
     @Id
-    @Column(name = "transaction_id", nullable = false, unique = true)
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
@@ -39,13 +40,11 @@ public class Transaction {
     private double price;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "payment_method", nullable = false)
-    private PaymentMethod method;
-
     @Column(name = "status", nullable = false)
     private TransactionStatus status;
 
     @ManyToOne
+    @JoinColumn(name = "student_id")
     private User student;
 
     @CreationTimestamp
@@ -54,35 +53,21 @@ public class Transaction {
     @OneToOne(mappedBy = "transaction", cascade = CascadeType.ALL, orphanRemoval = true)
     private Refund refund;
 
-//    Bank Transfer attributes
-    @Enumerated(EnumType.STRING)
-    @Column(name = "bank")
-    private AvailableBanks bank;
+    // Constructor for common initialization
+    public Transaction() {
+        this.status = TransactionStatus.PENDING;
+    }
 
-    @Column(name = "already_transferred")
-    private boolean alreadyTransferred;
-
-//    Credit Card attributes
-    @Column(name = "cvc")
-    private String cvc;
-
-    @Column(name = "account_number")
-    private String accountNumber;
-
-    public Transaction(Course course, User student, PaymentMethod method) {
+    public Transaction(Course course, User student) {
+        this();
         this.courseId = course.getId();
         this.courseName = course.getName();
         this.tutorName = course.getTutor().getFullName();
         this.price = course.getPrice();
         this.student = student;
-        this.method = method;
-        this.status = TransactionStatus.PENDING;
-        this.createdAt = LocalDateTime.now();
     }
 
-    public Transaction() {
-        this.status = TransactionStatus.PENDING;
-        this.id = UUID.randomUUID();
-        this.createdAt = LocalDateTime.now();
-    }
+    // Abstract method to get payment method
+    public abstract PaymentMethod getPaymentMethod();
 }
+

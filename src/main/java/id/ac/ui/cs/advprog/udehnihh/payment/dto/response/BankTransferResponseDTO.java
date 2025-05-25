@@ -1,4 +1,4 @@
-package id.ac.ui.cs.advprog.udehnihh.payment.dto;
+package id.ac.ui.cs.advprog.udehnihh.payment.dto.response;
 
 import id.ac.ui.cs.advprog.udehnihh.payment.enums.AvailableBanks;
 import lombok.Getter;

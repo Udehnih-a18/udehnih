@@ -1,6 +1,7 @@
-package id.ac.ui.cs.advprog.udehnihh.payment.dto;
+package id.ac.ui.cs.advprog.udehnihh.payment.dto.request;
 
 import id.ac.ui.cs.advprog.udehnihh.payment.enums.AvailableBanks;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,4 +17,7 @@ public class CreateBankTransferDTO {
 
     @NotNull
     private AvailableBanks bank;
+
+    @NotNull
+    private boolean alreadyTransferred;
 }

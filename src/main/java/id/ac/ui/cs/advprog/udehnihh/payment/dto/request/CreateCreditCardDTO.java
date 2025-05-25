@@ -1,4 +1,4 @@
-package id.ac.ui.cs.advprog.udehnihh.payment.dto;
+package id.ac.ui.cs.advprog.udehnihh.payment.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

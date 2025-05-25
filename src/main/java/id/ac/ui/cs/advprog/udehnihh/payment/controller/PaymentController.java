@@ -53,3 +53,36 @@ public class PaymentController {
         return ResponseEntity.ok(transactions);
     }
 }
+
+@RestController
+@RequestMapping("/api/transactions")
+public class TransactionController {
+
+    @GetMapping
+    public ResponseEntity<List<TransactionSummaryDTO>> getAllTransactions() {
+        // Clean list view without sensitive data
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<TransactionResponseDTO> getTransaction(@PathVariable UUID id) {
+        Transaction transaction = transactionService.findById(id);
+
+        if (transaction.getMethod() == PaymentMethod.BANK_TRANSFER) {
+            return ResponseEntity.ok(convertToBankTransferDTO(transaction));
+        } else {
+            return ResponseEntity.ok(convertToCreditCardDTO(transaction));
+        }
+    }
+
+    @PostMapping("/bank-transfer")
+    public ResponseEntity<BankTransferResponseDTO> createBankTransfer(
+            @Valid @RequestBody CreateBankTransferDTO dto) {
+        // Safe, validated input
+    }
+
+    @PostMapping("/credit-card")
+    public ResponseEntity<CreditCardResponseDTO> processCreditCard(
+            @Valid @RequestBody CreateCreditCardDTO dto) {
+        // CVC is used for processing but not stored/returned
+    }
+}
