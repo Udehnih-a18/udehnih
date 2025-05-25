@@ -170,9 +170,9 @@
                 
                 try {
                     const payload = JSON.parse(atob(token.split('.')[1]));
-                    const email = payload.sub || 'User';
-                    if (userWelcome) userWelcome.textContent = `👋 Hello, ${email}!`;
-                    console.log('Welcome message set to:', email);
+                    const fullName = payload.fullName || payload.sub || 'User';
+                    if (userWelcome) userWelcome.textContent = `👋 Hello, ${fullName}!`;
+                    console.log('Welcome message set to:', fullName);
                 } catch (e) {
                     console.error('Error parsing token:', e);
                     if (userWelcome) userWelcome.textContent = '👋 Hello, User!';
