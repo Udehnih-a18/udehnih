@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Udehnih - Report Detail</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light min-vh-100">
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+        <a class="navbar-brand" href="/">Udehnih</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <div class="navbar-nav me-auto">
+                <a class="nav-link" href="/courses">🔍 Cari Kursus</a>
+                <a class="nav-link" href="/my-courses" id="myCourseLink" style="display: none;">📋 Kursus Saya</a>
+                <a class="nav-link" href="/courses/tutor/apply" id="applyAsTutorLink" style="display: none;">🎓 Daftar sebagai Tutor</a>
+                <a class="nav-link" href="/student/reports">📝 Laporan</a>
+            </div>
+            <div class="navbar-nav ms-auto">
+                <div id="guestNav" style="display: flex;">
+                    <a class="nav-link" href="/auth/login">🔑 Login</a>
+                    <a class="nav-link" href="/auth/register">📝 Register</a>
+                </div>
+                <div id="userNav" style="display: none;">
+                    <span class="navbar-text me-3" id="userWelcome">👋 Hello, User!</span>
+                    <button class="btn btn-outline-light btn-sm" onclick="logout()">🚪 Logout</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Report Detail -->
+<div class="container mt-5">
+    <div class="bg-white p-4 rounded shadow-sm border">
+        <h2 class="h4 text-primary fw-bold mb-4">📝 Report Detail</h2>
+        <div id="toast" class="position-fixed top-0 end-0 m-3 z-3 d-none alert"></div>
+        <div id="reportDetail" class="mb-3"></div>
+    </div>
+</div>
+
+<!-- Modal Edit -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <form id="editForm" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-primary">Edit Report</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="editTitle" class="form-label">Title</label>
+                    <input type="text" id="editTitle" class="form-control" required />
+                </div>
+                <div class="mb-3">
+                    <label for="editDescription" class="form-label">Description</label>
+                    <textarea id="editDescription" class="form-control" required></textarea>
+                </div>
+                <div id="editMessage" class="text-danger small"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batalkan</button>
+                <button type="submit" class="btn btn-primary">Update</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Delete -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger">Konfirmasi Hapus</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Apakah kamu yakin ingin menghapus laporan ini?</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button class="btn btn-danger" onclick="confirmDeleteReport()">Yes, Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    const token = localStorage.getItem("token");
+    const reportId = new URLSearchParams(window.location.search).get("id");
+    const reportDetail = document.getElementById("reportDetail");
+    const toast = document.getElementById("toast");
+
+    function setupNavbar() {
+        const guestNav = document.getElementById("guestNav");
+        const userNav = document.getElementById("userNav");
+        const userWelcome = document.getElementById("userWelcome");
+
+        if (token) {
+            guestNav.style.display = "none";
+            userNav.style.display = "flex";
+
+            // Jika token berisi nama user, tampilkan namanya
+            try {
+                const payload = token.split('.')[1];
+                const decoded = JSON.parse(atob(payload));
+                userWelcome.textContent = `👋 Hello, ${decoded.fullName || 'User'}!`;
+            } catch (e) {
+                userWelcome.textContent = "👋 Hello!";
+            }
+        } else {
+            guestNav.style.display = "flex";
+            userNav.style.display = "none";
+        }
+    }
+
+    function logout() {
+        localStorage.removeItem("token");
+        window.location.href = "/auth/login";
+    }
+
+    setupNavbar(); // 👈 panggil saat halaman dimuat
+    async function loadReportDetail() {
+        const res = await fetch(`/api/student/reports/${reportId}`, {
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+        const data = await res.json();
+        const report = data.report;
+
+        reportDetail.innerHTML = `
+            <h5 class="fw-bold text-primary">${report.title}</h5>
+            <p>${report.description}</p>
+            <p class="text-muted small">Author: ${report.authorFullName}</p>
+            <p class="text-muted small">Created at: ${new Date(report.createdAt).toLocaleString()}</p>
+            <p class="text-muted small">Updated at: ${new Date(report.updatedAt).toLocaleString()}</p>
+            <div class="mt-3 d-flex gap-2">
+                <button class="btn btn-outline-primary btn-sm" onclick="openEditModal('${report.title}', \`${report.description}\`)">✏️ Edit</button>
+                <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal">🗑️ Delete</button>
+            </div>
+        `;
+    }
+
+    function openEditModal(title, description) {
+        document.getElementById("editTitle").value = title;
+        document.getElementById("editDescription").value = description;
+        new bootstrap.Modal(document.getElementById("editModal")).show();
+    }
+
+    function showToast(message, isSuccess = true) {
+        toast.className = `position-fixed top-0 end-0 m-3 z-3 alert ${isSuccess ? 'alert-success' : 'alert-danger'}`;
+        toast.textContent = message;
+        toast.classList.remove("d-none");
+        setTimeout(() => toast.classList.add("d-none"), 3000);
+    }
+
+    document.getElementById("editForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const newTitle = document.getElementById("editTitle").value;
+        const newDesc = document.getElementById("editDescription").value;
+        const editMessage = document.getElementById("editMessage");
+
+        try {
+            const res = await fetch(`/api/student/reports/${reportId}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({ title: newTitle, description: newDesc })
+            });
+            const result = await res.json();
+
+            if (res.ok) {
+                bootstrap.Modal.getInstance(document.getElementById("editModal")).hide();
+                showToast("✅ Report updated successfully!");
+                loadReportDetail();
+            } else {
+                editMessage.textContent = result.message || "⚠️ Failed to update";
+            }
+        } catch (err) {
+            editMessage.textContent = "❌ Error: " + err.message;
+        }
+    });
+
+    async function confirmDeleteReport() {
+        const modal = bootstrap.Modal.getInstance(document.getElementById("confirmDeleteModal"));
+        modal.hide();
+
+        const res = await fetch(`/api/student/reports/${reportId}`, {
+            method: "DELETE",
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        if (res.ok) {
+            showToast("✅ Report deleted successfully.");
+            setTimeout(() => window.location.href = "/student/reports", 1000);
+        } else {
+            showToast("❌ Failed to delete report.", false);
+        }
+    }
+
+    loadReportDetail();
+</script>
+</body>
+</html>

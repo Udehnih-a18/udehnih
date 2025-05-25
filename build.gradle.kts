@@ -5,9 +5,7 @@ plugins {
     id("org.springframework.boot") version "3.4.4"
     id("io.spring.dependency-management") version "1.1.7"
     id("co.uzzu.dotenv.gradle") version "2.0.0"
-
 }
-
 sonar {
     properties {
         property("sonar.projectKey", "udehnih")
@@ -40,7 +38,7 @@ repositories {
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("org.springframework.boot:spring-boot-starter-web") 
+    implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
     implementation("org.springframework.boot:spring-boot-starter-security")
@@ -51,7 +49,7 @@ dependencies {
 
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
-    
+
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
     testImplementation("com.h2database:h2")
@@ -75,10 +73,6 @@ tasks.test {
     }
 
     finalizedBy(tasks.jacocoTestReport)
-}
-
-tasks.withType<JavaCompile> {
-    options.compilerArgs.add("-parameters")
 }
 
 tasks.jacocoTestReport {

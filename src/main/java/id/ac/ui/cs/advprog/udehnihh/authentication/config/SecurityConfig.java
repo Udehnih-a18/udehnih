@@ -2,6 +2,7 @@ package id.ac.ui.cs.advprog.udehnihh.authentication.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -37,6 +38,11 @@ public class SecurityConfig {
                 .requestMatchers("/api/tutor-applications/**").authenticated()
                 .requestMatchers("/courses", "/courses/**").permitAll()  // Web pages for courses
                 .requestMatchers("/my-courses").permitAll()  // Web page (auth checked by frontend)
+                    .requestMatchers(HttpMethod.GET, "/api/student/reports/**").hasRole("STUDENT")
+                    .requestMatchers(HttpMethod.POST, "/api/student/reports").hasRole("STUDENT")
+                    .requestMatchers(HttpMethod.PUT, "/api/student/reports/{id}").hasRole("STUDENT")
+                    .requestMatchers(HttpMethod.DELETE, "/api/student/reports/{id}").hasRole("STUDENT")
+                    .requestMatchers("/api/staff/reports/**").hasRole("STAFF")
                 .anyRequest().permitAll()  // Change to permitAll for debugging
             )
             .sessionManagement(session -> session
