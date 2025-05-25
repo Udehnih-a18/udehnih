@@ -10,6 +10,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import id.ac.ui.cs.advprog.udehnihh.authentication.enums.Role;
+
 
 
 @Configuration
@@ -31,13 +33,13 @@ public class SecurityConfig {
                 .requestMatchers("/**").permitAll()
                 .requestMatchers("/api/cb/courses").permitAll()
                 .requestMatchers("/api/cb/courses/{id}").permitAll()
-                .requestMatchers("/api/cb/courses/{id}/enroll").hasRole("STUDENT")
-                .requestMatchers("/api/cb/my-courses").hasRole("STUDENT")
-                    .requestMatchers(HttpMethod.GET, "/api/student/reports/**").hasRole("STUDENT")
-                    .requestMatchers(HttpMethod.POST, "/api/student/reports").hasRole("STUDENT")
-                    .requestMatchers(HttpMethod.PUT, "/api/student/reports/{id}").hasRole("STUDENT")
-                    .requestMatchers(HttpMethod.DELETE, "/api/student/reports/{id}").hasRole("STUDENT")
-                    .requestMatchers("/api/staff/reports/**").hasRole("STAFF")
+                .requestMatchers("/api/cb/courses/{id}/enroll").hasRole(Role.STUDENT.name())
+                .requestMatchers("/api/cb/my-courses").hasRole(Role.STUDENT.name())
+                    .requestMatchers(HttpMethod.GET, "/api/student/reports/**").hasRole(Role.STUDENT.name())
+                    .requestMatchers(HttpMethod.POST, "/api/student/reports").hasRole(Role.STUDENT.name())
+                    .requestMatchers(HttpMethod.PUT, "/api/student/reports/{id}").hasRole(Role.STUDENT.name())
+                    .requestMatchers(HttpMethod.DELETE, "/api/student/reports/{id}").hasRole(Role.STUDENT.name())
+                    .requestMatchers("/api/staff/reports/**").hasRole(Role.STAFF.name())
 
                     .anyRequest().authenticated()
             )
