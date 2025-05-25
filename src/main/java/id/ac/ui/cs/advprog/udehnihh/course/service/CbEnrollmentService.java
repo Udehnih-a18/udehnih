@@ -55,7 +55,7 @@ public class CbEnrollmentService {
 
     @PreAuthorize("hasRole('STUDENT')")
     public List<EnrollmentDto> myCourses(User student) {
-        return enrollRepo.findByStudentId(student.getId()).stream()
+        return enrollRepo.findByStudentIdWithCourse(student.getId()).stream()
                 .map(e -> new EnrollmentDto(
                         e.getId(),
                         e.getCourse().getId(),
