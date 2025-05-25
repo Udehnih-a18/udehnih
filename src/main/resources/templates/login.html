@@ -60,7 +60,7 @@
                 resultText.innerText = "✅ Login successful!";
                 resultText.classList.remove("text-red-600");
                 resultText.classList.add("text-green-600");
-                setTimeout(() => window.location.href = "/homepage", 1000);
+                setTimeout(() => window.location.href = "/", 1000);
             } else {
                 resultText.innerText = `⚠️ ${Array.isArray(data.messages) ? data.messages.join(', ') : JSON.stringify(data)}`;
                 resultText.classList.remove("text-green-600");
