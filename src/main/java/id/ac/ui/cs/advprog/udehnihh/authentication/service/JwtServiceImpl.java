@@ -13,10 +13,11 @@ public class JwtServiceImpl implements JwtService {
     private final Key jwtSecret = Keys.secretKeyFor(SignatureAlgorithm.HS256);
     private final long jwtExpirationMs = 3600000; // 1 hour
 
-    public String generateToken(String email, String role) {
+    public String generateToken(String email, String role, String fullName) {
         return Jwts.builder()
                 .setSubject(email)
                 .claim("role", role)
+                .claim("fullName", fullName)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
                 .signWith(jwtSecret)
@@ -29,6 +30,10 @@ public class JwtServiceImpl implements JwtService {
 
     public String getRoleFromToken(String token) {
         return parseToken(token).getBody().get("role", String.class);
+    }
+
+        public String getFullNameFromToken(String token) {
+        return parseToken(token).getBody().get("fullName", String.class);
     }
 
     public boolean validateToken(String token) {
