@@ -13,28 +13,29 @@ public class JwtServiceImpl implements JwtService {
     private final Key jwtSecret = Keys.secretKeyFor(SignatureAlgorithm.HS256);
     private final long jwtExpirationMs = 3600000; // 1 hour
 
-    @Override
-    public String generateToken(String email, String role) {
+    public String generateToken(String email, String role, String fullName) {
         return Jwts.builder()
                 .setSubject(email)
                 .claim("role", role)
+                .claim("fullName", fullName)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
                 .signWith(jwtSecret)
                 .compact();
     }
 
-    @Override
     public String getEmailFromToken(String token) {
         return parseToken(token).getBody().getSubject();
     }
 
-    @Override
     public String getRoleFromToken(String token) {
         return parseToken(token).getBody().get("role", String.class);
     }
 
-    @Override
+        public String getFullNameFromToken(String token) {
+        return parseToken(token).getBody().get("fullName", String.class);
+    }
+
     public boolean validateToken(String token) {
         try {
             parseToken(token);
@@ -44,7 +45,6 @@ public class JwtServiceImpl implements JwtService {
         }
     }
 
-    @Override
     public Jws<Claims> parseToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(jwtSecret)
