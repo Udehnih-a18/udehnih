@@ -61,7 +61,7 @@ class CourseControllerTest {
         tutor.setEmail("tutor@example.com");
         tutor.setRole(Role.TUTOR);
         
-        token = jwtService.generateToken(tutor.getEmail(), tutor.getRole().name());
+        token = jwtService.generateToken(tutor.getEmail(), tutor.getRole().name(), tutor.getFullName());
 
         courseId = UUID.randomUUID();
 

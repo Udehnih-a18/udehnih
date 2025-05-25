@@ -54,7 +54,7 @@ class TutorApplicationControllerTest {
         user.setFullName("Test User");
         user.setEmail("user@example.com");
         user.setRole(Role.STUDENT);
-        token = jwtService.generateToken(user.getEmail(), user.getRole().name());
+        token = jwtService.generateToken(user.getEmail(), user.getRole().name(), user.getFullName());
 
         application = new TutorApplication();
         application.setId(UUID.randomUUID());
