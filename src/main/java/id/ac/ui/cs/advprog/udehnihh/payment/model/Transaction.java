@@ -27,7 +27,7 @@ public class Transaction {
     private UUID id;
 
     @Column(name = "course_id", nullable = false)
-    private String courseId;
+    private UUID courseId;
 
     @Column(name = "course_name", nullable = false)
     private String courseName;
@@ -70,6 +70,7 @@ public class Transaction {
     private String accountNumber;
 
     public Transaction(Course course, User student, PaymentMethod method) {
+        this.courseId = course.getId();
         this.courseName = course.getName();
         this.tutorName = course.getTutor().getFullName();
         this.price = course.getPrice();
