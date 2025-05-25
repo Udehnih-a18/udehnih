@@ -27,13 +27,17 @@ public class SecurityConfig {
             .csrf().disable()
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/**").permitAll()
-                .requestMatchers("/api/cb/courses").permitAll()
-                .requestMatchers("/api/cb/courses/{id}").permitAll()
+                .requestMatchers("/auth/**").permitAll()  // Login/register pages
+                .requestMatchers("/login", "/register", "/").permitAll()  // Public pages
+                .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()  // Static resources
+                .requestMatchers("/api/cb/courses").permitAll()  // Allow browsing courses
+                .requestMatchers("/api/cb/courses/{id}").permitAll()  // Allow viewing course details
                 .requestMatchers("/api/cb/courses/{id}/enroll").hasRole("STUDENT")
                 .requestMatchers("/api/cb/my-courses").hasRole("STUDENT")
                 .requestMatchers("/api/tutor-applications/**").authenticated()
-                .anyRequest().authenticated()
+                .requestMatchers("/courses", "/courses/**").permitAll()  // Web pages for courses
+                .requestMatchers("/my-courses").permitAll()  // Web page (auth checked by frontend)
+                .anyRequest().permitAll()  // Change to permitAll for debugging
             )
             .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

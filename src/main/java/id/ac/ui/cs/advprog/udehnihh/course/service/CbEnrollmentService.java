@@ -8,6 +8,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.scheduling.annotation.Async;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -41,17 +42,20 @@ public class CbEnrollmentService {
         } else {
             // trigger payment workflow; PENDING sampai status PAID
             e.setPaymentStatus(Enrollment.PaymentStatus.PENDING);
-            eventPublisher.publishEvent(new EnrollmentPaymentPendingEvent(this, e));
+            publishPaymentPendingEventAsync(e);
         }
 
         return enrollRepo.save(e).getId();
     }
 
+    @Async
+    public void publishPaymentPendingEventAsync(Enrollment e) {
+        eventPublisher.publishEvent(new EnrollmentPaymentPendingEvent(this, e));
+    }
+
     @PreAuthorize("hasRole('STUDENT')")
     public List<EnrollmentDto> myCourses(User student) {
         return enrollRepo.findByStudentId(student.getId()).stream()
-                .filter(e -> e.getPaymentStatus() == Enrollment.PaymentStatus.PAID
-                          || e.getCourse().getPrice() == 0)
                 .map(e -> new EnrollmentDto(
                         e.getId(),
                         e.getCourse().getId(),

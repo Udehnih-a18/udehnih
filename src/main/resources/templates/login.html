@@ -56,13 +56,30 @@
             const resultText = document.getElementById("loginResult");
 
             if (response.ok) {
-                localStorage.setItem("token", data.token);
+                const data = await response.json();
+                if (data.token) {
+                    localStorage.setItem("token", data.token);
+                    
+                    // Try to update navbar if function exists
+                    if (window.updateNavbarAfterLogin) {
+                        window.updateNavbarAfterLogin();
+                    }
+                }
                 resultText.innerText = "✅ Login successful!";
                 resultText.classList.remove("text-red-600");
                 resultText.classList.add("text-green-600");
-                setTimeout(() => window.location.href = "/homepage", 1000);
+                setTimeout(() => window.location.href = "/courses", 1000);
             } else {
-                resultText.innerText = `⚠️ ${Array.isArray(data.messages) ? data.messages.join(', ') : JSON.stringify(data)}`;
+                // Check if response is JSON
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    const data = await response.json();
+                    resultText.innerText = `⚠️ ${Array.isArray(data.messages) ? data.messages.join(', ') : data.message || data}`;
+                } else {
+                    // Handle plain text response
+                    const textData = await response.text();
+                    resultText.innerText = `⚠️ ${textData || 'Login failed'}`;
+                }
                 resultText.classList.remove("text-green-600");
                 resultText.classList.add("text-red-600");
             }

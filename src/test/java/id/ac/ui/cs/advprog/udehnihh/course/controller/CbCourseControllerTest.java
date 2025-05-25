@@ -12,7 +12,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.util.Arrays;
 import java.util.List;
@@ -112,33 +112,80 @@ class CbCourseControllerTest {
     }
 
     @Test
-    void enroll_shouldReturnEnrollmentId_whenEnrollmentSuccessful() throws NoSuchMethodException, SecurityException {
+    void enroll_shouldReturnCreated_whenEnrollmentSuccessful() {
         // Given
         when(enrollSvc.enroll(mockUser, testId)).thenReturn(enrollmentId);
 
         // When
-        UUID result = controller.enroll(testId, mockUser);
+        ResponseEntity<?> result = controller.enroll(testId, mockUser);
 
         // Then
-        assertEquals(enrollmentId, result);
+        assertEquals(HttpStatus.CREATED, result.getStatusCode());
+        assertEquals(enrollmentId, result.getBody());
         verify(enrollSvc).enroll(mockUser, testId);
-        
-        // Verify that the method is annotated with @ResponseStatus(HttpStatus.CREATED)
-        ResponseStatus annotation = CbCourseController.class.getDeclaredMethod("enroll", UUID.class, User.class)
-                .getAnnotation(ResponseStatus.class);
-        assertEquals(HttpStatus.CREATED, annotation.value());
     }
 
     @Test
-    void myCourses_shouldReturnUserEnrollments_whenCalled() {
+    void enroll_shouldReturnBadRequest_whenIllegalStateException() {
+        // Given
+        when(enrollSvc.enroll(mockUser, testId)).thenThrow(new IllegalStateException("Already enrolled"));
+
+        // When
+        ResponseEntity<?> result = controller.enroll(testId, mockUser);
+
+        // Then
+        assertEquals(HttpStatus.BAD_REQUEST, result.getStatusCode());
+        assertEquals("Already enrolled", result.getBody());
+        verify(enrollSvc).enroll(mockUser, testId);
+    }
+
+    @Test
+    void enroll_shouldReturnBadRequest_whenIllegalArgumentException() {
+        // Given
+        when(enrollSvc.enroll(mockUser, testId)).thenThrow(new IllegalArgumentException("Course not found"));
+
+        // When
+        ResponseEntity<?> result = controller.enroll(testId, mockUser);
+
+        // Then
+        assertEquals(HttpStatus.BAD_REQUEST, result.getStatusCode());
+        assertEquals("Course not found", result.getBody());
+        verify(enrollSvc).enroll(mockUser, testId);
+    }
+
+    @Test
+    void enroll_shouldReturnUnauthorized_whenUserIsNull() {
+        // When
+        ResponseEntity<?> result = controller.enroll(testId, null);
+
+        // Then
+        assertEquals(HttpStatus.UNAUTHORIZED, result.getStatusCode());
+        assertEquals("Anda perlu login terlebih dahulu", result.getBody());
+        verify(enrollSvc, never()).enroll(any(), any());
+    }
+
+    @Test
+    void myCourses_shouldReturnUserEnrollments_whenUserAuthenticated() {
         // Given
         when(enrollSvc.myCourses(mockUser)).thenReturn(mockEnrollments);
 
         // When
-        List<EnrollmentDto> result = controller.myCourses(mockUser);
+        ResponseEntity<?> result = controller.myCourses(mockUser);
 
         // Then
-        assertEquals(mockEnrollments, result);
+        assertEquals(HttpStatus.OK, result.getStatusCode());
+        assertEquals(mockEnrollments, result.getBody());
         verify(enrollSvc).myCourses(mockUser);
+    }
+
+    @Test
+    void myCourses_shouldReturnUnauthorized_whenUserIsNull() {
+        // When
+        ResponseEntity<?> result = controller.myCourses(null);
+
+        // Then
+        assertEquals(HttpStatus.UNAUTHORIZED, result.getStatusCode());
+        assertEquals("Anda perlu login terlebih dahulu", result.getBody());
+        verify(enrollSvc, never()).myCourses(any());
     }
 }
