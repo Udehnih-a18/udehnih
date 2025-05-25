@@ -37,7 +37,6 @@ public class ReportRepositoryTest {
     }
 
     @Test
-    @DisplayName("✅ Should find reports by createdBy user")
     void testFindAllByCreatedBy() {
         User managedUser = createDummyUser("test@user.com");
 
@@ -67,7 +66,6 @@ public class ReportRepositoryTest {
     }
 
     @Test
-    @DisplayName("✅ Should return empty when user has no reports")
     void testFindAllByCreatedBy_Empty() {
         User managedUser = createDummyUser("empty@user.com");
         List<Report> reports = reportRepository.findAllByCreatedBy(managedUser);

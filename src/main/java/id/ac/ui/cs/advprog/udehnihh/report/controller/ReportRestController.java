@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -36,55 +35,80 @@ public class ReportRestController {
     }
 
     @PostMapping("/student/reports")
-    public ResponseEntity<?> createReport(@RequestBody Report report) {
+    public ResponseEntity<Map<String, Object>> createReport(@RequestBody Report report) {
         User currentUser = authService.getCurrentUser();
         report.setCreatedBy(currentUser);
         Report created = reportService.createReport(report);
-        return ResponseEntity.ok(Map.of("message", "Report successfully created", "report", toDto(created)));
+        return ResponseEntity.ok(Map.of(
+                "message", "Report successfully created",
+                "report", toDto(created)
+        ));
     }
 
     @GetMapping("/student/reports")
-    public ResponseEntity<?> getStudentReports() {
+    public ResponseEntity<Map<String, Object>> getStudentReports() {
         User currentUser = authService.getCurrentUser();
         List<Report> reports = reportService.getReportsByAuthor(currentUser);
-        List<ReportDto> dtos = reports.stream().map(this::toDto).collect(Collectors.toList());
-        return ResponseEntity.ok(Map.of("message", "Reports fetched successfully", "reports", dtos));
+        List<ReportDto> dtos = reports.stream()
+                .map(this::toDto)
+                .toList(); // Java 16+
+        return ResponseEntity.ok(Map.of(
+                "message", "Reports fetched successfully",
+                "reports", dtos
+        ));
     }
 
     @GetMapping("/student/reports/{id}")
-    public ResponseEntity<?> getStudentReportById(@PathVariable String id) {
+    public ResponseEntity<Map<String, Object>> getStudentReportById(@PathVariable String id) {
         User currentUser = authService.getCurrentUser();
         Report report = reportService.getReportById(id);
         if (!report.getCreatedBy().getId().equals(currentUser.getId())) {
             throw new AccessDeniedException("You can only view your own reports");
         }
-        return ResponseEntity.ok(Map.of("message", "Report fetched successfully", "report", toDto(report)));
+        return ResponseEntity.ok(Map.of(
+                "message", "Report fetched successfully",
+                "report", toDto(report)
+        ));
     }
 
     @PutMapping("/student/reports/{id}")
-    public ResponseEntity<?> updateStudentReport(@PathVariable String id, @RequestBody Report updated) {
+    public ResponseEntity<Map<String, Object>> updateStudentReport(@PathVariable String id, @RequestBody Report updated) {
         User currentUser = authService.getCurrentUser();
         Report result = reportService.updateReport(id, currentUser, updated.getTitle(), updated.getDescription());
-        return ResponseEntity.ok(Map.of("message", "Report successfully updated", "report", toDto(result)));
+        return ResponseEntity.ok(Map.of(
+                "message", "Report successfully updated",
+                "report", toDto(result)
+        ));
     }
 
     @DeleteMapping("/student/reports/{id}")
-    public ResponseEntity<?> deleteStudentReport(@PathVariable String id) {
+    public ResponseEntity<Map<String, Object>> deleteStudentReport(@PathVariable String id) {
         User currentUser = authService.getCurrentUser();
         reportService.deleteReport(id, currentUser);
-        return ResponseEntity.ok(Map.of("message", "Report successfully deleted", "reportId", id));
+        return ResponseEntity.ok(Map.of(
+                "message", "Report successfully deleted",
+                "reportId", id
+        ));
     }
 
     @GetMapping("/staff/reports")
-    public ResponseEntity<?> getAllReportsForStaff() {
+    public ResponseEntity<Map<String, Object>> getAllReportsForStaff() {
         List<Report> reports = reportService.getAllReports();
-        List<ReportDto> dtos = reports.stream().map(this::toDto).collect(Collectors.toList());
-        return ResponseEntity.ok(Map.of("message", "All reports fetched successfully", "reports", dtos));
+        List<ReportDto> dtos = reports.stream()
+                .map(this::toDto)
+                .toList();
+        return ResponseEntity.ok(Map.of(
+                "message", "All reports fetched successfully",
+                "reports", dtos
+        ));
     }
 
     @GetMapping("/staff/reports/{id}")
-    public ResponseEntity<?> getReportByIdForStaff(@PathVariable String id) {
+    public ResponseEntity<Map<String, Object>> getReportByIdForStaff(@PathVariable String id) {
         Report report = reportService.getReportById(id);
-        return ResponseEntity.ok(Map.of("message", "Report fetched successfully", "report", toDto(report)));
+        return ResponseEntity.ok(Map.of(
+                "message", "Report fetched successfully",
+                "report", toDto(report)
+        ));
     }
 }

@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -67,8 +68,12 @@ public class ReportTest {
         LocalDateTime initialCreatedAt = report.getCreatedAt();
         LocalDateTime initialUpdatedAt = report.getUpdatedAt();
 
-        // Simulate update
-        try { Thread.sleep(10); } catch (InterruptedException ignored) {}
+        try {
+            TimeUnit.MILLISECONDS.sleep(10);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt(); // Restore interrupt status
+        }
+
         report.onUpdate();
 
         assertEquals(initialCreatedAt, report.getCreatedAt());

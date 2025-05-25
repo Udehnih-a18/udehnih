@@ -20,7 +20,6 @@ public class ReportWebControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    // Mock JwtAuthenticationFilter untuk menghindari error injection
     @MockBean
     private JwtAuthenticationFilter jwtAuthenticationFilter;
 
