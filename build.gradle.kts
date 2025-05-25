@@ -12,8 +12,12 @@ sonar {
     properties {
         property("sonar.projectKey", "udehnih")
         property("sonar.projectName", "udehnih")
+        property("sonar.host.url", System.getenv("SONAR_HOST_URL") ?: "http://localhost:9000")
+        property("sonar.login", System.getenv("SONAR_TOKEN") ?: "")
+        property("sonar.coverage.jacoco.xmlReportPaths", "${buildDir}/reports/jacoco/test/jacocoTestReport.xml")
     }
 }
+
 
 group = "id.ac.ui.cs.advprog"
 version = "0.0.1-SNAPSHOT"
@@ -59,7 +63,6 @@ dependencies {
     implementation("io.jsonwebtoken:jjwt-jackson:0.11.5")
 
     implementation("me.paulschwarz:spring-dotenv:4.0.0")
-
 }
 
 tasks.withType<Test> {
@@ -80,4 +83,8 @@ tasks.withType<JavaCompile> {
 
 tasks.jacocoTestReport {
     dependsOn(tasks.test)
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
 }

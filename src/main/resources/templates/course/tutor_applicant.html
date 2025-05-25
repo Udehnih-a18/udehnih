@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Status Pendaftaran Tutor | Udehnih</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-teal-50 min-h-screen flex items-center justify-center">
+  <div class="max-w-md w-full bg-white p-8 rounded-xl shadow-lg border border-teal-300 text-center">
+    <h2 class="text-2xl font-bold text-teal-700 mb-4">👀 Status Pendaftaran Tutor</h2>
+    <div id="statusInfo" class="text-teal-800 mb-4">Memuat status...</div>
+    <button id="cancelBtn" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 hidden">
+      Batalkan Pendaftaran 🗑️
+    </button>
+  </div>
+
+  <script>
+    async function fetchStatus() {
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+        alert("Anda harus login terlebih dahulu.");
+        window.location.href = "/auth/login";
+        return;
+        }
+
+        const headers = {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+        };
+
+        try {
+        const response = await fetch("/api/tutor-applications/status", {
+            method: "GET",
+            headers: headers,
+        });
+
+        const statusInfo = document.getElementById("statusInfo");
+        const cancelBtn = document.getElementById("cancelBtn");
+
+        if (response.ok) {
+            const data = await response.json();
+            statusInfo.innerHTML = `Status Anda: <strong>${data.status}</strong>`;
+            if (data.status === "PENDING") cancelBtn.classList.remove("hidden");
+        } else {
+            statusInfo.textContent = "❌ Gagal memuat status.";
+        }
+        } catch (err) {
+        document.getElementById("statusInfo").textContent = "❌ Error: " + err.message;
+        }
+    }
+
+    document.getElementById("cancelBtn").addEventListener("click", async () => {
+        const confirmCancel = confirm("Yakin ingin membatalkan pendaftaran?");
+        if (!confirmCancel) return;
+
+        const token = localStorage.getItem("token");
+
+        const res = await fetch("/api/tutor-applications/delete", {
+        method: "DELETE",
+        headers: {
+            "Authorization": `Bearer ${token}`
+        }
+        });
+
+        if (res.ok) {
+        alert("✅ Pendaftaran dibatalkan.");
+        window.location.reload();
+        } else {
+        alert("❌ Gagal membatalkan pendaftaran.");
+        }
+    });
+
+    fetchStatus();
+    </script>
+</body>
+</html>
