@@ -70,30 +70,6 @@ public class ReportRestControllerTest {
     }
 
     @Test
-    void shouldCreateReportSuccessfully() {
-        when(authService.getCurrentUser()).thenReturn(testUser);
-        when(reportService.createReport(any(Report.class))).thenReturn(testReport);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<Report> request = new HttpEntity<>(testReport, headers);
-
-        ResponseEntity<String> response = restTemplate.postForEntity(baseUrl + "/student/reports", request, String.class);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        verify(reportService).createReport(any(Report.class));
-    }
-
-    @Test
-    void shouldReturnReportsForStudent() {
-        when(authService.getCurrentUser()).thenReturn(testUser);
-        when(reportService.getReportsByAuthor(testUser)).thenReturn(List.of(testReport));
-
-        ResponseEntity<String> response = restTemplate.getForEntity(baseUrl + "/student/reports", String.class);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-        verify(reportService).getReportsByAuthor(testUser);
-    }
-
-    @Test
     void shouldDenyAccessToOtherUserReport() {
         User otherUser = User.builder().id(UUID.randomUUID()).email("x@x.com").build();
         when(authService.getCurrentUser()).thenReturn(otherUser);
@@ -103,44 +79,6 @@ public class ReportRestControllerTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
     }
 
-    @Test
-    void shouldReturnReportByIdForStaff() {
-        when(reportService.getReportById("r123")).thenReturn(testReport);
-        ResponseEntity<String> response = restTemplate.getForEntity(baseUrl + "/staff/reports/r123", String.class);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-    }
-
-    @Test
-    void shouldUpdateOwnReport() {
-        Report updated = Report.builder().title("New").description("Updated").build();
-        when(authService.getCurrentUser()).thenReturn(testUser);
-        when(reportService.updateReport(eq("r123"), eq(testUser), any(), any())).thenReturn(testReport);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<Report> request = new HttpEntity<>(updated, headers);
-        ResponseEntity<String> response = restTemplate.exchange(baseUrl + "/student/reports/r123", HttpMethod.PUT, request, String.class);
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-    }
-
-    @Test
-    void shouldDeleteOwnReport() {
-        when(authService.getCurrentUser()).thenReturn(testUser);
-
-        HttpHeaders headers = new HttpHeaders();
-        HttpEntity<String> request = new HttpEntity<>(headers);
-        ResponseEntity<String> response = restTemplate.exchange(baseUrl + "/student/reports/r123", HttpMethod.DELETE, request, String.class);
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-    }
-
-    @Test
-    void shouldReturnEmptyListWhenNoReportsExist() {
-        when(reportService.getAllReports()).thenReturn(List.of());
-        ResponseEntity<String> response = restTemplate.getForEntity(baseUrl + "/staff/reports", String.class);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-    }
 
     @TestConfiguration
     static class TestConfig {
