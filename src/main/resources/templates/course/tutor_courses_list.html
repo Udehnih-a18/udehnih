@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Daftar Kursus | Udehnih</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-teal-50 min-h-screen flex items-center justify-center p-4">
+  <div class="max-w-5xl w-full bg-white p-6 rounded-xl shadow-lg border border-teal-300">
+    <h2 class="text-2xl font-bold text-teal-700 mb-6 text-center">📚 Daftar Kursus Anda</h2>
+    <div id="courseList" class="overflow-x-auto">
+      <table class="min-w-full border border-teal-200 text-sm text-left">
+        <thead class="bg-teal-100 text-teal-800">
+          <tr>
+            <th class="py-2 px-4 border">Nama</th>
+            <th class="py-2 px-4 border">Deskripsi</th>
+            <th class="py-2 px-4 border">Harga</th>
+            <th class="py-2 px-4 border">Status</th>
+            <th class="py-2 px-4 border">Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="coursesTable" class="text-gray-700"></tbody>
+      </table>
+    </div>
+    <div id="message" class="text-center mt-4 text-red-600"></div>
+  </div>
+
+  <script>
+    async function loadCourses() {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("Silakan login terlebih dahulu.");
+        window.location.href = "/auth/login";
+        return;
+      }
+
+      try {
+        const response = await fetch("/api/courses/lists", {
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": token
+          }
+        });
+
+        if (!response.ok) {
+          document.getElementById("message").textContent = "❌ Gagal memuat kursus.";
+          return;
+        }
+
+        const courses = await response.json();
+        const table = document.getElementById("coursesTable");
+        table.innerHTML = "";
+
+        if (courses.length === 0) {
+          table.innerHTML = `<tr><td colspan="5" class="text-center py-4">Belum ada kursus.</td></tr>`;
+          return;
+        }
+
+        courses.forEach(course => {
+          const row = document.createElement("tr");
+
+          row.innerHTML = `
+            <td class="border px-4 py-2">${course.name}</td>
+            <td class="border px-4 py-2">${course.description}</td>
+            <td class="border px-4 py-2">Rp ${course.price.toLocaleString()}</td>
+            <td class="border px-4 py-2">${course.status}</td>
+            <td class="border px-4 py-2 space-x-2">
+              <button onclick="viewDetail('${course.id}')" class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600">Detail / Edit</button>
+              <button onclick="deleteCourse('${course.id}')" class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">Hapus</button>
+            </td>
+          `;
+
+          table.appendChild(row);
+        });
+
+      } catch (error) {
+        document.getElementById("message").textContent = "❌ Error: " + error.message;
+      }
+    }
+
+    function viewDetail(courseId) {
+      window.location.href = `/courses/${courseId}/detail`;
+    }
+
+    async function deleteCourse(courseId) {
+      const confirmed = confirm("Yakin ingin menghapus kursus ini?");
+      if (!confirmed) return;
+
+      const token = localStorage.getItem("token");
+      try {
+        const res = await fetch(`/api/courses/${courseId}`, {
+          method: "DELETE",
+          headers: {
+            "Authorization": token
+          }
+        });
+
+        if (res.ok) {
+          alert("✅ Kursus berhasil dihapus.");
+          loadCourses();
+        } else {
+          alert("❌ Gagal menghapus kursus.");
+        }
+      } catch (err) {
+        alert("❌ Error: " + err.message);
+      }
+    }
+    
+    loadCourses();
+  </script>
+</body>
+</html>

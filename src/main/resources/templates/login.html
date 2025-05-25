@@ -51,16 +51,21 @@
                 body: JSON.stringify({ email, password }),
             });
 
-            const data = await response.json();
-
             const resultText = document.getElementById("loginResult");
 
+            const contentType = response.headers.get("content-type");
+            let data = null;
+
+            if (contentType && contentType.includes("application/json")) {
+                data = await response.json();
+            } else {
+                data = { message: await response.text() };
+            }
+
             if (response.ok) {
-                const data = await response.json();
                 if (data.token) {
                     localStorage.setItem("token", data.token);
                     
-                    // Try to update navbar if function exists
                     if (window.updateNavbarAfterLogin) {
                         window.updateNavbarAfterLogin();
                     }
@@ -70,16 +75,7 @@
                 resultText.classList.add("text-green-600");
                 setTimeout(() => window.location.href = "/courses", 1000);
             } else {
-                // Check if response is JSON
-                const contentType = response.headers.get('content-type');
-                if (contentType && contentType.includes('application/json')) {
-                    const data = await response.json();
-                    resultText.innerText = `⚠️ ${Array.isArray(data.messages) ? data.messages.join(', ') : data.message || data}`;
-                } else {
-                    // Handle plain text response
-                    const textData = await response.text();
-                    resultText.innerText = `⚠️ ${textData || 'Login failed'}`;
-                }
+                resultText.innerText = `⚠️ ${Array.isArray(data.messages) ? data.messages.join(', ') : data.message || 'Login failed'}`;
                 resultText.classList.remove("text-green-600");
                 resultText.classList.add("text-red-600");
             }
