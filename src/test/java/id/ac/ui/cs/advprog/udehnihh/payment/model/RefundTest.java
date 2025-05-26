@@ -2,6 +2,7 @@ package id.ac.ui.cs.advprog.udehnihh.payment.model;
 
 import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
 import id.ac.ui.cs.advprog.udehnihh.course.model.Course;
+import id.ac.ui.cs.advprog.udehnihh.payment.enums.AvailableBanks;
 import id.ac.ui.cs.advprog.udehnihh.payment.enums.PaymentMethod;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -19,10 +20,10 @@ public class RefundTest {
         course.setTutor(tutor);
         course.setName("Restauratn");
 
-        Transaction transaction = new Transaction(course, student, PaymentMethod.BANK_TRANSFER, "1234567890");
+        BankTransfer transaction = new BankTransfer(course, student, AvailableBanks.BANK_SENDIRI);
         Refund refund = new Refund(transaction, "salah coursee :(");
 
-        assertEquals(refund.getTransaction().getId(), transaction.getId());
+        assertEquals(refund.getTransaction().getTransactionId(), transaction.getTransactionId());
         assertEquals(refund.getReasonForRefund(), "salah coursee :(");
         assertEquals(refund.getStatus(), RefundStatus.ON_HOLD);
     }

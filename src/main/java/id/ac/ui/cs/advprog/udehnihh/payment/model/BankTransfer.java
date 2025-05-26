@@ -19,9 +19,6 @@ public class BankTransfer extends Transaction {
     @Column(name = "bank")
     private AvailableBanks bank;
 
-    @Column(name = "already_transferred")
-    private boolean alreadyTransferred = false;
-
     public BankTransfer() {
         super();
     }
