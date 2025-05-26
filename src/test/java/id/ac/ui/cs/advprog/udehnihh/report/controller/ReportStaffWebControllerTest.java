@@ -1,7 +1,6 @@
 package id.ac.ui.cs.advprog.udehnihh.report.controller;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -15,34 +14,34 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 @ExtendWith(MockitoExtension.class)
-class ReportWebControllerTest {
+class ReportStaffWebControllerTest {
 
     private MockMvc mockMvc;
 
     @Mock
     private JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    private ReportWebController reportWebController;
+    private ReportStaffWebController reportStaffWebController;
 
     @BeforeEach
     void setUp() {
-        reportWebController = new ReportWebController();
+        reportStaffWebController = new ReportStaffWebController();
 
-        mockMvc = MockMvcBuilders.standaloneSetup(reportWebController)
+        mockMvc = MockMvcBuilders.standaloneSetup(reportStaffWebController)
                 .build();
     }
 
     @Test
-    void testStudentReportsPage() throws Exception {
-        mockMvc.perform(get("/student/reports"))
+    void testStaffReportsMainpage() throws Exception {
+        mockMvc.perform(get("/staff/reports"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("student-reports-mainpage"));
+                .andExpect(view().name("report/staff-reports-mainpage"));
     }
 
     @Test
     void testReportDetailPage() throws Exception {
-        mockMvc.perform(get("/student/report-detail"))
+        mockMvc.perform(get("/staff/reports/report-detail"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("student-detail-report"));
+                .andExpect(view().name("report/detail-report"));
     }
 }

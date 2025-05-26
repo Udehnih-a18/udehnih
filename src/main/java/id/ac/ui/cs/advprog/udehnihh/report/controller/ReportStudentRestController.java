@@ -8,16 +8,15 @@ import id.ac.ui.cs.advprog.udehnihh.report.service.ReportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/student/reports")
 @RequiredArgsConstructor
-public class ReportRestController {
+public class ReportStudentRestController {
 
     private final ReportService reportService;
     private final AuthService authService;
@@ -39,7 +38,7 @@ public class ReportRestController {
         );
     }
 
-    @PostMapping("/student/reports")
+    @PostMapping("")
     public ResponseEntity<Map<String, Object>> createReport(@RequestBody Report report) {
         User currentUser = authService.getCurrentUser();
         report.setCreatedBy(currentUser);
@@ -50,7 +49,7 @@ public class ReportRestController {
         ));
     }
 
-    @GetMapping("/student/reports")
+    @GetMapping("")
     public ResponseEntity<Map<String, Object>> getStudentReports() {
         User currentUser = authService.getCurrentUser();
         List<Report> reports = reportService.getReportsByAuthor(currentUser);
@@ -63,7 +62,7 @@ public class ReportRestController {
         ));
     }
 
-    @GetMapping("/student/reports/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<Map<String, Object>> getStudentReportById(@PathVariable String id) {
         User currentUser = authService.getCurrentUser();
         Report report = reportService.getReportById(id);
@@ -76,7 +75,7 @@ public class ReportRestController {
         ));
     }
 
-    @PutMapping("/student/reports/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<Map<String, Object>> updateStudentReport(@PathVariable String id, @RequestBody Report updated) {
         User currentUser = authService.getCurrentUser();
         Report result = reportService.updateReport(id, currentUser, updated.getTitle(), updated.getDescription());
@@ -85,35 +84,13 @@ public class ReportRestController {
                 REPORT, toReportResponse(result)
         ));
     }
-
-    @DeleteMapping("/student/reports/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, Object>> deleteStudentReport(@PathVariable String id) {
         User currentUser = authService.getCurrentUser();
         reportService.deleteReport(id, currentUser);
         return ResponseEntity.ok(Map.of(
                 MESSAGE, "Report successfully deleted",
                 "reportId", id
-        ));
-    }
-
-    @GetMapping("/staff/reports")
-    public ResponseEntity<Map<String, Object>> getAllReportsForStaff() {
-        List<Report> reports = reportService.getAllReports();
-        List<ReportDto> dtos = reports.stream()
-                .map(this::toReportResponse)
-                .toList();
-        return ResponseEntity.ok(Map.of(
-                MESSAGE, "All reports fetched successfully",
-                REPORTS, dtos
-        ));
-    }
-
-    @GetMapping("/staff/reports/{id}")
-    public ResponseEntity<Map<String, Object>> getReportByIdForStaff(@PathVariable String id) {
-        Report report = reportService.getReportById(id);
-        return ResponseEntity.ok(Map.of(
-                MESSAGE, "Report fetched successfully",
-                REPORT, toReportResponse(report)
         ));
     }
 }

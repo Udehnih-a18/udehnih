@@ -21,7 +21,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-class ReportRestControllerTest {
+class ReportStudentRestControllerTest {
 
     @Mock
     private ReportService reportService;
@@ -30,7 +30,7 @@ class ReportRestControllerTest {
     private AuthService authService;
 
     @InjectMocks
-    private ReportRestController reportRestController;
+    private ReportStudentRestController reportRestController;
 
     private User user;
     private Report report;
@@ -115,23 +115,5 @@ class ReportRestControllerTest {
         ResponseEntity<Map<String, Object>> response = reportRestController.deleteStudentReport("1");
         assertEquals("Report successfully deleted", response.getBody().get("message"));
         assertEquals("1", response.getBody().get("reportId"));
-    }
-
-    @Test
-    void testGetAllReportsForStaff() {
-        when(reportService.getAllReports()).thenReturn(List.of(report));
-
-        ResponseEntity<Map<String, Object>> response = reportRestController.getAllReportsForStaff();
-        assertEquals("All reports fetched successfully", response.getBody().get("message"));
-        List<?> reports = (List<?>) response.getBody().get("reports");
-        assertEquals(1, reports.size());
-    }
-
-    @Test
-    void testGetReportByIdForStaff() {
-        when(reportService.getReportById("1")).thenReturn(report);
-
-        ResponseEntity<Map<String, Object>> response = reportRestController.getReportByIdForStaff("1");
-        assertEquals("Report fetched successfully", response.getBody().get("message"));
     }
 }
