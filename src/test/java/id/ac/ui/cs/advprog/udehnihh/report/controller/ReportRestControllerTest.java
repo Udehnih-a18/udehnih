@@ -3,7 +3,6 @@ package id.ac.ui.cs.advprog.udehnihh.report.controller;
 
 import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
 import id.ac.ui.cs.advprog.udehnihh.authentication.service.AuthService;
-import id.ac.ui.cs.advprog.udehnihh.report.dto.ReportDto;
 import id.ac.ui.cs.advprog.udehnihh.report.model.Report;
 import id.ac.ui.cs.advprog.udehnihh.report.service.ReportService;
 import org.junit.jupiter.api.BeforeEach;

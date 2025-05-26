@@ -20,8 +20,12 @@ public class ReportRestController {
 
     private final ReportService reportService;
     private final AuthService authService;
+    private static final String MESSAGE = "message";
+    private static final String REPORT = "report";
+    private static final String REPORTS = "reports";
 
-    private ReportDto toDto(Report report) {
+
+    private ReportDto toReportResponse(Report report) {
         return new ReportDto(
                 report.getIdReport(),
                 report.getTitle(),
@@ -40,8 +44,8 @@ public class ReportRestController {
         report.setCreatedBy(currentUser);
         Report created = reportService.createReport(report);
         return ResponseEntity.ok(Map.of(
-                "message", "Report successfully created",
-                "report", toDto(created)
+                MESSAGE, "Report successfully created",
+                REPORT, toReportResponse(created)
         ));
     }
 
@@ -50,11 +54,11 @@ public class ReportRestController {
         User currentUser = authService.getCurrentUser();
         List<Report> reports = reportService.getReportsByAuthor(currentUser);
         List<ReportDto> dtos = reports.stream()
-                .map(this::toDto)
+                .map(this::toReportResponse)
                 .toList(); // Java 16+
         return ResponseEntity.ok(Map.of(
-                "message", "Reports fetched successfully",
-                "reports", dtos
+                MESSAGE, "Reports fetched successfully",
+                REPORTS, dtos
         ));
     }
 
@@ -66,8 +70,8 @@ public class ReportRestController {
             throw new AccessDeniedException("You can only view your own reports");
         }
         return ResponseEntity.ok(Map.of(
-                "message", "Report fetched successfully",
-                "report", toDto(report)
+                MESSAGE, "Report fetched successfully",
+                REPORT, toReportResponse(report)
         ));
     }
 
@@ -76,8 +80,8 @@ public class ReportRestController {
         User currentUser = authService.getCurrentUser();
         Report result = reportService.updateReport(id, currentUser, updated.getTitle(), updated.getDescription());
         return ResponseEntity.ok(Map.of(
-                "message", "Report successfully updated",
-                "report", toDto(result)
+                MESSAGE, "Report successfully updated",
+                REPORT, toReportResponse(result)
         ));
     }
 
@@ -86,7 +90,7 @@ public class ReportRestController {
         User currentUser = authService.getCurrentUser();
         reportService.deleteReport(id, currentUser);
         return ResponseEntity.ok(Map.of(
-                "message", "Report successfully deleted",
+                MESSAGE, "Report successfully deleted",
                 "reportId", id
         ));
     }
@@ -95,11 +99,11 @@ public class ReportRestController {
     public ResponseEntity<Map<String, Object>> getAllReportsForStaff() {
         List<Report> reports = reportService.getAllReports();
         List<ReportDto> dtos = reports.stream()
-                .map(this::toDto)
+                .map(this::toReportResponse)
                 .toList();
         return ResponseEntity.ok(Map.of(
-                "message", "All reports fetched successfully",
-                "reports", dtos
+                MESSAGE, "All reports fetched successfully",
+                REPORTS, dtos
         ));
     }
 
@@ -107,8 +111,8 @@ public class ReportRestController {
     public ResponseEntity<Map<String, Object>> getReportByIdForStaff(@PathVariable String id) {
         Report report = reportService.getReportById(id);
         return ResponseEntity.ok(Map.of(
-                "message", "Report fetched successfully",
-                "report", toDto(report)
+                MESSAGE, "Report fetched successfully",
+                REPORT, toReportResponse(report)
         ));
     }
 }
