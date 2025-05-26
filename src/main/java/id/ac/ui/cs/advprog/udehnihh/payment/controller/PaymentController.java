@@ -90,7 +90,7 @@ public class PaymentController {
     }
 
     // minta refund - perlu login
-    @GetMapping("/transaction-history/{transactionId}/refund")
+    @PostMapping("/transaction-history/{transactionId}/refund")
     public ResponseEntity<?> requestRefund(@PathVariable UUID transactionId,
                                            @AuthenticationPrincipal User student,
                                            @RequestBody Map<String, String> refundRequest) {
