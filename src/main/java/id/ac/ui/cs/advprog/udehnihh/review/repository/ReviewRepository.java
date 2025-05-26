@@ -8,21 +8,22 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface ReviewRepository extends JpaRepository<Review, Long> {
     
-    List<Review> findByCourseIdOrderByCreatedAtDesc(Long courseId);
+    List<Review> findByCourseIdOrderByCreatedAtDesc(UUID courseId);  // Changed from Long to UUID
     
-    boolean existsByStudentIdAndCourseId(Long studentId, Long courseId);
+    boolean existsByStudentIdAndCourseId(UUID studentId, UUID courseId);  // Changed courseId from Long to UUID
     
-    Optional<Review> findByStudentIdAndCourseId(Long studentId, Long courseId);
+    Optional<Review> findByStudentIdAndCourseId(UUID studentId, UUID courseId);  // Changed courseId from Long to UUID
     
-    List<Review> findByStudentIdOrderByCreatedAtDesc(Long studentId);
+    List<Review> findByStudentIdOrderByCreatedAtDesc(UUID studentId);
     
     @Query("SELECT AVG(r.rating) FROM Review r WHERE r.courseId = :courseId")
-    Double findAverageRatingByCourseId(@Param("courseId") Long courseId);
+    Double findAverageRatingByCourseId(@Param("courseId") UUID courseId);  // Changed from Long to UUID
     
     @Query("SELECT COUNT(r) FROM Review r WHERE r.courseId = :courseId")
-    Long countByCourseId(@Param("courseId") Long courseId);
+    Long countByCourseId(@Param("courseId") UUID courseId);  // Changed from Long to UUID
 }

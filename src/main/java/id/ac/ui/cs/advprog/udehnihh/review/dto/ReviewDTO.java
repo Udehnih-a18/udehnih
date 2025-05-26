@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 @Builder
@@ -19,13 +20,14 @@ public class ReviewDTO {
     
     // Response fields
     private Long id;
-    private Long studentId;
+    private UUID studentId;
+    private String reviewerName;  // Add field for displaying reviewer name
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     
     // Request fields with validation
     @NotNull(groups = Create.class)
-    private Long courseId;
+    private UUID courseId;  // Changed from Long to UUID
     
     @NotNull
     @Min(1) @Max(5)

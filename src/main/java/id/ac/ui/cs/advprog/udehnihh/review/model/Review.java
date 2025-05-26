@@ -12,6 +12,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "reviews", uniqueConstraints = {
@@ -29,11 +30,11 @@ public class Review {
     
     @NotNull
     @Column(name = "student_id")
-    private Long studentId;
+    private UUID studentId;
     
     @NotNull
     @Column(name = "course_id")
-    private Long courseId;
+    private UUID courseId; // Changed from Long to UUID
     
     @NotNull
     @Min(1) @Max(5)
