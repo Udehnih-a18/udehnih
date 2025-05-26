@@ -19,6 +19,8 @@ public class TutorApplicationServiceImpl implements TutorApplicationService {
     private final TutorApplicationRepository tutorApplicationRepository;
     private final UserRepository userRepository;
     private final JwtService jwtTokenUtil;
+    private static final String USER_NOT_FOUND = "User not found";
+    private static final String NO_APPLICATION_FOUND = "No application found";
 
     @Autowired
     public TutorApplicationServiceImpl(TutorApplicationRepository tutorApplicationRepository,
@@ -26,6 +28,7 @@ public class TutorApplicationServiceImpl implements TutorApplicationService {
                                    JwtService jwtTokenUtil) {
         this.tutorApplicationRepository = tutorApplicationRepository;
         this.userRepository = userRepository;
+
         this.jwtTokenUtil = jwtTokenUtil;
     }
 
@@ -34,7 +37,7 @@ public class TutorApplicationServiceImpl implements TutorApplicationService {
         Optional<User> optionalUser = userRepository.findByEmail(email);
 
         if (optionalUser.isEmpty()) {
-            throw new IllegalStateException("User not found");
+            throw new IllegalStateException(USER_NOT_FOUND);
         }
 
         User user = optionalUser.get();
@@ -60,20 +63,20 @@ public class TutorApplicationServiceImpl implements TutorApplicationService {
         String email = jwtTokenUtil.getEmailFromToken(token);
         Optional<User> optionalUser = userRepository.findByEmail(email);
 
-        User user = optionalUser.orElseThrow(() -> new IllegalStateException("User not found"));
+        User user = optionalUser.orElseThrow(() -> new IllegalStateException(USER_NOT_FOUND));
 
         return tutorApplicationRepository.findByApplicant(user)
-                .orElseThrow(() -> new IllegalStateException("No application found"));
+                .orElseThrow(() -> new IllegalStateException(NO_APPLICATION_FOUND));
     }
 
     public void deleteApplication(String token) {
         String email = jwtTokenUtil.getEmailFromToken(token);
         Optional<User> optionalUser = userRepository.findByEmail(email);
 
-        User user = optionalUser.orElseThrow(() -> new IllegalStateException("User not found"));
+        User user = optionalUser.orElseThrow(() -> new IllegalStateException(USER_NOT_FOUND));
 
         TutorApplication application = tutorApplicationRepository.findByApplicant(user)
-                .orElseThrow(() -> new IllegalStateException("No application found"));
+                .orElseThrow(() -> new IllegalStateException(NO_APPLICATION_FOUND));
 
         tutorApplicationRepository.delete(application);
     }

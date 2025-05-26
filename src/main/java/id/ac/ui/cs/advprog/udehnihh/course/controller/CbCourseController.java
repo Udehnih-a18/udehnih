@@ -20,7 +20,6 @@ public class CbCourseController {
     private final CbCourseService courseSvc;
     private final CbEnrollmentService enrollSvc;
 
-    // daftar & search - bisa diakses tanpa login
     @GetMapping("/courses")
     public List<CourseSummaryDto> list(
             @RequestParam(required = false) String q,
@@ -29,13 +28,11 @@ public class CbCourseController {
         return courseSvc.search(q, minPrice, maxPrice);
     }
 
-    // detail - bisa diakses tanpa login
     @GetMapping("/courses/{id}")
     public CourseDetailDto detail(@PathVariable UUID id) {
         return courseSvc.getDetail(id);
     }
 
-    // enroll - perlu login
     @PostMapping("/courses/{id}/enroll")
     public ResponseEntity<?> enroll(@PathVariable UUID id,
                                    @AuthenticationPrincipal User student) {
@@ -54,7 +51,6 @@ public class CbCourseController {
         }
     }
 
-    // daftar kursus yg sudah di‑enrol - perlu login
     @GetMapping("/enrollments/me")
     public ResponseEntity<?> myEnrollments(@AuthenticationPrincipal User student) {
         if (student == null) {

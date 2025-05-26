@@ -12,7 +12,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class GetAllReportsCommandTest {
+class GetAllReportsCommandTest {
 
     private ReportRepository repository;
     private Report report;
@@ -34,7 +34,7 @@ public class GetAllReportsCommandTest {
         when(repository.findAll()).thenReturn(List.of(report));
 
         GetAllReportsCommand command = new GetAllReportsCommand(repository);
-        List<Report> result = command.executeAll();
+        List<Report> result = command.execute();
 
         assertNotNull(result);
         assertEquals(1, result.size());

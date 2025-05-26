@@ -14,7 +14,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class UpdateReportCommandTest {
+class UpdateReportCommandTest {
 
     private ReportRepository repository;
     private User user;

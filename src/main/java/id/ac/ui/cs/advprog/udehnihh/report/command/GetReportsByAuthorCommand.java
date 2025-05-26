@@ -6,7 +6,7 @@ import id.ac.ui.cs.advprog.udehnihh.report.repository.ReportRepository;
 
 import java.util.List;
 
-public class GetReportsByAuthorCommand implements ReportCommand {
+public class GetReportsByAuthorCommand implements ListReportCommand {
     private final User user;
     private final ReportRepository repository;
 
@@ -16,11 +16,7 @@ public class GetReportsByAuthorCommand implements ReportCommand {
     }
 
     @Override
-    public Report execute() {
-        throw new UnsupportedOperationException("Use executeList() instead");
-    }
-
-    public List<Report> executeList() {
+    public List<Report> execute() {
         return repository.findAllByCreatedBy(user);
     }
 }

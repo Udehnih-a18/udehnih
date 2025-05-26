@@ -6,11 +6,10 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ArticleTest {
+class ArticleTest {
 
     @Test
     void testArticleSettersAndGetters() {
-        // Arrange
         UUID articleId = UUID.randomUUID();
         String contentType = "Video";
         String contentUrl = "https://example.com/video";
@@ -22,7 +21,6 @@ public class ArticleTest {
 
         Article article = new Article();
 
-        // Act
         article.setId(articleId);
         article.setContentType(contentType);
         article.setContentUrl(contentUrl);
@@ -43,10 +41,8 @@ public class ArticleTest {
 
     @Test
     void testDefaultConstructor() {
-        // Act
         Article article = new Article();
 
-        // Assert
         assertNull(article.getId());
         assertNull(article.getContentType());
         assertNull(article.getContentUrl());
@@ -58,7 +54,6 @@ public class ArticleTest {
 
     @Test
     void testAllArgsConstructor() {
-        // Arrange
         UUID articleId = UUID.randomUUID();
         String contentType = "Video";
         String contentUrl = "https://example.com/video";
@@ -68,7 +63,6 @@ public class ArticleTest {
         Section section = new Section();
         section.setId(UUID.randomUUID());
 
-        // Act
         Article article = new Article(
             articleId,
             contentType,
@@ -79,7 +73,6 @@ public class ArticleTest {
             section
         );
 
-        // Assert
         assertEquals(articleId, article.getId());
         assertEquals(contentType, article.getContentType());
         assertEquals(contentUrl, article.getContentUrl());
