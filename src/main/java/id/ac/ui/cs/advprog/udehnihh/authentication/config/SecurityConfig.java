@@ -60,11 +60,11 @@ public class SecurityConfig {
 
                 // Report Endpoints
                 .requestMatchers("/student/reports/**").authenticated()
-                .requestMatchers(HttpMethod.GET, "/api/student/reports/**").hasRole("STUDENT")
-                .requestMatchers(HttpMethod.POST, "/api/student/reports").hasRole("STUDENT")
-                .requestMatchers(HttpMethod.PUT, "/api/student/reports/{id}").hasRole("STUDENT")
-                .requestMatchers(HttpMethod.DELETE, "/api/student/reports/{id}").hasRole("STUDENT")
-                .requestMatchers("/api/staff/reports/**").hasRole("STAFF")
+                .requestMatchers(HttpMethod.GET, "/api/student/reports/**").hasRole(Role.STUDENT.name())
+                .requestMatchers(HttpMethod.POST, "/api/student/reports").hasRole(Role.STUDENT.name())
+                .requestMatchers(HttpMethod.PUT, "/api/student/reports/{id}").hasRole(Role.STUDENT.name())
+                .requestMatchers(HttpMethod.DELETE, "/api/student/reports/{id}").hasRole(Role.STUDENT.name())
+                .requestMatchers("/api/staff/reports/**").hasRole(Role.STAFF.name())
                 .anyRequest().denyAll()
             )
             .sessionManagement(session -> session

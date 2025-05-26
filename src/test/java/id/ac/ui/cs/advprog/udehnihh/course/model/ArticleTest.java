@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ArticleTest {
+class ArticleTest {
 
     @Test
     void testArticleSettersAndGetters() {
