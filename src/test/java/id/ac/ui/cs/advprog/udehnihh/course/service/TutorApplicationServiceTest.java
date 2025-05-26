@@ -85,6 +85,29 @@ class TutorApplicationServiceImplTest {
     }
 
     @Test
+    void testCreateApplicationFailsIfUserNotFound() {
+        when(jwtService.getEmailFromToken(token)).thenReturn(user.getEmail());
+        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.empty());
+
+        Exception exception = assertThrows(IllegalStateException.class, () ->
+                tutorApplicationService.createApplication(token, request));
+
+        assertEquals("User not found", exception.getMessage());
+    }
+
+    @Test
+    void testCreateApplicationFailsIfAlreadyApplied() {
+        when(jwtService.getEmailFromToken(token)).thenReturn(user.getEmail());
+        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
+        when(tutorApplicationRepository.existsByApplicant(user)).thenReturn(true);
+
+        Exception exception = assertThrows(IllegalStateException.class, () ->
+                tutorApplicationService.createApplication(token, request));
+
+        assertEquals("User has already applied", exception.getMessage());
+    }
+
+    @Test
     void testGetApplicationSuccess() {
         TutorApplication app = new TutorApplication();
         app.setApplicant(user);
@@ -97,6 +120,29 @@ class TutorApplicationServiceImplTest {
     }
 
     @Test
+    void testGetApplicationFailsIfUserNotFound() {
+        when(jwtService.getEmailFromToken(token)).thenReturn(user.getEmail());
+        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.empty());
+
+        Exception exception = assertThrows(IllegalStateException.class, () ->
+                tutorApplicationService.getApplication(token));
+
+        assertEquals("User not found", exception.getMessage());
+    }
+
+    @Test
+    void testGetApplicationFailsIfApplicationNotFound() {
+        when(jwtService.getEmailFromToken(token)).thenReturn(user.getEmail());
+        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
+        when(tutorApplicationRepository.findByApplicant(user)).thenReturn(Optional.empty());
+
+        Exception exception = assertThrows(IllegalStateException.class, () ->
+                tutorApplicationService.getApplication(token));
+
+        assertEquals("No application found", exception.getMessage());
+    }
+
+    @Test
     void testDeleteApplicationSuccess() {
         TutorApplication app = new TutorApplication();
         app.setApplicant(user);
@@ -106,5 +152,28 @@ class TutorApplicationServiceImplTest {
 
         tutorApplicationService.deleteApplication(token);
         verify(tutorApplicationRepository).delete(app);
+    }
+
+    @Test
+    void testDeleteApplicationFailsIfUserNotFound() {
+        when(jwtService.getEmailFromToken(token)).thenReturn(user.getEmail());
+        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.empty());
+
+        Exception exception = assertThrows(IllegalStateException.class, () ->
+                tutorApplicationService.deleteApplication(token));
+
+        assertEquals("User not found", exception.getMessage());
+    }
+
+    @Test
+    void testDeleteApplicationFailsIfApplicationNotFound() {
+        when(jwtService.getEmailFromToken(token)).thenReturn(user.getEmail());
+        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
+        when(tutorApplicationRepository.findByApplicant(user)).thenReturn(Optional.empty());
+
+        Exception exception = assertThrows(IllegalStateException.class, () ->
+                tutorApplicationService.deleteApplication(token));
+
+        assertEquals("No application found", exception.getMessage());
     }
 }
