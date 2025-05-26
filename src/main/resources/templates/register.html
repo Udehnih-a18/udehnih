@@ -6,83 +6,90 @@
   <title>Udehnih - Register</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-teal-50 min-h-screen flex items-center justify-center">
-<div class="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl border border-teal-200">
-  <h2 class="text-3xl font-bold text-teal-600 mb-6 text-center">Join Udehnih! ✨</h2>
 
-  <form id="registerForm" action="#" method="post" class="space-y-4">
-    <div>
-      <label class="block text-teal-700 font-semibold mb-1" for="fullName">Full Name</label>
-      <input type="text" id="fullName" required
-             class="w-full px-4 py-2 border border-teal-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" />
+<body class="bg-teal-50 min-h-screen">
+  <div th:insert="~{navbar :: navbar}"></div>
+
+  <div class="flex items-center justify-center min-h-screen">
+    <div class="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl border border-teal-200">
+      <h2 class="text-3xl font-bold text-teal-600 mb-6 text-center">Join Udehnih! ✨</h2>
+
+      <form id="registerForm" action="#" method="post" class="space-y-4">
+        <div>
+          <label class="block text-teal-700 font-semibold mb-1" for="fullName">Full Name</label>
+          <input type="text" id="fullName" required
+                class="w-full px-4 py-2 border border-teal-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" />
+        </div>
+        <div>
+          <label class="block text-teal-700 font-semibold mb-1" for="email">Email</label>
+          <input type="email" id="email" required
+                class="w-full px-4 py-2 border border-teal-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" />
+        </div>
+        <div>
+          <label class="block text-teal-700 font-semibold mb-1" for="password">Password</label>
+          <input type="password" id="password" required
+                class="w-full px-4 py-2 border border-teal-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" />
+        </div>
+
+        <button type="submit"
+                class="w-full bg-teal-600 text-white py-2 rounded-lg hover:bg-teal-700 transition">
+          Register Now 💫
+        </button>
+      </form>
+
+      <div id="registerResult" class="mt-4 text-sm text-center text-teal-700"></div>
+
+      <p class="mt-4 text-sm text-teal-700 text-center">
+        Already have an account? <a href="/auth/login" class="text-teal-900 font-semibold hover:underline">Login</a>
+      </p>
     </div>
-    <div>
-      <label class="block text-teal-700 font-semibold mb-1" for="email">Email</label>
-      <input type="email" id="email" required
-             class="w-full px-4 py-2 border border-teal-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" />
-    </div>
-    <div>
-      <label class="block text-teal-700 font-semibold mb-1" for="password">Password</label>
-      <input type="password" id="password" required
-             class="w-full px-4 py-2 border border-teal-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500" />
-    </div>
+  </div>
 
-    <button type="submit"
-            class="w-full bg-teal-600 text-white py-2 rounded-lg hover:bg-teal-700 transition">
-      Register Now 💫
-    </button>
-  </form>
+  <script>
+    document.getElementById("registerForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
 
-  <div id="registerResult" class="mt-4 text-sm text-center text-teal-700"></div>
+      const fullName = document.getElementById("fullName").value;
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
 
-  <p class="mt-4 text-sm text-teal-700 text-center">
-    Already have an account? <a href="/auth/login" class="text-teal-900 font-semibold hover:underline">Login</a>
-  </p>
-</div>
+      const registrationDate = new Date().toISOString().slice(0, 10);
+      const role = "Student";
 
-<script>
-  document.getElementById("registerForm").addEventListener("submit", async function (e) {
-    e.preventDefault();
+      try {
+        const response = await fetch("/api/auth/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            fullName,
+            email,
+            password,
+            registrationDate,
+            role
+          }),
+        });
 
-    const fullName = document.getElementById("fullName").value;
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+        const resultText = document.getElementById("registerResult");
 
-    const registrationDate = new Date().toISOString().slice(0, 10);
-    const role = "Student";
-
-    try {
-      const response = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          fullName,
-          email,
-          password,
-          registrationDate,
-          role
-        }),
-      });
-
-      const resultText = document.getElementById("registerResult");
-
-      if (response.ok) {
-        resultText.innerText = "🎉 Registration successful! You can now log in.";
-        resultText.classList.remove("text-red-600");
-        resultText.classList.add("text-green-600");
-      } else {
-        const data = await response.json();
-        resultText.innerText = `⚠️ ${Array.isArray(data.messages) ? data.messages.join(', ') : data}`;
-        resultText.classList.remove("text-green-600");
+        if (response.ok) {
+          resultText.innerText = "🎉 Registration successful! You can now log in.";
+          resultText.classList.remove("text-red-600");
+          resultText.classList.add("text-green-600");
+        } else {
+          const data = await response.json();
+          resultText.innerText = `⚠️ ${Array.isArray(data.messages) ? data.messages.join(', ') : data}`;
+          resultText.classList.remove("text-green-600");
+          resultText.classList.add("text-red-600");
+        }
+      } catch (err) {
+        document.getElementById("registerResult").innerText = "❌ Error: " + err.message;
         resultText.classList.add("text-red-600");
       }
-    } catch (err) {
-      document.getElementById("registerResult").innerText = "❌ Error: " + err.message;
-      resultText.classList.add("text-red-600");
-    }
-  });
-</script>
+    });
+  </script>
+  
+  <script th:src="@{/js/navbar.js}"></script>
 </body>
 </html>
