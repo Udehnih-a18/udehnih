@@ -19,6 +19,7 @@ public class CbCourseController {
 
     private final CbCourseService courseSvc;
     private final CbEnrollmentService enrollSvc;
+    private static final String NEED_LOGIN = "Anda perlu login terlebih dahulu";
 
     @GetMapping("/courses")
     public List<CourseSummaryDto> list(
@@ -38,7 +39,7 @@ public class CbCourseController {
                                    @AuthenticationPrincipal User student) {
         if (student == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("Anda perlu login terlebih dahulu");
+                    .body(NEED_LOGIN);
         }
         
         try {
@@ -55,7 +56,7 @@ public class CbCourseController {
     public ResponseEntity<?> myEnrollments(@AuthenticationPrincipal User student) {
         if (student == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("Anda perlu login terlebih dahulu");
+                    .body(NEED_LOGIN);
         }
         
         List<EnrollmentDto> enrollments = enrollSvc.myCourses(student);
@@ -66,7 +67,7 @@ public class CbCourseController {
     public ResponseEntity<?> myCourses(@AuthenticationPrincipal User student) {
         if (student == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("Anda perlu login terlebih dahulu");
+                    .body(NEED_LOGIN);
         }
         
         List<EnrollmentDto> courses = enrollSvc.myCourses(student);
