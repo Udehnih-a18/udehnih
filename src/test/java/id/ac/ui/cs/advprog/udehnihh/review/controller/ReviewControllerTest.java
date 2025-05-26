@@ -42,7 +42,7 @@ class ReviewControllerTest {
         ReviewDTO dto = new ReviewDTO();
         ReviewDTO result = new ReviewDTO();
 
-        when(reviewService.createReview(eq(userId), eq(dto))).thenReturn(result);
+        when(reviewService.createReview((userId), (dto))).thenReturn(result);
 
         ReviewDTO response = reviewController.createReview(authentication, dto);
         assertSame(result, response);
@@ -128,7 +128,6 @@ class ReviewControllerTest {
         Authentication authWithString = mock(Authentication.class);
         when(authWithString.getPrincipal()).thenReturn(id.toString());
 
-        // Test through getMyReviews which uses getUserIdFromAuth internally
         List<ReviewDTO> mockReviews = List.of(new ReviewDTO());
         when(reviewService.getStudentReviews(id)).thenReturn(mockReviews);
 
@@ -142,7 +141,6 @@ class ReviewControllerTest {
         Authentication invalidAuth = mock(Authentication.class);
         when(invalidAuth.getPrincipal()).thenReturn(12345); // not String or User
 
-        // Test through a public method that uses getUserIdFromAuth internally
         IllegalStateException ex = assertThrows(IllegalStateException.class, () ->
                 reviewController.getMyReviews(invalidAuth));
         assertEquals("Unable to extract user ID from authentication", ex.getMessage());
@@ -169,7 +167,7 @@ class ReviewControllerTest {
     @Test
     void testCreateReviewWithException() {
         ReviewDTO dto = new ReviewDTO();
-        when(reviewService.createReview(eq(userId), eq(dto)))
+        when(reviewService.createReview((userId), (dto)))
                 .thenThrow(new IllegalArgumentException("Review already exists"));
 
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
@@ -219,7 +217,6 @@ class ReviewControllerTest {
 
     @Test
     void testGetUserIdFromAuthWithUserPrincipal() {
-        // This is already covered in other tests, but adding explicit test
         when(authentication.getPrincipal()).thenReturn(user);
         when(user.getId()).thenReturn(userId);
 
