@@ -60,6 +60,20 @@ class UpdateReportCommandTest {
     }
 
     @Test
+    void testExecuteThrowsIllegalArgumentExceptionIfTitleIsNull() {
+        UpdateReportCommand command = new UpdateReportCommand(
+                report.getIdReport(), user, null, "Some description", repository);
+        assertThrows(IllegalArgumentException.class, command::execute);
+    }
+
+    @Test
+    void testExecuteThrowsIllegalArgumentExceptionIfTitleIsEmpty() {
+        UpdateReportCommand command = new UpdateReportCommand(
+                report.getIdReport(), user, "   ", "Some description", repository);
+        assertThrows(IllegalArgumentException.class, command::execute);
+    }
+
+    @Test
     void testExecuteThrowsNoSuchElementIfNotFound() {
         when(repository.findById("invalid-id")).thenReturn(Optional.empty());
 
