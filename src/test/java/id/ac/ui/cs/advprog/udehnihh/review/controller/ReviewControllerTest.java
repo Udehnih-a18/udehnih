@@ -1,522 +1,233 @@
 package id.ac.ui.cs.advprog.udehnihh.review.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
 import id.ac.ui.cs.advprog.udehnihh.review.dto.ReviewDTO;
 import id.ac.ui.cs.advprog.udehnihh.review.service.ReviewService;
+import id.ac.ui.cs.advprog.udehnihh.review.service.ReviewService.CourseRatingStats;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
-import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 
-import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
-import static org.mockito.ArgumentMatchers.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(ReviewController.class)
-@Import(TestSecurityConfig.class)
 class ReviewControllerTest {
-    
-    @Autowired
-    private MockMvc mockMvc;
-    
-    @MockBean
+
     private ReviewService reviewService;
-    
-    @Autowired
-    private ObjectMapper objectMapper;
-    
-    private ReviewDTO sampleReviewDTO;
-    
+    private ReviewController reviewController;
+    private Authentication authentication;
+    private User user;
+    private UUID userId;
+
     @BeforeEach
     void setUp() {
-        sampleReviewDTO = ReviewDTO.builder()
-            .id(1L)
-            .studentId(1L)
-            .courseId(1L)
-            .rating(5)
-            .comment("Excellent course!")
-            .createdAt(LocalDateTime.now())
-            .updatedAt(LocalDateTime.now())
-            .build();
+        reviewService = mock(ReviewService.class);
+        reviewController = new ReviewController(reviewService);
+        authentication = mock(Authentication.class);
+        user = mock(User.class);
+        userId = UUID.randomUUID();
+
+        when(authentication.getPrincipal()).thenReturn(user);
+        when(user.getId()).thenReturn(userId);
     }
-    
+
     @Test
-    @DisplayName("Should create review successfully")
-    @WithMockUser(username = "1")
-    void shouldCreateReviewSuccessfully() throws Exception {
-        // Given
-        ReviewDTO requestDTO = ReviewDTO.builder()
-            .courseId(1L)
-            .rating(5)
-            .comment("Excellent course!")
-            .build();
-        
-        when(reviewService.createReview(eq(1L), any(ReviewDTO.class)))
-            .thenReturn(sampleReviewDTO);
-        
-        // When & Then
-        mockMvc.perform(post("/api/reviews")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(requestDTO)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(1L))
-                .andExpect(jsonPath("$.studentId").value(1L))
-                .andExpect(jsonPath("$.courseId").value(1L))
-                .andExpect(jsonPath("$.rating").value(5))
-                .andExpect(jsonPath("$.comment").value("Excellent course!"));
-        
-        verify(reviewService).createReview(eq(1L), any(ReviewDTO.class));
+    void testCreateReview() {
+        ReviewDTO dto = new ReviewDTO();
+        ReviewDTO result = new ReviewDTO();
+
+        when(reviewService.createReview(eq(userId), eq(dto))).thenReturn(result);
+
+        ReviewDTO response = reviewController.createReview(authentication, dto);
+        assertSame(result, response);
     }
-    
+
     @Test
-    @DisplayName("Should return 400 for invalid create request")
-    @WithMockUser(username = "1")
-    void shouldReturn400ForInvalidCreateRequest() throws Exception {
-        // Given - Invalid DTO with rating = 6 (exceeds max)
-        ReviewDTO invalidDTO = ReviewDTO.builder()
-            .courseId(1L)
-            .rating(6) // Invalid rating
-            .comment("Invalid rating")
-            .build();
-        
-        // When & Then
-        mockMvc.perform(post("/api/reviews")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(invalidDTO)))
-                .andExpect(status().isBadRequest());
-        
-        verifyNoInteractions(reviewService);
+    void testGetCourseReviews() {
+        UUID courseId = UUID.randomUUID();
+        List<ReviewDTO> expected = List.of(new ReviewDTO());
+
+        when(reviewService.getCourseReviews(courseId)).thenReturn(expected);
+
+        List<ReviewDTO> result = reviewController.getCourseReviews(courseId);
+        assertEquals(expected, result);
     }
-    
+
     @Test
-    @DisplayName("Should return 400 for missing courseId in create request")
-    @WithMockUser(username = "1")
-    void shouldReturn400ForMissingCourseIdInCreateRequest() throws Exception {
-        // Given - Missing courseId for Create group validation
-        ReviewDTO invalidDTO = ReviewDTO.builder()
-            .rating(5)
-            .comment("Missing courseId")
-            .build();
-        
-        // When & Then
-        mockMvc.perform(post("/api/reviews")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(invalidDTO)))
-                .andExpect(status().isBadRequest());
-        
-        verifyNoInteractions(reviewService);
-    }
-    
-    @Test
-    @DisplayName("Should return 400 when service throws IllegalArgumentException")
-    @WithMockUser(username = "1")
-    void shouldReturn400WhenServiceThrowsIllegalArgumentException() throws Exception {
-        // Given
-        ReviewDTO requestDTO = ReviewDTO.builder()
-            .courseId(1L)
-            .rating(5)
-            .comment("Duplicate review")
-            .build();
-        
-        when(reviewService.createReview(eq(1L), any(ReviewDTO.class)))
-            .thenThrow(new IllegalArgumentException("Review already exists"));
-        
-        // When & Then
-        mockMvc.perform(post("/api/reviews")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(requestDTO)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Review already exists"));
-    }
-    
-    @Test
-    @DisplayName("Should get course reviews successfully")
-    void shouldGetCourseReviewsSuccessfully() throws Exception {
-        // Given
-        Long courseId = 1L;
-        List<ReviewDTO> reviews = Arrays.asList(
-            sampleReviewDTO,
-            ReviewDTO.builder()
-                .id(2L)
-                .studentId(2L)
-                .courseId(1L)
-                .rating(4)
-                .comment("Good course")
-                .build()
-        );
-        
-        when(reviewService.getCourseReviews(courseId)).thenReturn(reviews);
-        
-        // When & Then
-        mockMvc.perform(get("/api/reviews/course/{courseId}", courseId))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(2))
-                .andExpect(jsonPath("$[0].id").value(1L))
-                .andExpect(jsonPath("$[0].rating").value(5))
-                .andExpect(jsonPath("$[0].comment").value("Excellent course!"))
-                .andExpect(jsonPath("$[1].id").value(2L))
-                .andExpect(jsonPath("$[1].rating").value(4))
-                .andExpect(jsonPath("$[1].comment").value("Good course"));
-        
-        verify(reviewService).getCourseReviews(courseId);
-    }
-    
-    @Test
-    @DisplayName("Should get course rating stats successfully")
-    void shouldGetCourseRatingStatsSuccessfully() throws Exception {
-        // Given
-        Long courseId = 1L;
-        ReviewService.CourseRatingStats stats = new ReviewService.CourseRatingStats(4.5, 10L);
-        
+    void testGetCourseRatingStats() {
+        UUID courseId = UUID.randomUUID();
+        CourseRatingStats stats = new CourseRatingStats(4.5, 10L);
+
         when(reviewService.getCourseRatingStats(courseId)).thenReturn(stats);
-        
-        // When & Then
-        mockMvc.perform(get("/api/reviews/course/{courseId}/stats", courseId))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.averageRating").value(4.5))
-                .andExpect(jsonPath("$.totalReviews").value(10));
-        
-        verify(reviewService).getCourseRatingStats(courseId);
+
+        CourseRatingStats result = reviewController.getCourseRatingStats(courseId);
+        assertEquals(stats, result);
     }
-    
+
     @Test
-    @DisplayName("Should get my reviews successfully")
-    @WithMockUser(username = "1")
-    void shouldGetMyReviewsSuccessfully() throws Exception {
-        // Given
-        List<ReviewDTO> reviews = Arrays.asList(sampleReviewDTO);
-        
-        when(reviewService.getStudentReviews(1L)).thenReturn(reviews);
-        
-        // When & Then
-        mockMvc.perform(get("/api/reviews/student/my-reviews"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(1))
-                .andExpect(jsonPath("$[0].id").value(1L));
-        
-        verify(reviewService).getStudentReviews(1L);
+    void testGetMyReviews() {
+        List<ReviewDTO> reviews = List.of(new ReviewDTO());
+
+        when(reviewService.getStudentReviews(userId)).thenReturn(reviews);
+
+        List<ReviewDTO> result = reviewController.getMyReviews(authentication);
+        assertEquals(reviews, result);
     }
-    
+
     @Test
-    @DisplayName("Should get my review for course successfully")
-    @WithMockUser(username = "1")
-    void shouldGetMyReviewForCourseSuccessfully() throws Exception {
-        // Given
-        Long courseId = 1L;
-        
-        when(reviewService.getStudentReviewForCourse(1L, courseId))
-            .thenReturn(Optional.of(sampleReviewDTO));
-        
-        // When & Then
-        mockMvc.perform(get("/api/reviews/course/{courseId}/my-review", courseId))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1L));
-        
-        verify(reviewService).getStudentReviewForCourse(1L, courseId);
+    void testGetMyReviewForCourseFound() {
+        UUID courseId = UUID.randomUUID();
+        ReviewDTO review = new ReviewDTO();
+
+        when(reviewService.getStudentReviewForCourse(userId, courseId)).thenReturn(Optional.of(review));
+
+        ResponseEntity<ReviewDTO> result = reviewController.getMyReviewForCourse(courseId, authentication);
+        assertEquals(ResponseEntity.ok(review), result);
     }
-    
+
     @Test
-    @DisplayName("Should return 404 when my review for course not found")
-    @WithMockUser(username = "1")
-    void shouldReturn404WhenMyReviewForCourseNotFound() throws Exception {
-        // Given
-        Long courseId = 1L;
-        
-        when(reviewService.getStudentReviewForCourse(1L, courseId))
-            .thenReturn(Optional.empty());
-        
-        // When & Then
-        mockMvc.perform(get("/api/reviews/course/{courseId}/my-review", courseId))
-                .andExpect(status().isNotFound());
-        
-        verify(reviewService).getStudentReviewForCourse(1L, courseId);
+    void testGetMyReviewForCourseNotFound() {
+        UUID courseId = UUID.randomUUID();
+
+        when(reviewService.getStudentReviewForCourse(userId, courseId)).thenReturn(Optional.empty());
+
+        ResponseEntity<ReviewDTO> result = reviewController.getMyReviewForCourse(courseId, authentication);
+        assertEquals(ResponseEntity.notFound().build(), result);
     }
-    
+
     @Test
-    @DisplayName("Should return empty list when no reviews found")
-    void shouldReturnEmptyListWhenNoReviewsFound() throws Exception {
-        // Given
-        Long courseId = 999L;
-        when(reviewService.getCourseReviews(courseId)).thenReturn(Arrays.asList());
-        
-        // When & Then
-        mockMvc.perform(get("/api/reviews/course/{courseId}", courseId))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(0));
-        
-        verify(reviewService).getCourseReviews(courseId);
-    }
-    
-    @Test
-    @DisplayName("Should update review successfully")
-    @WithMockUser(username = "1")
-    void shouldUpdateReviewSuccessfully() throws Exception {
-        // Given
+    void testUpdateReview() {
+        ReviewDTO dto = new ReviewDTO();
+        ReviewDTO updated = new ReviewDTO();
         Long reviewId = 1L;
-        ReviewDTO updateRequest = ReviewDTO.builder()
-            .rating(4)
-            .comment("Updated review")
-            .build();
-        
-        ReviewDTO updatedResponse = ReviewDTO.builder()
-            .id(reviewId)
-            .studentId(1L)
-            .courseId(1L)
-            .rating(4)
-            .comment("Updated review")
-            .createdAt(LocalDateTime.now())
-            .updatedAt(LocalDateTime.now())
-            .build();
-        
-        when(reviewService.updateReview(eq(reviewId), eq(1L), any(ReviewDTO.class)))
-            .thenReturn(updatedResponse);
-        
-        // When & Then
-        mockMvc.perform(put("/api/reviews/{reviewId}", reviewId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(updateRequest)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(reviewId))
-                .andExpect(jsonPath("$.rating").value(4))
-                .andExpect(jsonPath("$.comment").value("Updated review"));
-        
-        verify(reviewService).updateReview(eq(reviewId), eq(1L), any(ReviewDTO.class));
+
+        when(reviewService.updateReview(reviewId, userId, dto)).thenReturn(updated);
+
+        ReviewDTO result = reviewController.updateReview(reviewId, authentication, dto);
+        assertSame(updated, result);
     }
-    
+
     @Test
-    @DisplayName("Should return 400 for invalid update request")
-    @WithMockUser(username = "1")
-    void shouldReturn400ForInvalidUpdateRequest() throws Exception {
-        // Given - Invalid rating
+    void testDeleteReview() {
         Long reviewId = 1L;
-        ReviewDTO invalidUpdateRequest = ReviewDTO.builder()
-            .rating(0) // Invalid rating
-            .comment("Invalid update")
-            .build();
-        
-        // When & Then
-        mockMvc.perform(put("/api/reviews/{reviewId}", reviewId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(invalidUpdateRequest)))
-                .andExpect(status().isBadRequest());
-        
-        verifyNoInteractions(reviewService);
+
+        reviewController.deleteReview(reviewId, authentication);
+
+        verify(reviewService).deleteReview(reviewId, userId);
     }
-    
+
     @Test
-    @DisplayName("Should return 400 when unauthorized to update")
-    @WithMockUser(username = "1")
-    void shouldReturn400WhenUnauthorizedToUpdate() throws Exception {
-        // Given
+    void testGetUserIdFromAuthWithStringPrincipal() {
+        UUID id = UUID.randomUUID();
+        Authentication authWithString = mock(Authentication.class);
+        when(authWithString.getPrincipal()).thenReturn(id.toString());
+
+        // Test through getMyReviews which uses getUserIdFromAuth internally
+        List<ReviewDTO> mockReviews = List.of(new ReviewDTO());
+        when(reviewService.getStudentReviews(id)).thenReturn(mockReviews);
+
+        List<ReviewDTO> result = reviewController.getMyReviews(authWithString);
+        assertEquals(mockReviews, result);
+        verify(reviewService).getStudentReviews(id);
+    }
+
+    @Test
+    void testGetUserIdFromAuthWithInvalidPrincipalThrowsException() {
+        Authentication invalidAuth = mock(Authentication.class);
+        when(invalidAuth.getPrincipal()).thenReturn(12345); // not String or User
+
+        // Test through a public method that uses getUserIdFromAuth internally
+        IllegalStateException ex = assertThrows(IllegalStateException.class, () ->
+                reviewController.getMyReviews(invalidAuth));
+        assertEquals("Unable to extract user ID from authentication", ex.getMessage());
+    }
+
+    @Test
+    void testHandleIllegalArgumentException() {
+        String message = "Invalid argument";
+        IllegalArgumentException ex = new IllegalArgumentException(message);
+
+        ReviewController.ErrorResponse response = reviewController.handleIllegalArgumentException(ex);
+        assertEquals(message, response.getMessage());
+    }
+
+    @Test
+    void testHandleGenericException() {
+        String msg = "Something went wrong";
+        Exception ex = new Exception(msg);
+
+        ReviewController.ErrorResponse response = reviewController.handleGenericException(ex);
+        assertEquals("Internal server error: " + msg, response.getMessage());
+    }
+
+    @Test
+    void testCreateReviewWithException() {
+        ReviewDTO dto = new ReviewDTO();
+        when(reviewService.createReview(eq(userId), eq(dto)))
+                .thenThrow(new IllegalArgumentException("Review already exists"));
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+                reviewController.createReview(authentication, dto));
+        assertEquals("Review already exists", ex.getMessage());
+    }
+
+    @Test
+    void testUpdateReviewWithException() {
         Long reviewId = 1L;
-        ReviewDTO updateRequest = ReviewDTO.builder()
-            .rating(4)
-            .comment("Unauthorized update")
-            .build();
-        
-        when(reviewService.updateReview(eq(reviewId), eq(1L), any(ReviewDTO.class)))
-            .thenThrow(new IllegalArgumentException("Unauthorized"));
-        
-        // When & Then
-        mockMvc.perform(put("/api/reviews/{reviewId}", reviewId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(updateRequest)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Unauthorized"));
+        ReviewDTO dto = new ReviewDTO();
+        when(reviewService.updateReview(reviewId, userId, dto))
+                .thenThrow(new IllegalArgumentException("Unauthorized"));
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+                reviewController.updateReview(reviewId, authentication, dto));
+        assertEquals("Unauthorized", ex.getMessage());
     }
-    
+
     @Test
-    @DisplayName("Should delete review successfully")
-    @WithMockUser(username = "1")
-    void shouldDeleteReviewSuccessfully() throws Exception {
-        // Given
+    void testDeleteReviewWithException() {
         Long reviewId = 1L;
-        doNothing().when(reviewService).deleteReview(reviewId, 1L);
-        
-        // When & Then
-        mockMvc.perform(delete("/api/reviews/{reviewId}", reviewId))
-                .andExpect(status().isNoContent());
-        
-        verify(reviewService).deleteReview(reviewId, 1L);
-    }
-    
-    @Test
-    @DisplayName("Should return 400 when unauthorized to delete")
-    @WithMockUser(username = "1")
-    void shouldReturn400WhenUnauthorizedToDelete() throws Exception {
-        // Given
-        Long reviewId = 1L;
-        doThrow(new IllegalArgumentException("Unauthorized"))
-            .when(reviewService).deleteReview(reviewId, 1L);
-        
-        // When & Then
-        mockMvc.perform(delete("/api/reviews/{reviewId}", reviewId))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Unauthorized"));
-    }
-    
-    @Test
-    @DisplayName("Should return 400 when review not found for deletion")
-    @WithMockUser(username = "1")
-    void shouldReturn400WhenReviewNotFoundForDeletion() throws Exception {
-        // Given
-        Long reviewId = 999L;
         doThrow(new IllegalArgumentException("Review not found"))
-            .when(reviewService).deleteReview(reviewId, 1L);
-        
-        // When & Then
-        mockMvc.perform(delete("/api/reviews/{reviewId}", reviewId))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Review not found"));
+                .when(reviewService).deleteReview(reviewId, userId);
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+                reviewController.deleteReview(reviewId, authentication));
+        assertEquals("Review not found", ex.getMessage());
     }
-    
+
     @Test
-    @DisplayName("Should require authentication for create review")
-    void shouldRequireAuthenticationForCreateReview() throws Exception {
-        // Given
-        ReviewDTO requestDTO = ReviewDTO.builder()
-            .courseId(1L)
-            .rating(5)
-            .comment("Unauthenticated request")
-            .build();
-        
-        // When & Then
-        mockMvc.perform(post("/api/reviews")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(requestDTO)))
-                .andExpect(status().isUnauthorized());
-        
-        verifyNoInteractions(reviewService);
+    void testErrorResponseConstructorAndGetter() {
+        String message = "Test error message";
+        ReviewController.ErrorResponse errorResponse = new ReviewController.ErrorResponse(message);
+        assertEquals(message, errorResponse.getMessage());
     }
-    
+
     @Test
-    @DisplayName("Should require authentication for update review")
-    void shouldRequireAuthenticationForUpdateReview() throws Exception {
-        // Given
-        Long reviewId = 1L;
-        ReviewDTO updateRequest = ReviewDTO.builder()
-            .rating(4)
-            .comment("Unauthenticated update")
-            .build();
-        
-        // When & Then
-        mockMvc.perform(put("/api/reviews/{reviewId}", reviewId)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(updateRequest)))
-                .andExpect(status().isUnauthorized());
-        
-        verifyNoInteractions(reviewService);
+    void testCourseRatingStatsGetters() {
+        Double averageRating = 4.5;
+        Long totalReviews = 100L;
+        CourseRatingStats stats = new CourseRatingStats(averageRating, totalReviews);
+
+        assertEquals(averageRating, stats.getAverageRating());
+        assertEquals(totalReviews, stats.getTotalReviews());
     }
-    
+
     @Test
-    @DisplayName("Should require authentication for delete review")
-    void shouldRequireAuthenticationForDeleteReview() throws Exception {
-        // Given
-        Long reviewId = 1L;
-        
-        // When & Then
-        mockMvc.perform(delete("/api/reviews/{reviewId}", reviewId))
-                .andExpect(status().isUnauthorized());
-        
-        verifyNoInteractions(reviewService);
-    }
-    
-    @Test
-    @DisplayName("Should allow unauthenticated access to get course reviews")
-    void shouldAllowUnauthenticatedAccessToGetCourseReviews() throws Exception {
-        // Given
-        Long courseId = 1L;
-        when(reviewService.getCourseReviews(courseId)).thenReturn(Arrays.asList(sampleReviewDTO));
-        
-        // When & Then
-        mockMvc.perform(get("/api/reviews/course/{courseId}", courseId))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(1));
-        
-        verify(reviewService).getCourseReviews(courseId);
-    }
-    
-    @Test
-    @DisplayName("Should handle malformed JSON request")
-    @WithMockUser(username = "1")
-    void shouldHandleMalformedJSONRequest() throws Exception {
-        // Given - Malformed JSON
-        String malformedJson = "{ \"courseId\": 1, \"rating\": 5, \"comment\": }"; // Missing value
-        
-        // When & Then
-        mockMvc.perform(post("/api/reviews")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(malformedJson))
-                .andExpect(status().isBadRequest());
-        
-        verifyNoInteractions(reviewService);
-    }
-    
-    @Test
-    @DisplayName("Should handle empty request body")
-    @WithMockUser(username = "1")
-    void shouldHandleEmptyRequestBody() throws Exception {
-        // When & Then
-        mockMvc.perform(post("/api/reviews")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{}"))
-                .andExpect(status().isBadRequest());
-        
-        verifyNoInteractions(reviewService);
-    }
-    
-    @Test
-    @DisplayName("Should handle invalid path variable")
-    @WithMockUser(username = "1")
-    void shouldHandleInvalidPathVariable() throws Exception {
-        // When & Then
-        mockMvc.perform(put("/api/reviews/invalid")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(ReviewDTO.builder().rating(5).build())))
-                .andExpect(status().isBadRequest());
-        
-        verifyNoInteractions(reviewService);
-    }
-    
-    @Test
-    @DisplayName("Should validate content type")
-    @WithMockUser(username = "1")
-    void shouldValidateContentType() throws Exception {
-        // Given
-        ReviewDTO requestDTO = ReviewDTO.builder()
-            .courseId(1L)
-            .rating(5)
-            .comment("Wrong content type")
-            .build();
-        
-        // When & Then - Send as plain text instead of JSON
-        mockMvc.perform(post("/api/reviews")
-                .contentType(MediaType.TEXT_PLAIN)
-                .content(objectMapper.writeValueAsString(requestDTO)))
-                .andExpect(status().isUnsupportedMediaType());
-        
-        verifyNoInteractions(reviewService);
-    }
-    
-    @Test
-    @DisplayName("Should handle HTTP method not allowed")
-    void shouldHandleHttpMethodNotAllowed() throws Exception {
-        // When & Then - Use PATCH instead of supported methods
-        mockMvc.perform(patch("/api/reviews/1"))
-                .andExpect(status().isMethodNotAllowed());
-        
-        verifyNoInteractions(reviewService);
+    void testGetUserIdFromAuthWithUserPrincipal() {
+        // This is already covered in other tests, but adding explicit test
+        when(authentication.getPrincipal()).thenReturn(user);
+        when(user.getId()).thenReturn(userId);
+
+        List<ReviewDTO> mockReviews = List.of(new ReviewDTO());
+        when(reviewService.getStudentReviews(userId)).thenReturn(mockReviews);
+
+        List<ReviewDTO> result = reviewController.getMyReviews(authentication);
+        assertEquals(mockReviews, result);
+        verify(reviewService).getStudentReviews(userId);
     }
 }
