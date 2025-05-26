@@ -59,4 +59,20 @@ class TutorApplicationTest {
         
         assertEquals(TutorApplication.ApplicationStatus.PENDING, tutorApplication.getStatus());
     }
+
+    @Test
+    void testApplicationStatusEnumValues() {
+        TutorApplication.ApplicationStatus[] values = TutorApplication.ApplicationStatus.values();
+        assertEquals(3, values.length);
+        assertEquals(TutorApplication.ApplicationStatus.PENDING, TutorApplication.ApplicationStatus.valueOf("PENDING"));
+        assertEquals(TutorApplication.ApplicationStatus.ACCEPTED, TutorApplication.ApplicationStatus.valueOf("ACCEPTED"));
+        assertEquals(TutorApplication.ApplicationStatus.DENIED, TutorApplication.ApplicationStatus.valueOf("DENIED"));
+    }
+
+    @Test
+    void testOnCreateMethodSetsCreatedAt() {
+        TutorApplication newApp = new TutorApplication();
+        newApp.onCreate();  // Simulasi pemanggilan PrePersist
+        assertNotNull(newApp.getCreatedAt());
+    }
 }

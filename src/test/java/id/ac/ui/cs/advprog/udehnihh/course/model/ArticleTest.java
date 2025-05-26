@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class ArticleTest {
+public class ArticleTest {
 
     @Test
     void testArticleSettersAndGetters() {
@@ -69,14 +69,15 @@ class ArticleTest {
         section.setId(UUID.randomUUID());
 
         // Act
-        Article article = new Article();
-        article.setId(articleId);
-        article.setContentType(contentType);
-        article.setContentUrl(contentUrl);
-        article.setContentDescription(contentDescription);
-        article.setContentTitle(contentTitle);
-        article.setContentText(contentText);
-        article.setSection(section);
+        Article article = new Article(
+            articleId,
+            contentType,
+            contentUrl,
+            contentDescription,
+            contentTitle,
+            contentText,
+            section
+        );
 
         // Assert
         assertEquals(articleId, article.getId());
