@@ -8,7 +8,6 @@ import id.ac.ui.cs.advprog.udehnihh.course.model.Course;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.cache.annotation.Cacheable;
 
 import java.util.List;
 import java.util.UUID;
@@ -31,9 +30,8 @@ public class CbCourseService {
     }
 
     // Bisa diakses tanpa login - untuk melihat detail kursus sebelum daftar
-    @Cacheable(value = "courseDetails", key = "#id")
     public CourseDetailDto getDetail(UUID id) {
-        Course c = courseRepo.findByIdWithFullDetails(id)
+        Course c = courseRepo.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Course not found"));
         return CourseMapper.toDetail(c);
     }
