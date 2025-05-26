@@ -43,8 +43,18 @@ public class CourseController {
     }
 
     @GetMapping("/lists")
-    public ResponseEntity<List<CourseResponse>> getCoursesByTutor(@RequestHeader("Authorization") String token) {
-        String email = jwtService.getEmailFromToken(token);
+    public ResponseEntity<List<CourseResponse>> getCoursesByTutor(@RequestHeader("Authorization") String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        String token = authHeader.substring(7);
+
+        String email;
+        try {
+            email = jwtService.getEmailFromToken(token);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
 
         Optional<User> tutorOpt = userRepository.findByEmail(email);
         if (tutorOpt.isEmpty()) {
