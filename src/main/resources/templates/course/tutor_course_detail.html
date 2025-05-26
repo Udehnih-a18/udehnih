@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Detail Kursus | Udehnih</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-teal-50 min-h-screen">
+  <div th:insert="~{navbar :: navbar}"></div>
+
+  <div class="flex items-center justify-center p-4">
+    <div class="w-full max-w-4xl bg-white p-6 rounded-xl shadow-lg border border-teal-300">
+      <h2 class="text-2xl font-bold text-teal-700 mb-4 text-center">📖 Detail Kursus</h2>
+      
+      <div id="courseDetails" class="space-y-4">
+        <div>
+          <label class="font-semibold">Nama:</label>
+          <p id="nameText" class="text-gray-800"></p>
+          <input id="nameInput" class="hidden border px-2 py-1 w-full" />
+        </div>
+  
+        <div>
+          <label class="font-semibold">Deskripsi:</label>
+          <p id="descText" class="text-gray-800"></p>
+          <textarea id="descInput" class="hidden border px-2 py-1 w-full"></textarea>
+        </div>
+  
+        <div>
+          <label class="font-semibold">Harga:</label>
+          <p id="priceText" class="text-gray-800"></p>
+          <input id="priceInput" type="number" class="hidden border px-2 py-1 w-full" />
+        </div>
+  
+        <div>
+          <label class="font-semibold">Status:</label>
+          <p id="statusText" class="text-gray-800"></p>
+          <select id="statusInput" class="hidden border px-2 py-1 w-full">
+            <option value="DRAFT">Draft</option>
+            <option value="PENDING">Pending</option>
+            <option value="APPROVED">Approved</option>
+          </select>
+        </div>
+      </div>
+  
+      <div class="mt-6 flex justify-end space-x-2">
+        <button id="editBtn" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">Edit</button>
+        <button id="saveBtn" class="hidden bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Simpan</button>
+        <button id="cancelBtn" class="hidden bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">Batal</button>
+      </div>
+  
+      <div id="message" class="mt-4 text-red-600 text-center"></div>
+    </div>
+  </div>
+
+  <script>
+    const courseId = window.location.pathname.split("/")[2];
+    let originalData = {};
+
+    async function loadDetail() {
+      try {
+        const res = await fetch(`/api/courses/${courseId}`);
+        const data = await res.json();
+        originalData = data;
+
+        document.getElementById("nameText").textContent = data.name;
+        document.getElementById("descText").textContent = data.description;
+        document.getElementById("priceText").textContent = "Rp " + data.price.toLocaleString();
+        document.getElementById("statusText").textContent = data.status;
+
+        document.getElementById("nameInput").value = data.name;
+        document.getElementById("descInput").value = data.description;
+        document.getElementById("priceInput").value = data.price;
+        document.getElementById("statusInput").value = data.status;
+      } catch (err) {
+        document.getElementById("message").textContent = "❌ Gagal memuat detail kursus.";
+      }
+    }
+
+    function toggleEditMode(editMode) {
+      ["name", "desc", "price"].forEach(field => {
+        document.getElementById(field + "Text").classList.toggle("hidden", editMode);
+        document.getElementById(field + "Input").classList.toggle("hidden", !editMode);
+      });
+
+      document.getElementById("editBtn").classList.toggle("hidden", editMode);
+      document.getElementById("saveBtn").classList.toggle("hidden", !editMode);
+      document.getElementById("cancelBtn").classList.toggle("hidden", !editMode);
+    }
+
+    async function saveChanges() {
+      const token = localStorage.getItem("token");
+
+      const body = {
+        name: document.getElementById("nameInput").value,
+        description: document.getElementById("descInput").value,
+        price: parseInt(document.getElementById("priceInput").value),
+        status: document.getElementById("statusInput").value
+      };
+
+      try {
+        const res = await fetch(`/api/courses/${courseId}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify(body)
+        });
+
+        if (res.ok) {
+          alert("✅ Kursus berhasil diperbarui.");
+          toggleEditMode(false);
+          loadDetail();
+        } else {
+          alert("❌ Gagal memperbarui kursus.");
+        }
+      } catch (err) {
+        alert("❌ Error: " + err.message);
+      }
+    }
+
+    document.getElementById("editBtn").onclick = () => toggleEditMode(true);
+    document.getElementById("cancelBtn").onclick = () => {
+      toggleEditMode(false);
+      loadDetail();
+    };
+    document.getElementById("saveBtn").onclick = saveChanges;
+
+    loadDetail();
+  </script>
+  <script th:src="@{/js/navbar.js}"></script>
+</body>
+</html>

@@ -5,7 +5,6 @@ plugins {
     id("org.springframework.boot") version "3.4.4"
     id("io.spring.dependency-management") version "1.1.7"
     id("co.uzzu.dotenv.gradle") version "2.0.0"
-
 }
 
 sonar {
@@ -62,6 +61,7 @@ dependencies {
     implementation("io.jsonwebtoken:jjwt-jackson:0.11.5")
 
     implementation("me.paulschwarz:spring-dotenv:4.0.0")
+
 }
 
 tasks.withType<Test> {
@@ -74,10 +74,6 @@ tasks.test {
     }
 
     finalizedBy(tasks.jacocoTestReport)
-}
-
-tasks.withType<JavaCompile> {
-    options.compilerArgs.add("-parameters")
 }
 
 tasks.jacocoTestReport {

@@ -1,11 +1,16 @@
 package id.ac.ui.cs.advprog.udehnihh.course.controller;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import id.ac.ui.cs.advprog.udehnihh.authentication.service.JwtService;
+import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
+import id.ac.ui.cs.advprog.udehnihh.authentication.repository.UserRepository;
 import id.ac.ui.cs.advprog.udehnihh.course.dto.request.CourseRequest;
 import id.ac.ui.cs.advprog.udehnihh.course.dto.response.CourseResponse;
 import id.ac.ui.cs.advprog.udehnihh.course.model.Course.CourseStatus;
@@ -19,8 +24,9 @@ import lombok.RequiredArgsConstructor;
 public class CourseController {
 
     private final CourseService courseService;
-
     private final CourseCreationRepository courseRepository;
+    private final UserRepository userRepository;
+    private final JwtService jwtService;
 
     @GetMapping("/all")
     public List<CourseResponse> getAllApprovedCourses() {
@@ -36,9 +42,28 @@ public class CourseController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/tutor/{tutorId}")
-    public ResponseEntity<List<CourseResponse>> getCoursesByTutor(@PathVariable("tutorId") UUID tutorId) {
-        List<CourseResponse> responses = courseService.getCoursesByTutor(tutorId);
+    @GetMapping("/lists")
+    public ResponseEntity<List<CourseResponse>> getCoursesByTutor(@RequestHeader("Authorization") String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        String token = authHeader.substring(7);
+
+        String email;
+        try {
+            email = jwtService.getEmailFromToken(token);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Optional<User> tutorOpt = userRepository.findByEmail(email);
+        if (tutorOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        User tutor = tutorOpt.get();
+        List<CourseResponse> responses = courseService.getCoursesByTutor(tutor.getId());
+
         return ResponseEntity.ok(responses);
     }
 
