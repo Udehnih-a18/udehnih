@@ -15,5 +15,4 @@ public interface PaymentService {
     Transaction getTransactionById(UUID transactionId);
 
     public void updateTransactionStatus(UUID transactionId, TransactionStatus status);
-    public void cancelTransaction(UUID transactionId);
 }

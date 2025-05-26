@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Checkout</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .payment-option { border: 1px solid #ccc; padding: 15px; border-radius: 8px; margin-bottom: 10px; }
+        .payment-option.active { border: 2px solid #7c3aed; }
+        .btn-purple { background-color: #7c3aed; color: white; }
+        .btn-purple:hover { background-color: #6d28d9; }
+        .error { color: red; font-size: 0.875rem; }
+    </style>
+</head>
+<body>
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <img src="https://www.udemy.com/staticx/udemy/images/v7/logo-udemy.svg" height="30" alt="Udemy Logo">
+        <a href="#" class="text-decoration-none text-muted">Cancel</a>
+    </div>
+    <div class="row">
+        <!-- Payment Section -->
+        <div class="col-md-7">
+            <h4>Checkout</h4>
+            <p class="text-muted">Payment method <span class="ms-2 text-muted"><i class="bi bi-lock-fill"></i> Secure and encrypted</span></p>
+
+            <div id="card-section" class="payment-option">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="paymentMethod" id="cardRadio" checked onclick="togglePayment('card')">
+                    <label class="form-check-label" for="cardRadio">Cards</label>
+                </div>
+                <div id="cardForm" class="mt-3">
+                    <div class="mb-3">
+                        <label>Account number</label>
+                        <input type="text" class="form-control is-invalid" placeholder="1234 5678 9012 3456">
+                        <div class="error">Please enter a valid card number</div>
+                    </div>
+                    <div class="mb-3">
+                        <label>CVC</label>
+                        <input type="text" class="form-control is-invalid" placeholder="CVC">
+                        <div class="error">Please enter a valid CVC</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="bank-section" class="payment-option">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="paymentMethod" id="bankRadio" onclick="togglePayment('bank')">
+                    <label class="form-check-label" for="bankRadio">Bank Transfer</label>
+                </div>
+                <div id="bankForm" class="mt-3 d-none">
+                    <label>Select a bank</label>
+                    <select class="form-select mb-3">
+                        <option selected disabled>Select</option>
+                        <option>BCA - Transfer to 081207305858</option>
+                        <option>Mandiri</option>
+                        <option>BNI</option>
+                    </select>
+                    <button class="btn btn-purple">I have transferred</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Section -->
+        <div class="col-md-5">
+            <div class="card p-3">
+                <h5>100 Days of Code: The Complete Python Pro Bootcamp</h5>
+                <p class="text-muted">Created by <a href="#">Dr. Angela Yu, Developer and Lead Instructor</a></p>
+                <p>Original Price: <s>Rp649,000</s></p>
+                <p>Discounts (80% Off): <span class="text-danger">-Rp520,000</span></p>
+                <h4>Total (1 course): <strong>Rp129,000</strong></h4>
+                <button class="btn btn-purple w-100 mt-3">Pay Rp129,000</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function togglePayment(method) {
+        if (method === 'card') {
+            document.getElementById('cardForm').classList.remove('d-none');
+            document.getElementById('bankForm').classList.add('d-none');
+            document.getElementById('card-section').classList.add('active');
+            document.getElementById('bank-section').classList.remove('active');
+        } else {
+            document.getElementById('cardForm').classList.add('d-none');
+            document.getElementById('bankForm').classList.remove('d-none');
+            document.getElementById('bank-section').classList.add('active');
+            document.getElementById('card-section').classList.remove('active');
+        }
+    }
+</script>
+</body>
+</html>

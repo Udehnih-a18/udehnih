@@ -43,9 +43,6 @@ public class User {
     @CreationTimestamp
     private LocalDateTime registrationDate;
 
-    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Transaction> transactionList;
-
     @PrePersist
     protected void onCreate() {
         this.registrationDate = LocalDateTime.now();

@@ -12,7 +12,6 @@ import java.util.UUID;
 
 @Getter
 @Setter
-@Builder
 @Entity
 @Table(name = "refund")
 public class Refund {
@@ -22,6 +21,7 @@ public class Refund {
     private UUID id;
 
     @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "transaction_id", nullable = false)
     private Transaction transaction;
 
     @Column(name = "reason")

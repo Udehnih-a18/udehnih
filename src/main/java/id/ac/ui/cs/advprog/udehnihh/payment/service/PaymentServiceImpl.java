@@ -1,7 +1,10 @@
 package id.ac.ui.cs.advprog.udehnihh.payment.service;
 
 import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
+import id.ac.ui.cs.advprog.udehnihh.authentication.repository.UserRepository;
 import id.ac.ui.cs.advprog.udehnihh.course.model.Course;
+import id.ac.ui.cs.advprog.udehnihh.course.repository.CbCourseRepository;
+import id.ac.ui.cs.advprog.udehnihh.course.repository.CourseCreationRepository;
 import id.ac.ui.cs.advprog.udehnihh.payment.enums.AvailableBanks;
 import id.ac.ui.cs.advprog.udehnihh.payment.enums.TransactionStatus;
 import id.ac.ui.cs.advprog.udehnihh.payment.model.BankTransfer;
@@ -25,13 +28,74 @@ public class PaymentServiceImpl implements PaymentService {
     private PaymentStrategyFactory strategyFactory;
 
     @Autowired
+    private CourseCreationRepository courseCreationRepository;
+
+    @Autowired
+    private CbCourseRepository cbCourseRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
     public PaymentServiceImpl(PaymentStrategyFactory strategyFactory) {
         this.strategyFactory = strategyFactory;
     }
 
+    public void validateData(Course course, User student) {
+        if (course == null || student == null) {
+            throw new IllegalArgumentException("Course or Student cannot be null");
+        }
+
+        Optional<Course> courseOpt = cbCourseRepository.findById(course.getId());
+        if (courseOpt.isEmpty()) {
+            throw new IllegalArgumentException("Course not found");
+        }
+
+        Optional<User> studentOpt = userRepository.findById(student.getId());
+        if (studentOpt.isEmpty()) {
+            throw new IllegalArgumentException("Student not found");
+        }
+
+    }
+
+    public BankTransfer createBankTransfer(Course course, User student, AvailableBanks bank) {
+        validateData(course, student);
+
+        Optional<AvailableBanks> bankOpt = AvailableBanks.getAvailableBankByName(bank.name());
+        if (bankOpt.isEmpty()) {
+            throw new IllegalArgumentException("Bank not found");
+        }
+
+        BankTransfer transfer = new BankTransfer(course, student, bank);
+        return (BankTransfer) transactionRepository.save(transfer);
+    }
+
+    public CreditCard createCreditCard(Course course, User student, String accountNumber, String cvc) {
+        if (accountNumber == null || accountNumber.isBlank()) {
+            throw new IllegalArgumentException("Account number cannot be blank");
+        }
+
+        if (!accountNumber.matches("\\d{16}")) {
+            throw new IllegalArgumentException("Account number must be 16 digits");
+        }
+
+        if (cvc == null || cvc.isBlank()) {
+            throw new IllegalArgumentException("CVC cannot be blank");
+        }
+
+        if (!cvc.matches("\\d{3}")) {
+            throw new IllegalArgumentException("CVC must be 3 digits");
+        }
+
+        CreditCard card = new CreditCard(course, student, accountNumber, cvc);
+
+        card.setStatus(TransactionStatus.PAID);
+        return (CreditCard) transactionRepository.save(card);
+    }
+
     @Override
     public List<Transaction> getTransactionByStudent(User student) {
-        return student.getTransactionList();
+        return transactionRepository.findAllByStudent_Id(student.getId());
     }
 
     @Override
@@ -42,43 +106,5 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public void updateTransactionStatus(UUID transactionId, TransactionStatus status) {
         transactionRepository.findByTransactionId(transactionId).setStatus(status);
-    }
-
-    @Override
-    public void cancelTransaction(UUID transactionId) {
-        transactionRepository.findByTransactionId(transactionId).setStatus(TransactionStatus.CANCELLED);
-    }
-}
-
-@Service
-public class TransactionService {
-
-    @Autowired
-    private TransactionRepository transactionRepository;
-
-    public BankTransfer createBankTransfer(Course course, User student, AvailableBanks bank) {
-        BankTransfer transfer = new BankTransfer(course, student, bank);
-        return (BankTransfer) transactionRepository.save(transfer);
-    }
-
-    public CreditCard createCreditCard(Course course, User student, String accountNumber, String cvc) {
-        // No external processing - just store the data
-        CreditCard card = new CreditCard(course, student, accountNumber, cvc);
-        // You might set status to COMPLETED immediately or keep as PENDING
-        card.setStatus(TransactionStatus.PAID);
-        return (CreditCard) transactionRepository.save(card);
-    }
-
-    public void markBankTransferAsCompleted(UUID transactionId) {
-        Transaction transaction = transactionRepository.findById(transactionId)
-                .orElseThrow(() -> new TransactionNotFoundException("Transaction not found"));
-
-        if (transaction instanceof BankTransfer bankTransfer) {
-            bankTransfer.setAlreadyTransferred(true);
-            bankTransfer.setStatus(TransactionStatus.PAID);
-            transactionRepository.save(bankTransfer);
-        } else {
-            throw new IllegalArgumentException("Transaction is not a bank transfer");
-        }
     }
 }

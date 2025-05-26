@@ -25,7 +25,7 @@ public abstract class Transaction {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    private UUID transactionId;
 
     @Column(name = "course_id", nullable = false)
     private UUID courseId;
