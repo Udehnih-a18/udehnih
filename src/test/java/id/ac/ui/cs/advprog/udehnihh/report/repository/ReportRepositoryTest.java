@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @ContextConfiguration(classes = UdehnihhApplication.class)
 @DataJpaTest
-public class ReportRepositoryTest {
+class ReportRepositoryTest {
 
     @Autowired
     private ReportRepository reportRepository;

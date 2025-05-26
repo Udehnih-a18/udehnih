@@ -43,16 +43,14 @@ public class SecurityConfig {
                 .requestMatchers("/my-reviews").permitAll()
                 .requestMatchers("/student/**").permitAll()
 
-                // Review Endpoints
                 .requestMatchers(HttpMethod.GET, "/api/reviews/course/{courseId}").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/reviews/course/{courseId}/stats").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/reviews/course/{courseId}/my-review").hasRole("STUDENT")
-                .requestMatchers(HttpMethod.GET, "/api/reviews/student/my-reviews").hasRole("STUDENT")
-                .requestMatchers(HttpMethod.POST, "/api/reviews").hasRole("STUDENT")
-                .requestMatchers(HttpMethod.PUT, "/api/reviews/{reviewId}").hasRole("STUDENT")
-                .requestMatchers(HttpMethod.DELETE, "/api/reviews/{reviewId}").hasRole("STUDENT")
+                .requestMatchers(HttpMethod.GET, "/api/reviews/course/{courseId}/my-review").hasRole(Role.STUDENT.name())
+                .requestMatchers(HttpMethod.GET, "/api/reviews/student/my-reviews").hasRole(Role.STUDENT.name())
+                .requestMatchers(HttpMethod.POST, "/api/reviews").hasRole(Role.STUDENT.name())
+                .requestMatchers(HttpMethod.PUT, "/api/reviews/{reviewId}").hasRole(Role.STUDENT.name())
+                .requestMatchers(HttpMethod.DELETE, "/api/reviews/{reviewId}").hasRole(Role.STUDENT.name())
 
-                // Course and Creation Management Endpoints
                 .requestMatchers("/api/courses/**").permitAll()
                 .requestMatchers("/api/courses/**").authenticated()
                 .requestMatchers("/api/courses/lists").hasRole(Role.TUTOR.name())
@@ -62,13 +60,11 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.DELETE, COURSE_ID).hasRole(Role.TUTOR.name())
                 .requestMatchers("/api/courses/tutor/create").hasRole(Role.TUTOR.name())
 
-                // Tutor Application Endpoints
                 .requestMatchers("/api/tutor-applications/**").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/tutor-applications/status").hasRole(Role.STUDENT.name())
                 .requestMatchers(HttpMethod.POST, "/api/tutor-applications/apply").hasRole(Role.STUDENT.name())
                 .requestMatchers(HttpMethod.DELETE, "/api/tutor-applications/delete").hasRole(Role.STUDENT.name())
 
-                // Report Endpoints
                 .requestMatchers("/student/reports/**").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/student/reports/**").hasRole(Role.STUDENT.name())
                 .requestMatchers(HttpMethod.POST, "/api/student/reports").hasRole(Role.STUDENT.name())
