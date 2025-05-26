@@ -44,28 +44,28 @@ class CbCourseControllerTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        
+
         testId = UUID.randomUUID();
         enrollmentId = UUID.randomUUID();
-        
+
         // Setup mock data
         mockCourses = Arrays.asList(
-            new CourseSummaryDto(UUID.randomUUID(), "Java Programming", "Learn Java", 99.99),
-            new CourseSummaryDto(UUID.randomUUID(), "Spring Boot", "Learn Spring", 149.99)
+                new CourseSummaryDto(UUID.randomUUID(), "Java Programming", "Learn Java", 99.99),
+                new CourseSummaryDto(UUID.randomUUID(), "Spring Boot", "Learn Spring", 149.99)
         );
-        
+
         mockDetail = new CourseDetailDto(
-            testId,
-            "Test Course",
-            "Test Description",
-            "Tutor Name",
-            99.99,
-            List.of()
+                testId,
+                "Test Course",
+                "Test Description",
+                "Tutor Name",
+                99.99,
+                List.of()
         );
-        
+
         mockEnrollments = Arrays.asList(
-            new EnrollmentDto(UUID.randomUUID(), UUID.randomUUID(), "Course 1", null, "PAID"),
-            new EnrollmentDto(UUID.randomUUID(), UUID.randomUUID(), "Course 2", null, "PAID")
+                new EnrollmentDto(UUID.randomUUID(), UUID.randomUUID(), "Course 1", null, "PAID"),
+                new EnrollmentDto(UUID.randomUUID(), UUID.randomUUID(), "Course 2", null, "PAID")
         );
     }
 

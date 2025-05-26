@@ -3,6 +3,7 @@ package id.ac.ui.cs.advprog.udehnihh.authentication.service;
 import id.ac.ui.cs.advprog.udehnihh.authentication.dto.AuthResponse;
 import id.ac.ui.cs.advprog.udehnihh.authentication.dto.LoginRequest;
 import id.ac.ui.cs.advprog.udehnihh.authentication.dto.RegisterRequest;
+import id.ac.ui.cs.advprog.udehnihh.authentication.exception.UserNotFoundException;
 import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
 import id.ac.ui.cs.advprog.udehnihh.authentication.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -77,7 +78,6 @@ public class AuthServiceImpl implements AuthService {
         if (authentication != null && authentication.getPrincipal() instanceof User user) {
             return user;
         }
-        throw new RuntimeException("User not found in SecurityContext");
+        throw new UserNotFoundException("User not found in SecurityContext");
     }
-
 }
