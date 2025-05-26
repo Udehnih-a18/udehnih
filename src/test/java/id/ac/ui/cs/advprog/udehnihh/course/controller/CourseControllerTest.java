@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import id.ac.ui.cs.advprog.udehnihh.authentication.enums.Role;
 import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
+import id.ac.ui.cs.advprog.udehnihh.authentication.repository.UserRepository;
 import id.ac.ui.cs.advprog.udehnihh.authentication.service.JwtService;
 import id.ac.ui.cs.advprog.udehnihh.course.dto.request.CourseRequest;
 import id.ac.ui.cs.advprog.udehnihh.course.dto.response.CourseResponse;
@@ -45,6 +46,9 @@ class CourseControllerTest {
 
     @MockBean
     private CourseCreationRepository courseRepository;
+
+    @MockBean
+    private UserRepository userRepository;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -152,4 +156,12 @@ class CourseControllerTest {
 
         Mockito.verify(courseService).deleteCourse(courseId);
     }
+
+    @Test
+    void testGetCoursesByTutor_Unauthorized_InvalidHeader() throws Exception {
+        mockMvc.perform(get("/api/courses/lists")
+                        .header("Authorization", "InvalidToken"))
+                .andExpect(status().isUnauthorized());
+    }
+
 }
