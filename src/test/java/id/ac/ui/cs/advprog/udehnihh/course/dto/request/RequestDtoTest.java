@@ -2,8 +2,8 @@ package id.ac.ui.cs.advprog.udehnihh.course.dto.request;
 
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.util.List;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -44,21 +44,18 @@ public class RequestDtoTest {
 
     @Test
     void testCourseRequestSettersAndGetters() {
-        UUID tutorId = UUID.randomUUID();
         SectionRequest section = new SectionRequest();
         section.setName("Module 1");
 
         CourseRequest course = new CourseRequest();
         course.setName("Fullstack Development");
         course.setDescription("Learn fullstack web development");
-        course.setPrice(499000.0);
-        course.setTutorId(tutorId);
+        course.setPrice(new BigDecimal("499000.0"));
         course.setSections(List.of(section));
 
         assertEquals("Fullstack Development", course.getName());
         assertEquals("Learn fullstack web development", course.getDescription());
-        assertEquals(499000.0, course.getPrice());
-        assertEquals(tutorId, course.getTutorId());
+        assertEquals(new BigDecimal("499000.0"), course.getPrice());
         assertNotNull(course.getSections());
         assertEquals("Module 1", course.getSections().get(0).getName());
     }

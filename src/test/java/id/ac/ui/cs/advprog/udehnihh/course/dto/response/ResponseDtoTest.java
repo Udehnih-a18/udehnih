@@ -6,6 +6,7 @@ import id.ac.ui.cs.advprog.udehnihh.course.model.TutorApplication.ApplicationSta
 import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -26,7 +27,7 @@ public class ResponseDtoTest {
         course.setId(courseId);
         course.setName("Pemrograman Lanjut");
         course.setDescription("Belajar Spring Boot");
-        course.setPrice(150000.0);
+        course.setPrice(new BigDecimal("150000.0"));
         course.setTutor(tutor);
         course.setStatus(CourseStatus.APPROVED);
 
@@ -35,7 +36,7 @@ public class ResponseDtoTest {
         assertEquals(courseId, response.getId());
         assertEquals("Pemrograman Lanjut", response.getName());
         assertEquals("Belajar Spring Boot", response.getDescription());
-        assertEquals(150000.0, response.getPrice());
+        assertEquals(new BigDecimal("150000.0"), response.getPrice());
         assertEquals(tutorId, response.getTutorId());
         assertEquals("Sultan Ibnu", response.getTutorName());
         assertEquals("APPROVED", response.getStatus());

@@ -2,6 +2,7 @@ package id.ac.ui.cs.advprog.udehnihh.course.dto;
 
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -15,7 +16,7 @@ class DtoTest {
         String name = "Basic Java";
         String description = "Learn Java basics";
         String tutorName = "Jane Doe";
-        Double price = 250000.0;
+        BigDecimal price = new BigDecimal("250000.0");
 
         CourseDetailDto.ArticleDto article = new CourseDetailDto.ArticleDto(
                 "video",

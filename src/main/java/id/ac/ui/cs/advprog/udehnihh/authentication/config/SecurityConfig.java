@@ -42,7 +42,6 @@ public class SecurityConfig {
 
                 // Course and Creation Management Endpoints
                 .requestMatchers("/api/courses/**").permitAll()
-                .requestMatchers("/api/courses/**").authenticated()
                 .requestMatchers("/api/courses/lists").hasRole("TUTOR")
                 .requestMatchers(HttpMethod.POST, "/api/courses/create").hasRole("TUTOR")
                 .requestMatchers(HttpMethod.GET, "/api/courses/{courseId}").hasRole("TUTOR")

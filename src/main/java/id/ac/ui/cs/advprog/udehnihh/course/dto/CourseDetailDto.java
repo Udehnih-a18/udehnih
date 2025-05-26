@@ -1,5 +1,6 @@
 package id.ac.ui.cs.advprog.udehnihh.course.dto;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -8,7 +9,7 @@ public record CourseDetailDto(
         String name,
         String description,
         String tutorName,
-        Double priceRp,
+        BigDecimal priceRp,
         List<SectionDto> sections
 ) {
     public record SectionDto(

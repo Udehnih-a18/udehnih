@@ -8,6 +8,7 @@ import id.ac.ui.cs.advprog.udehnihh.course.model.Section;
 import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,7 +22,7 @@ public class CourseMapperTest {
         Course course = new Course();
         course.setId(id);
         course.setName("Pemrograman Java");
-        course.setPrice(150_000.0);
+        course.setPrice(new BigDecimal("150000.0"));
 
         User tutor = new User();
         tutor.setFullName("Dosen UI");
@@ -32,7 +33,7 @@ public class CourseMapperTest {
         assertEquals(id, summary.id());
         assertEquals("Pemrograman Java", summary.name());
         assertEquals("Dosen UI", summary.tutorName());
-        assertEquals(150_000.0, summary.priceRp());
+        assertEquals(new BigDecimal("150000.0"), summary.priceRp());
     }
 
     @Test
@@ -55,7 +56,7 @@ public class CourseMapperTest {
         course.setId(id);
         course.setName("Kursus Backend");
         course.setDescription("Belajar backend");
-        course.setPrice(200_000.0);
+        course.setPrice(new BigDecimal("200000.0"));
 
         User tutor = new User();
         tutor.setFullName("Pak Budi");
@@ -69,7 +70,7 @@ public class CourseMapperTest {
         assertEquals("Kursus Backend", detail.name());
         assertEquals("Belajar backend", detail.description());
         assertEquals("Pak Budi", detail.tutorName());
-        assertEquals(200_000.0, detail.priceRp());
+        assertEquals(new BigDecimal("200000.0"), detail.priceRp());
 
         assertEquals(1, detail.sections().size());
         CourseDetailDto.SectionDto s = detail.sections().get(0);
