@@ -44,12 +44,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
     implementation("org.springframework.boot:spring-boot-starter-security")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    implementation ("org.springframework.security:spring-security-core:5.7.1")
 
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-
-    runtimeOnly("org.postgresql:postgresql:42.7.1")
 
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
@@ -65,8 +62,6 @@ dependencies {
     implementation("io.jsonwebtoken:jjwt-jackson:0.11.5")
 
     implementation("me.paulschwarz:spring-dotenv:4.0.0")
-    implementation("jakarta.validation:jakarta.validation-api:3.0.2")
-
 }
 
 tasks.withType<Test> {

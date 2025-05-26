@@ -41,12 +41,12 @@ public class PaymentServiceImpl implements PaymentService {
         this.strategyFactory = strategyFactory;
     }
 
-    public void validateData(Course course, User student) {
-        if (course == null || student == null) {
+    public void validateData(UUID courseId, User student) {
+        if (courseId == null || student == null) {
             throw new IllegalArgumentException("Course or Student cannot be null");
         }
 
-        Optional<Course> courseOpt = cbCourseRepository.findById(course.getId());
+        Optional<Course> courseOpt = cbCourseRepository.findById(courseId);
         if (courseOpt.isEmpty()) {
             throw new IllegalArgumentException("Course not found");
         }
@@ -58,19 +58,22 @@ public class PaymentServiceImpl implements PaymentService {
 
     }
 
-    public BankTransfer createBankTransfer(Course course, User student, AvailableBanks bank) {
-        validateData(course, student);
+    public BankTransfer createBankTransfer(UUID courseId, User student, AvailableBanks bank) {
+        validateData(courseId, student);
 
         Optional<AvailableBanks> bankOpt = AvailableBanks.getAvailableBankByName(bank.name());
         if (bankOpt.isEmpty()) {
             throw new IllegalArgumentException("Bank not found");
         }
 
+        Course course = cbCourseRepository.getById(courseId);
         BankTransfer transfer = new BankTransfer(course, student, bank);
         return (BankTransfer) transactionRepository.save(transfer);
     }
 
-    public CreditCard createCreditCard(Course course, User student, String accountNumber, String cvc) {
+    public CreditCard createCreditCard(UUID courseId, User student, String accountNumber, String cvc) {
+        validateData(courseId, student);
+
         if (accountNumber == null || accountNumber.isBlank()) {
             throw new IllegalArgumentException("Account number cannot be blank");
         }
@@ -87,6 +90,7 @@ public class PaymentServiceImpl implements PaymentService {
             throw new IllegalArgumentException("CVC must be 3 digits");
         }
 
+        Course course = cbCourseRepository.getById(courseId);
         CreditCard card = new CreditCard(course, student, accountNumber, cvc);
 
         card.setStatus(TransactionStatus.PAID);

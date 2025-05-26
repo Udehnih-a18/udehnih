@@ -9,7 +9,7 @@ import java.util.UUID;
 
 @Service
 public interface RefundService {
-    public Refund createRefund(Refund rf);
+    public Refund createRefund(UUID transactionId, String reason);
     public List<Refund> getRefundHistory(UUID studentId);
 
     Refund findById(UUID transactionId);
