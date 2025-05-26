@@ -33,7 +33,7 @@ public class PaymentController {
     }
 
     // bank transfer payment - perlu login
-    @PostMapping("/courses/{id}/payment/bank-transfer")
+    @PostMapping("/courses/{courseId}/payment/bank-transfer")
     public ResponseEntity<?> createBankTransfer(@PathVariable UUID courseId,
                                     @AuthenticationPrincipal User student,
                                     @RequestBody HashMap<String, String> newTransaction) {
@@ -55,7 +55,7 @@ public class PaymentController {
     }
 
     // credit card payment - perlu login
-    @PostMapping("/courses/{id}/credit-card")
+    @PostMapping("/courses/{courseId}/credit-card")
     public ResponseEntity<?> createCreditCard(@PathVariable UUID courseId,
                                     @AuthenticationPrincipal User student,
                                     @RequestBody HashMap<String, String> newTransaction) {

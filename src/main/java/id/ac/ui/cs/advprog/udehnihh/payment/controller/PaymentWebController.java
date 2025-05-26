@@ -1,50 +1,36 @@
 //package id.ac.ui.cs.advprog.udehnihh.payment.controller;
 //
-//import id.ac.ui.cs.advprog.udehnihh.payment.model.Transaction;
-//import id.ac.ui.cs.advprog.udehnihh.payment.service.PaymentServiceImpl;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.http.ResponseEntity;
+//import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
+//import id.ac.ui.cs.advprog.udehnihh.course.model.Course;
+//import id.ac.ui.cs.advprog.udehnihh.course.repository.CbCourseRepository;
+//import jakarta.servlet.http.HttpSession;
+//import lombok.RequiredArgsConstructor;
+//import org.springframework.stereotype.Controller;
 //import org.springframework.ui.Model;
 //import org.springframework.web.bind.annotation.*;
 //
-//import java.util.List;
 //import java.util.UUID;
 //
-//@RestController
-//@RequestMapping("/payments")
+//@Controller
+//@RequiredArgsConstructor
 //public class PaymentWebController {
 //
-//    @Autowired
-//    private PaymentServiceImpl service;
+//    private final CbCourseRepository cbCourseRepository;
 //
-//    @GetMapping("/bankTransfer")
-//    public String bankTransferPage(Model model) {
-//        BankTransferTransaction bankTransferTransaction = new BankTransferTransaction();
-//        model.addAttribute("bankTransferTransaction", bankTransferTransaction);
-//        return "PayByBankTransfer";
+//    @GetMapping("/courses/{courseId}/payment")
+//    public String showCheckoutForm(@PathVariable UUID courseId) {
+//        Course course = cbCourseRepository.findById(courseId);
+//        return "payment/checkout";
 //    }
 //
-//    @PostMapping("/create")
-//    public ResponseEntity<Transaction> payByBankTransfer(@ModelAttribute("bankTransferTransaction") BankTransferTransaction bankTransferTransaction) {
-//        Transaction saved = service.createBankTransfer(bankTransferTransaction);
-//        return ResponseEntity.ok(saved);
+//    @GetMapping("/transaction-history")
+//    public String showTransactionHistory() {
+//        return "payment/transaction-history";
 //    }
 //
-//    @GetMapping("/creditCard")
-//    public String creditCardPage(Model model) {
-//        CreditCardTransaction creditCardTransaction = new CreditCardTransaction();
-//        model.addAttribute("creditCardTransaction", creditCardTransaction);
-//        return "PayByCreditCard";
-//    }
-//
-//    @PostMapping("/create")
-//    public ResponseEntity<Transaction> payByCreditCard(@ModelAttribute("bankTransferTransaction") CreditCardTransaction creditCardTransaction) {
-//        Transaction saved = service.createCreditCardTransaction(creditCardTransaction);
-//        return ResponseEntity.ok(saved);
-//    }
-//
-//    @GetMapping("/transactionHistory")
-//    public List<Transaction> history(@PathVariable UUID id) {
-//        return service.getTransactionByStudent(id);
+//    @GetMapping("/transaction/{transactionId}/refund")
+//    public String logout(HttpSession session) {
+//        session.invalidate();
+//        return "redirect:/auth/login";
 //    }
 //}
