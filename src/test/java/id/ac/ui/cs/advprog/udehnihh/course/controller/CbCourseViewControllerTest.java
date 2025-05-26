@@ -21,31 +21,22 @@ class CbCourseViewControllerTest {
 
     @Test
     void courseList_shouldReturnCorrectView() {
-        // When
         String viewName = controller.courseList();
-
-        // Then
         assertEquals("course/list", viewName);
     }
 
     @Test
     void courseDetail_shouldReturnCorrectView() {
-        // Given
         UUID courseId = UUID.randomUUID();
 
-        // When
         String viewName = controller.courseDetail(courseId);
 
-        // Then
         assertEquals("course/detail", viewName);
     }
 
     @Test
     void myCourses_shouldReturnCorrectView() {
-        // When
         String viewName = controller.myCourses();
-
-        // Then
         assertEquals("course/my-courses", viewName);
     }
 }
