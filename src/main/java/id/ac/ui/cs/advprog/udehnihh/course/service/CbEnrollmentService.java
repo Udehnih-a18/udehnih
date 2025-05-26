@@ -10,6 +10,7 @@ import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Async;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -37,7 +38,7 @@ public class CbEnrollmentService {
         e.setCourse(course);
         e.setEnrollmentDate(LocalDateTime.now());
 
-        if (course.getPrice() == 0) {
+        if (course.getPrice().compareTo(BigDecimal.ZERO) == 0) {
             e.setPaymentStatus(Enrollment.PaymentStatus.PAID);
         } else {
             // trigger payment workflow; PENDING sampai status PAID
