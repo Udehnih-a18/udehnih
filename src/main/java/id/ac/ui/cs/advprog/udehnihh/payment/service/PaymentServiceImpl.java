@@ -66,7 +66,7 @@ public class PaymentServiceImpl implements PaymentService {
             throw new IllegalArgumentException("Bank not found");
         }
 
-        Course course = cbCourseRepository.getById(courseId);
+        Course course = cbCourseRepository.getCourseById(courseId);
         BankTransfer transfer = new BankTransfer(course, student, bank);
         return (BankTransfer) transactionRepository.save(transfer);
     }

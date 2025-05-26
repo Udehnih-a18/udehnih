@@ -1,8 +1,6 @@
 package id.ac.ui.cs.advprog.udehnihh.payment.controller;
 
 import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
-import id.ac.ui.cs.advprog.udehnihh.course.dto.EnrollmentDto;
-import id.ac.ui.cs.advprog.udehnihh.course.model.Course;
 import id.ac.ui.cs.advprog.udehnihh.course.repository.CbCourseRepository;
 import id.ac.ui.cs.advprog.udehnihh.payment.model.BankTransfer;
 import id.ac.ui.cs.advprog.udehnihh.payment.model.CreditCard;
@@ -10,7 +8,6 @@ import id.ac.ui.cs.advprog.udehnihh.payment.model.Refund;
 import id.ac.ui.cs.advprog.udehnihh.payment.model.Transaction;
 import id.ac.ui.cs.advprog.udehnihh.payment.service.PaymentServiceImpl;
 import id.ac.ui.cs.advprog.udehnihh.payment.service.RefundService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -58,7 +55,7 @@ public class PaymentController {
     }
 
     // credit card payment - perlu login
-    @PostMapping("/courses/{id}/payment")
+    @PostMapping("/courses/{id}/credit-card")
     public ResponseEntity<?> createCreditCard(@PathVariable UUID courseId,
                                     @AuthenticationPrincipal User student,
                                     @RequestBody HashMap<String, String> newTransaction) {
@@ -93,7 +90,7 @@ public class PaymentController {
     }
 
     // minta refund - perlu login
-    @GetMapping("/transaction-history")
+    @GetMapping("/transaction-history/{transactionId}/refund")
     public ResponseEntity<?> requestRefund(@PathVariable UUID transactionId,
                                            @AuthenticationPrincipal User student,
                                            @RequestBody Map<String, String> refundRequest) {
@@ -103,7 +100,12 @@ public class PaymentController {
         }
 
         try {
-            String reasonForRefund = refundRequest.get("reasonForRefund");
+            String reasonForRefund;
+
+            if (refundRequest.get("refundRequest") == null) {
+                reasonForRefund = "";
+            }
+            else reasonForRefund = refundRequest.get("reasonForRefund");
 
             Refund refund = refundService.createRefund(transactionId, reasonForRefund);
 

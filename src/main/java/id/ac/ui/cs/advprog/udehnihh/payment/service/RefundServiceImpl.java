@@ -16,6 +16,7 @@ import java.util.UUID;
 
 @Service
 public class RefundServiceImpl implements RefundService {
+
     @Autowired
     private RefundRepository refundRepository;
     @Autowired
@@ -38,22 +39,17 @@ public class RefundServiceImpl implements RefundService {
 }
 
     @Override
-    public List<Refund> getRefundHistory(UUID studentId) {
-        return List.of();
+    public Refund findByTransactionId(UUID transactionId) {
+        return refundRepository.findRefundByTransaction_TransactionId((transactionId));
     }
 
     @Override
-    public Refund findById(UUID transactionId) {
-        return null;
-    }
+    public void updateRefundStatus(UUID refundId, RefundStatus status) {
+        Refund refund = refundRepository.findById(refundId)
+                .orElseThrow(() -> new IllegalArgumentException("Course not found"));
 
-    @Override
-    public void updateRefundStatus(UUID transactionId, RefundStatus status) {
-
-    }
-
-    @Override
-    public void cancelRefund(UUID transactionId) {
+        refund.setStatus(status);
+        refund = refundRepository.save(refund);
 
     }
 }

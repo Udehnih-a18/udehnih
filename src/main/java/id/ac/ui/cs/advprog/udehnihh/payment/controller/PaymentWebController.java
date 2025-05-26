@@ -11,7 +11,7 @@
 //import java.util.UUID;
 //
 //@RestController
-//@RequestMapping("/api/payments")
+//@RequestMapping("/payments")
 //public class PaymentWebController {
 //
 //    @Autowired
