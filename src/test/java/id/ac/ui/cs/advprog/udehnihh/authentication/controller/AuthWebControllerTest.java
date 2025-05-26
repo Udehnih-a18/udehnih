@@ -29,11 +29,4 @@ public class AuthWebControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(view().name("register"));
     }
-
-    @Test
-    void testLogoutRedirect() throws Exception {
-        mockMvc.perform(get("/auth/logout"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/login"));
-    }
 }

@@ -25,24 +25,24 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public AuthResponse register(RegisterRequest request) {
         User user = User.builder()
-                .email(request.getEmail())
-                .fullName(request.getFullName())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .build();
+            .email(request.getEmail())
+            .fullName(request.getFullName())
+            .password(passwordEncoder.encode(request.getPassword()))
+            .build();
         userRepository.save(user);
-        String token = jwtService.generateToken(user.getEmail(), user.getRole().getValue());
+        String token = jwtService.generateToken(user.getEmail(), user.getRole().getValue(), user.getFullName());
         return new AuthResponse(token);
     }
 
     @Override
     public AuthResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("Invalid email or password"));
+            .orElseThrow(() -> new RuntimeException("Invalid email or password"));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new RuntimeException("Invalid email or password");
         }
-        String token = jwtService.generateToken(user.getEmail(), user.getRole().getValue());
+        String token = jwtService.generateToken(user.getEmail(), user.getRole().getValue(), user.getFullName());
         return new AuthResponse(token);
     }
 

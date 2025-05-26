@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail Kursus - Udehnih</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <div th:insert="~{navbar :: navbar}"></div>
+
+    <div class="container mb-5 mx-auto px-4">
+        <a href="/courses" class="inline-flex items-center text-teal-600 hover:text-teal-800 mb-2 bg-white text-teal-600 px-2 py-1 rounded hover:bg-gray-100 text-semibold mt-2">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+            </svg>
+            Kembali ke Daftar Kursus
+        </a>
+
+        <div id="courseDetail" class="text-center">
+            <div role="status">
+                <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-teal-500 border-solid mx-auto"></div>
+                <span class="sr-only">Loading...</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                if (window.checkLoginStatus) {
+                    window.checkLoginStatus();
+                }
+            }, 100);
+            const courseId = window.location.pathname.split('/').pop();
+            loadCourseDetail(courseId);
+            loadUserEnrollments(courseId);
+        });
+
+        function loadCourseDetail(courseId) {
+            fetch(`/api/cb/courses/${courseId}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Kursus tidak ditemukan');
+                    return response.json();
+                })
+                .then(course => renderCourseDetail(course))
+                .catch(error => {
+                    document.getElementById('courseDetail').innerHTML = 
+                        '<div class="text-red-500 font-semibold">Kursus tidak ditemukan atau terjadi kesalahan.</div>';
+                });
+        }
+
+        function renderCourseDetail(course) {
+            document.getElementById('courseDetail').innerHTML = `
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 text-left">
+                    <div class="lg:col-span-2">
+                        <div class="bg-white shadow rounded p-6">
+                            <h1 class="text-2xl font-bold text-teal-700 mb-2">${course.name}</h1>
+                            <p class="text-gray-600 mb-3"><i class="fas fa-user"></i> Tutor: <strong>${course.tutorName}</strong></p>
+                            <p class="text-xl font-semibold text-teal-600 mb-4">
+                                ${course.priceRp === 0 ? 'GRATIS' : `Rp ${course.priceRp.toLocaleString('id-ID')}`}
+                            </p>
+                            <h3 class="text-lg font-semibold mb-2">Deskripsi Kursus</h3>
+                            <p>${course.description}</p>
+                        </div>
+                    </div>
+                    <div id="enrollCard">
+                        <div class="bg-white shadow rounded p-6 text-center">
+                            <h5 class="text-lg font-semibold mb-2">Daftar Sekarang</h5>
+                            <p class="mb-4">
+                                ${course.priceRp === 0 ? 
+                                    '<span class="bg-teal-100 text-teal-700 px-3 py-1 rounded-full text-sm font-semibold">GRATIS</span>' : 
+                                    `<span class="text-xl font-bold text-teal-600">Rp ${course.priceRp.toLocaleString('id-ID')}</span>`
+                                }
+                            </p>
+                            <button onclick="enrollCourse('${course.id}')" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded w-full">
+                                💸 Daftar Kursus
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-5">
+                    <div class="bg-white shadow rounded p-6">
+                        <h3 class="text-xl font-semibold mb-4">📚 Isi Kursus</h3>
+                        ${course.sections.length === 0 ? 
+                            '<p class="text-gray-500">Konten kursus belum tersedia.</p>' :
+                            course.sections.map((section, index) => `
+                                <div class="mb-4 border border-gray-200 rounded">
+                                    <button class="w-full text-left px-4 py-2 bg-teal-100 hover:bg-teal-200 font-medium" onclick="document.getElementById('section${index}').classList.toggle('hidden')">
+                                        Bab ${index + 1}: ${section.title}
+                                    </button>
+                                    <div id="section${index}" class="px-4 py-3 ${index !== 0 ? 'hidden' : ''}">
+                                        <p class="text-gray-600 mb-3 text-left">${section.description}</p>
+                                        ${section.articles.length === 0 ? 
+                                            '<p class="text-gray-400">Tidak ada konten.</p>' :
+                                            section.articles.map(article => `
+                                                <div class="bg-gray-50 p-3 mb-2 rounded text-left">
+                                                    <h6 class="font-semibold">
+                                                        <i class="fas fa-${getArticleIcon(article.type)}"></i>
+                                                        ${article.title}
+                                                    </h6>
+                                                    <p>${article.description}</p>
+                                                    ${article.url ? `<a href="${article.url}" target="_blank" class="text-teal-600 hover:underline text-sm"><i class="fas fa-external-link-alt"></i> Buka Link</a>` : ''}
+                                                    ${article.text ? `<div class="mt-1 text-xs text-gray-500">${article.text}</div>` : ''}
+                                                </div>
+                                            `).join('')
+                                        }
+                                    </div>
+                                </div>
+                            `).join('')
+                        }
+                    </div>
+                </div>
+            `;
+        }
+
+        function getArticleIcon(type) {
+            switch(type.toLowerCase()) {
+                case 'video': return 'play-circle';
+                case 'image': return 'image';
+                case 'link': return 'link';
+                case 'text': return 'file-alt';
+                default: return 'file';
+            }
+        }
+
+        function enrollCourse(courseId) {
+            if (!confirm('Apakah Anda yakin ingin mendaftar ke kursus ini?')) return;
+            const token = localStorage.getItem('token');
+            const headers = { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' };
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+            fetch(`/api/cb/courses/${courseId}/enroll`, {
+                method: 'POST', headers
+            })
+            .then(response => {
+                if (response.status === 401 || response.status === 403) {
+                    alert('❌ Anda perlu login terlebih dahulu');
+                    window.location.replace('/auth/login?redirect=' + encodeURIComponent(window.location.pathname));
+                    return;
+                }
+                if (response.ok) {
+                    alert('✅ Berhasil mendaftar ke kursus!');
+                    window.location.href = '/my-courses';
+                } else if (response.status === 400) {
+                    return response.text().then(text => { throw new Error(text || 'Gagal mendaftar'); });
+                } else throw new Error('Gagal mendaftar ke kursus');
+            })
+            .catch(error => alert('❌ ' + error.message));
+        }
+
+        function loadUserEnrollments(courseId) {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+
+            fetch('/api/cb/enrollments/me', {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(res => res.ok ? res.json() : [])
+            .then(userEnrollments => {
+                const alreadyPaid = userEnrollments.some(e => e.courseId === courseId && e.paymentStatus === 'PAID');
+                if (alreadyPaid) {
+                    const card = document.getElementById('enrollCard');
+                    if (card) card.style.display = 'none';
+                }
+            })
+            .catch(() => {});
+        }
+    </script>
+    <script th:src="@{/js/navbar.js}"></script>
+</body>
+</html>
