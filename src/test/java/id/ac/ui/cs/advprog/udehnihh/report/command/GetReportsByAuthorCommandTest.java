@@ -38,7 +38,7 @@ public class GetReportsByAuthorCommandTest {
         when(repository.findAllByCreatedBy(user)).thenReturn(List.of(report));
 
         GetReportsByAuthorCommand command = new GetReportsByAuthorCommand(user, repository);
-        List<Report> result = command.executeList();
+        List<Report> result = command.execute();
 
         assertNotNull(result);
         assertEquals(1, result.size());
