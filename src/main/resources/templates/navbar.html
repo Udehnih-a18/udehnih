@@ -7,6 +7,7 @@
       <div class="ml-2 mr-auto flex items-center space-x-4">
         <a href="/courses" class="hover:underline">🔍 Cari Kursus</a>
         <a href="/my-courses" id="myCourseLink" class="hover:underline hidden">📋 Kursus Saya</a>
+        <a href="/my-reviews" id="myReviewLink" class="hover:underline hidden">⭐ Ulasan Saya</a>
         <a href="/courses/tutor/apply" id="applyAsTutorLink" class="hover:underline hidden">🎓 Daftar sebagai Tutor</a>
         <a href="/student/reports" id="seeReportLink" class="hover:underline">📝 Laporan</a>
       </div>
@@ -38,8 +39,9 @@
     <div id="mobile-menu" class="hidden md:hidden flex-col space-y-2 mt-2">
       <a href="/courses" class="block hover:underline">🔍 Cari Kursus</a>
       <a href="/my-courses" id="myCourseLinkMobile" class="block hover:underline hidden">📋 Kursus Saya</a>
+      <a href="/my-reviews" id="myReviewLinkMobile" class="block hover:underline hidden">⭐ Ulasan Saya</a>
       <a href="/courses/tutor/apply" id="applyAsTutorLinkMobile" class="block hover:underline hidden">🎓 Daftar sebagai Tutor</a>
-      <a href="/student/reports" id="seeReportLink" class="block hover:underline">📝 Laporan</a>
+      <a href="/student/reports" id="seeReportLinkMobile" class="block hover:underline">📝 Laporan</a>
 
       <div id="guestNavMobile" class="block">
         <a href="/auth/login" class="block hover:underline">🔑 Login</a>
@@ -47,7 +49,7 @@
       </div>
 
       <div id="userNavMobile" class="hidden">
-        <span>👋 Hello, User!</span>
+        <span id="userWelcomeMobile">👋 Hello, User!</span>
         <button onclick="logout()" class="bg-white text-teal-600 px-2 py-1 rounded hover:bg-gray-100 text-sm mt-1">🚪 Logout</button>
       </div>
     </div>

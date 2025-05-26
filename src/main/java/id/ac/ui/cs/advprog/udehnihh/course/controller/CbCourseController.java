@@ -55,6 +55,17 @@ public class CbCourseController {
     }
 
     // daftar kursus yg sudah di‑enrol - perlu login
+    @GetMapping("/enrollments/me")
+    public ResponseEntity<?> myEnrollments(@AuthenticationPrincipal User student) {
+        if (student == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Anda perlu login terlebih dahulu");
+        }
+        
+        List<EnrollmentDto> enrollments = enrollSvc.myCourses(student);
+        return ResponseEntity.ok(enrollments);
+    }
+
     @GetMapping("/my-courses")
     public ResponseEntity<?> myCourses(@AuthenticationPrincipal User student) {
         if (student == null) {

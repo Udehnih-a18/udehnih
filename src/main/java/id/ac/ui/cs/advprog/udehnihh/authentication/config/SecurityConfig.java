@@ -38,7 +38,17 @@ public class SecurityConfig {
                 .requestMatchers("/api/tutor-applications/**").authenticated()
                 .requestMatchers("/courses", "/courses/**").permitAll()
                 .requestMatchers("/my-courses").permitAll()
+                .requestMatchers("/my-reviews").permitAll()
                 .requestMatchers("/student/**").permitAll()
+
+                // Review Endpoints
+                .requestMatchers(HttpMethod.GET, "/api/reviews/course/{courseId}").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/reviews/course/{courseId}/stats").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/reviews/course/{courseId}/my-review").hasRole("STUDENT")
+                .requestMatchers(HttpMethod.GET, "/api/reviews/student/my-reviews").hasRole("STUDENT")
+                .requestMatchers(HttpMethod.POST, "/api/reviews").hasRole("STUDENT")
+                .requestMatchers(HttpMethod.PUT, "/api/reviews/{reviewId}").hasRole("STUDENT")
+                .requestMatchers(HttpMethod.DELETE, "/api/reviews/{reviewId}").hasRole("STUDENT")
 
                 // Course and Creation Management Endpoints
                 .requestMatchers("/api/courses/**").permitAll()
