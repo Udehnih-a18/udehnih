@@ -13,7 +13,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class GetReportsByAuthorCommandTest {
+class GetReportsByAuthorCommandTest {
 
     private ReportRepository repository;
     private User user;
