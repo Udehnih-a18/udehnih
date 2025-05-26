@@ -20,6 +20,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -68,8 +69,7 @@ class CourseControllerTest {
         courseRequest = new CourseRequest();
         courseRequest.setName("Test Course");
         courseRequest.setDescription("Test Description");
-        courseRequest.setPrice(100000.0);
-        courseRequest.setTutorId(UUID.randomUUID());
+        courseRequest.setPrice(new BigDecimal("100000.00"));
 
         courseResponse = new CourseResponse();
         courseResponse.setId(courseId);
@@ -93,7 +93,7 @@ class CourseControllerTest {
 
     @Test
     void testCreateFullCourse() throws Exception {
-        Mockito.when(courseService.createFullCourse(any(CourseRequest.class)))
+        Mockito.when(courseService.createFullCourse(courseRequest, courseResponse.getTutorId()))
                 .thenReturn(courseResponse);
 
         mockMvc.perform(post("/api/courses/create")
