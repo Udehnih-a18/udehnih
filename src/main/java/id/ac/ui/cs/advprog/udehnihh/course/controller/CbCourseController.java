@@ -35,12 +35,12 @@ public class CbCourseController {
 
     @PostMapping("/courses/{id}/enroll")
     public ResponseEntity<?> enroll(@PathVariable UUID id,
-                                    @AuthenticationPrincipal User student) {
+                                   @AuthenticationPrincipal User student) {
         if (student == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body("Anda perlu login terlebih dahulu");
         }
-
+        
         try {
             UUID enrollmentId = enrollSvc.enroll(student, id);
             return ResponseEntity.status(HttpStatus.CREATED).body(enrollmentId);
@@ -51,13 +51,24 @@ public class CbCourseController {
         }
     }
 
+    @GetMapping("/enrollments/me")
+    public ResponseEntity<?> myEnrollments(@AuthenticationPrincipal User student) {
+        if (student == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Anda perlu login terlebih dahulu");
+        }
+        
+        List<EnrollmentDto> enrollments = enrollSvc.myCourses(student);
+        return ResponseEntity.ok(enrollments);
+    }
+
     @GetMapping("/my-courses")
     public ResponseEntity<?> myCourses(@AuthenticationPrincipal User student) {
         if (student == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body("Anda perlu login terlebih dahulu");
         }
-
+        
         List<EnrollmentDto> courses = enrollSvc.myCourses(student);
         return ResponseEntity.ok(courses);
     }

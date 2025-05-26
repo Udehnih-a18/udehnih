@@ -61,6 +61,7 @@ dependencies {
     implementation("io.jsonwebtoken:jjwt-jackson:0.11.5")
 
     implementation("me.paulschwarz:spring-dotenv:4.0.0")
+    testImplementation("org.springframework.security:spring-security-test")
 }
 
 tasks.withType<Test> {

@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Detail Kursus - Udehnih</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </head>
-<body class="bg-gray-50 text-gray-800">
+<body class="bg-teal-50 text-gray-800">
     <div th:insert="~{navbar :: navbar}"></div>
 
     <div class="container mb-5 mx-auto px-4">
-        <a href="/courses" class="inline-flex items-center text-teal-600 hover:text-teal-800 mb-2 bg-white text-teal-600 px-2 py-1 rounded hover:bg-gray-100 text-semibold mt-2">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+        <a href="/courses" class="inline-flex items-center text-teal-600 hover:text-teal-800 mb-2 bg-white px-2 py-1 rounded font-semibold mt-2 hover:bg-gray-100">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 mr-1">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
             </svg>
             Kembali ke Daftar Kursus
@@ -27,30 +27,42 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        let currentCourse = null;
+        let currentRating = 0;
+        let userReview = null;
+        let userEnrollments = [];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Optional: Check login status if function exists
             setTimeout(() => {
-                if (window.checkLoginStatus) {
-                    window.checkLoginStatus();
-                }
+                if (window.checkLoginStatus) window.checkLoginStatus();
             }, 100);
+
             const courseId = window.location.pathname.split('/').pop();
             loadCourseDetail(courseId);
             loadUserEnrollments(courseId);
+            setupStarRating();
         });
 
+        // Load course detail
         function loadCourseDetail(courseId) {
             fetch(`/api/cb/courses/${courseId}`)
-                .then(response => {
-                    if (!response.ok) throw new Error('Kursus tidak ditemukan');
-                    return response.json();
+                .then(res => {
+                    if (!res.ok) throw new Error('Kursus tidak ditemukan');
+                    return res.json();
                 })
-                .then(course => renderCourseDetail(course))
-                .catch(error => {
+                .then(course => {
+                    currentCourse = course;
+                    renderCourseDetail(course);
+                    loadCourseReviews(courseId);
+                })
+                .catch(() => {
                     document.getElementById('courseDetail').innerHTML = 
                         '<div class="text-red-500 font-semibold">Kursus tidak ditemukan atau terjadi kesalahan.</div>';
                 });
         }
 
+        // Render course info & content
         function renderCourseDetail(course) {
             document.getElementById('courseDetail').innerHTML = `
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 text-left">
@@ -58,6 +70,18 @@
                         <div class="bg-white shadow rounded p-6">
                             <h1 class="text-2xl font-bold text-teal-700 mb-2">${course.name}</h1>
                             <p class="text-gray-600 mb-3"><i class="fas fa-user"></i> Tutor: <strong>${course.tutorName}</strong></p>
+                            <div class="flex items-center mb-3">
+                                <div id="courseRating" class="flex items-center">
+                                    <div class="flex text-yellow-400 mr-2" id="ratingStars">
+                                        <i class="fas fa-star text-gray-300"></i>
+                                        <i class="fas fa-star text-gray-300"></i>
+                                        <i class="fas fa-star text-gray-300"></i>
+                                        <i class="fas fa-star text-gray-300"></i>
+                                        <i class="fas fa-star text-gray-300"></i>
+                                    </div>
+                                    <span id="ratingText" class="text-gray-600">Belum ada rating</span>
+                                </div>
+                            </div>
                             <p class="text-xl font-semibold text-teal-600 mb-4">
                                 ${course.priceRp === 0 ? 'GRATIS' : `Rp ${course.priceRp.toLocaleString('id-ID')}`}
                             </p>
@@ -65,13 +89,14 @@
                             <p>${course.description}</p>
                         </div>
                     </div>
+
                     <div id="enrollCard">
                         <div class="bg-white shadow rounded p-6 text-center">
                             <h5 class="text-lg font-semibold mb-2">Daftar Sekarang</h5>
                             <p class="mb-4">
-                                ${course.priceRp === 0 ? 
-                                    '<span class="bg-teal-100 text-teal-700 px-3 py-1 rounded-full text-sm font-semibold">GRATIS</span>' : 
-                                    `<span class="text-xl font-bold text-teal-600">Rp ${course.priceRp.toLocaleString('id-ID')}</span>`
+                                ${course.priceRp === 0
+                                    ? '<span class="bg-teal-100 text-teal-700 px-3 py-1 rounded-full text-sm font-semibold">GRATIS</span>'
+                                    : `<span class="text-xl font-bold text-teal-600">Rp ${course.priceRp.toLocaleString('id-ID')}</span>`
                                 }
                             </p>
                             <button onclick="enrollCourse('${course.id}')" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded w-full">
@@ -84,18 +109,21 @@
                 <div class="mt-5">
                     <div class="bg-white shadow rounded p-6">
                         <h3 class="text-xl font-semibold mb-4">📚 Isi Kursus</h3>
-                        ${course.sections.length === 0 ? 
-                            '<p class="text-gray-500">Konten kursus belum tersedia.</p>' :
-                            course.sections.map((section, index) => `
+                        ${course.sections.length === 0
+                            ? '<p class="text-gray-500">Konten kursus belum tersedia.</p>'
+                            : course.sections.map((section, idx) => `
                                 <div class="mb-4 border border-gray-200 rounded">
-                                    <button class="w-full text-left px-4 py-2 bg-teal-100 hover:bg-teal-200 font-medium" onclick="document.getElementById('section${index}').classList.toggle('hidden')">
-                                        Bab ${index + 1}: ${section.title}
+                                    <button
+                                        class="w-full text-left px-4 py-2 bg-teal-100 hover:bg-teal-200 font-medium"
+                                        onclick="document.getElementById('section${idx}').classList.toggle('hidden')"
+                                    >
+                                        Bab ${idx + 1}: ${section.title}
                                     </button>
-                                    <div id="section${index}" class="px-4 py-3 ${index !== 0 ? 'hidden' : ''}">
+                                    <div id="section${idx}" class="px-4 py-3 ${idx !== 0 ? 'hidden' : ''}">
                                         <p class="text-gray-600 mb-3 text-left">${section.description}</p>
-                                        ${section.articles.length === 0 ? 
-                                            '<p class="text-gray-400">Tidak ada konten.</p>' :
-                                            section.articles.map(article => `
+                                        ${section.articles.length === 0
+                                            ? '<p class="text-gray-400">Tidak ada konten.</p>'
+                                            : section.articles.map(article => `
                                                 <div class="bg-gray-50 p-3 mb-2 rounded text-left">
                                                     <h6 class="font-semibold">
                                                         <i class="fas fa-${getArticleIcon(article.type)}"></i>
@@ -105,70 +133,204 @@
                                                     ${article.url ? `<a href="${article.url}" target="_blank" class="text-teal-600 hover:underline text-sm"><i class="fas fa-external-link-alt"></i> Buka Link</a>` : ''}
                                                     ${article.text ? `<div class="mt-1 text-xs text-gray-500">${article.text}</div>` : ''}
                                                 </div>
-                                            `).join('')
-                                        }
+                                            `).join('')}
                                     </div>
                                 </div>
-                            `).join('')
-                        }
+                            `).join('')}
+                    </div>
+                </div>
+
+                <div class="mt-5">
+                    <div class="bg-white shadow rounded p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-xl font-semibold">⭐ Ulasan & Rating</h3>
+                        </div>
+                        <div id="reviewsContainer">
+                            <div class="text-center py-4">
+                                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600 mx-auto"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             `;
         }
 
-        function getArticleIcon(type) {
-            switch(type.toLowerCase()) {
-                case 'video': return 'play-circle';
-                case 'image': return 'image';
-                case 'link': return 'link';
-                case 'text': return 'file-alt';
-                default: return 'file';
+        // Load course reviews + stats
+        function loadCourseReviews(courseId) {
+            Promise.all([
+                fetch(`/api/reviews/course/${courseId}/stats`),
+                fetch(`/api/reviews/course/${courseId}`)
+            ])
+            .then(responses => Promise.all(responses.map(r => r.json())))
+            .then(([stats, reviews]) => {
+                updateCourseRating(stats);
+                renderReviews(reviews);
+            })
+            .catch(() => {
+                document.getElementById('reviewsContainer').innerHTML = 
+                    '<p class="text-gray-500">Gagal memuat ulasan.</p>';
+            });
+        }
+
+        function updateCourseRating(stats) {
+            const starsContainer = document.getElementById('ratingStars');
+            const ratingText = document.getElementById('ratingText');
+
+            if (stats.totalReviews > 0) {
+                const rating = Math.round(stats.averageRating);
+                starsContainer.innerHTML = '';
+                for (let i = 1; i <= 5; i++) {
+                    const star = document.createElement('i');
+                    star.className = `fas fa-star ${i <= rating ? 'text-yellow-400' : 'text-gray-300'}`;
+                    starsContainer.appendChild(star);
+                }
+                ratingText.textContent = `${stats.averageRating.toFixed(1)}/5 (${stats.totalReviews} ulasan)`;
             }
         }
 
-        function enrollCourse(courseId) {
-            if (!confirm('Apakah Anda yakin ingin mendaftar ke kursus ini?')) return;
-            const token = localStorage.getItem('token');
-            const headers = { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' };
-            if (token) headers['Authorization'] = `Bearer ${token}`;
-            fetch(`/api/cb/courses/${courseId}/enroll`, {
-                method: 'POST', headers
-            })
-            .then(response => {
-                if (response.status === 401 || response.status === 403) {
-                    alert('❌ Anda perlu login terlebih dahulu');
-                    window.location.replace('/auth/login?redirect=' + encodeURIComponent(window.location.pathname));
-                    return;
-                }
-                if (response.ok) {
-                    alert('✅ Berhasil mendaftar ke kursus!');
-                    window.location.href = '/my-courses';
-                } else if (response.status === 400) {
-                    return response.text().then(text => { throw new Error(text || 'Gagal mendaftar'); });
-                } else throw new Error('Gagal mendaftar ke kursus');
-            })
-            .catch(error => alert('❌ ' + error.message));
+        function renderReviews(reviews) {
+            const container = document.getElementById('reviewsContainer');
+            if (reviews.length === 0) {
+                container.innerHTML = '<p class="text-gray-500">Belum ada ulasan untuk kursus ini.</p>';
+                return;
+            }
+            container.innerHTML = `
+                <div class="space-y-4">
+                    ${reviews.map(review => `
+                        <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="flex items-center space-x-3">
+                                    <div class="flex-shrink-0">
+                                        <div class="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center">
+                                            <i class="fas fa-user text-teal-600"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold text-gray-900">${review.reviewerName || 'Anonymous'}</p>
+                                        <div class="flex items-center space-x-2">
+                                            <div class="flex text-yellow-400">${generateStars(review.rating)}</div>
+                                            <span class="text-sm font-medium text-gray-600">${review.rating}/5</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <span class="text-sm text-gray-500">${new Date(review.createdAt).toLocaleDateString('id-ID')}</span>
+                            </div>
+                            ${review.comment
+                                ? `<div class="mt-3"><p class="text-gray-700 leading-relaxed">"${escapeHtml(review.comment)}"</p></div>`
+                                : `<div class="mt-3"><p class="text-gray-500 italic">Reviewer tidak memberikan komentar</p></div>`
+                            }
+                        </div>
+                    `).join('')}
+                </div>
+            `;
         }
 
-        function loadUserEnrollments(courseId) {
-            const token = localStorage.getItem('token');
-            if (!token) return;
+        function generateStars(rating) {
+            let stars = '';
+            for (let i = 1; i <= 5; i++) {
+                stars += `<i class="fas fa-star ${i <= rating ? 'text-yellow-400' : 'text-gray-300'}"></i>`;
+            }
+            return stars;
+        }
 
-            fetch('/api/cb/enrollments/me', {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'X-Requested-With': 'XMLHttpRequest'
+        // Setup star rating UI for review input (assumes an element with id starRating exists)
+        function setupStarRating() {
+            const stars = document.querySelectorAll('#starRating i');
+            stars.forEach(star => {
+                star.addEventListener('click', () => {
+                    const rating = parseInt(star.dataset.rating);
+                    currentRating = rating;
+                    document.getElementById('ratingValue').value = rating;
+                    updateStarDisplay(rating);
+                });
+                star.addEventListener('mouseover', () => {
+                    const rating = parseInt(star.dataset.rating);
+                    updateStarDisplay(rating);
+                });
+            });
+            document.getElementById('starRating').addEventListener('mouseleave', () => {
+                updateStarDisplay(currentRating);
+            });
+        }
+
+        function updateStarDisplay(rating) {
+            const stars = document.querySelectorAll('#starRating i');
+            stars.forEach((star, idx) => {
+                star.className = idx < rating ? 'fas fa-star text-yellow-400 cursor-pointer' : 'fas fa-star text-gray-300 cursor-pointer';
+            });
+        }
+
+        // Enroll course
+        function enrollCourse(courseId) {
+            fetch('/api/enrollments', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({courseId})
+            })
+            .then(res => {
+                if (res.ok) {
+                    alert('Berhasil mendaftar kursus.');
+                    loadUserEnrollments(courseId);
+                } else if (res.status === 401) {
+                    alert('Anda harus login terlebih dahulu.');
+                    window.location.href = '/login';
+                } else {
+                    return res.json().then(data => Promise.reject(data.message || 'Gagal mendaftar kursus.'));
                 }
             })
-            .then(res => res.ok ? res.json() : [])
-            .then(userEnrollments => {
-                const alreadyPaid = userEnrollments.some(e => e.courseId === courseId && e.paymentStatus === 'PAID');
-                if (alreadyPaid) {
-                    const card = document.getElementById('enrollCard');
-                    if (card) card.style.display = 'none';
-                }
-            })
-            .catch(() => {});
+            .catch(err => alert(err));
+        }
+
+        // Load user enrollments to disable enroll button if already enrolled
+        function loadUserEnrollments(courseId) {
+            fetch('/api/enrollments')
+                .then(res => {
+                    if (!res.ok) throw new Error();
+                    return res.json();
+                })
+                .then(enrollments => {
+                    userEnrollments = enrollments;
+                    if (userEnrollments.some(en => en.courseId === courseId)) {
+                        disableEnrollButton();
+                    }
+                })
+                .catch(() => {
+                    // User not logged in or no enrollments
+                });
+        }
+
+        function disableEnrollButton() {
+            const enrollBtn = document.querySelector('#enrollCard button');
+            if (enrollBtn) {
+                enrollBtn.disabled = true;
+                enrollBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
+                enrollBtn.textContent = 'Sudah Terdaftar';
+            }
+        }
+
+        // Escape HTML utility
+        function escapeHtml(text) {
+            if (!text) return '';
+            return text.replace(/[&<>"']/g, function(m) {
+                return {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#39;'
+                }[m];
+            });
+        }
+
+        // Get FontAwesome icon name by article type
+        function getArticleIcon(type) {
+            switch (type) {
+                case 'video': return 'video';
+                case 'pdf': return 'file-pdf';
+                case 'image': return 'image';
+                case 'text': return 'file-alt';
+                default: return 'file';
+            }
         }
     </script>
     <script th:src="@{/js/navbar.js}"></script>
