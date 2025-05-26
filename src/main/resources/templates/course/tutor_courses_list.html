@@ -5,29 +5,43 @@
   <title>Daftar Kursus | Udehnih</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-teal-50 min-h-screen flex items-center justify-center p-4">
-  <div class="max-w-5xl w-full bg-white p-6 rounded-xl shadow-lg border border-teal-300">
-    <h2 class="text-2xl font-bold text-teal-700 mb-6 text-center">📚 Daftar Kursus Anda</h2>
-    <div id="courseList" class="overflow-x-auto">
-      <table class="min-w-full border border-teal-200 text-sm text-left">
-        <thead class="bg-teal-100 text-teal-800">
-          <tr>
-            <th class="py-2 px-4 border">Nama</th>
-            <th class="py-2 px-4 border">Deskripsi</th>
-            <th class="py-2 px-4 border">Harga</th>
-            <th class="py-2 px-4 border">Status</th>
-            <th class="py-2 px-4 border">Aksi</th>
-          </tr>
-        </thead>
-        <tbody id="coursesTable" class="text-gray-700"></tbody>
-      </table>
+<body class="bg-teal-50 min-h-screen">
+  <div th:insert="~{navbar :: navbar}"></div>
+
+  <div class="flex items-center justify-center p-4">
+    <div class="max-w-5xl w-full bg-white p-6 rounded-xl shadow-lg border border-teal-300">
+      <div class="flex items-center justify-between mb-6">
+        <div style="width: 120px;"></div> <!-- Spacer kosong supaya judul bisa tepat di tengah -->
+        <h2 class="text-2xl font-bold text-teal-700 text-center flex-grow">📚 Daftar Kursus Anda</h2>
+        <a href="/courses/tutor/create" class="flex items-center bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2 px-4 rounded shadow">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5 mr-2">
+            <path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" />
+          </svg>
+          Tambah Kursus
+        </a>
+      </div>
+      <div id="courseList" class="overflow-x-auto">
+        <table class="min-w-full border border-teal-200 text-sm text-left">
+          <thead class="bg-teal-100 text-teal-800">
+            <tr>
+              <th class="py-2 px-4 border">Nama</th>
+              <th class="py-2 px-4 border">Deskripsi</th>
+              <th class="py-2 px-4 border">Harga</th>
+              <th class="py-2 px-4 border">Status</th>
+              <th class="py-2 px-4 border">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="coursesTable" class="text-gray-700"></tbody>
+        </table>
+      </div>
+      <div id="message" class="text-center mt-4 text-red-600"></div>
     </div>
-    <div id="message" class="text-center mt-4 text-red-600"></div>
   </div>
 
   <script>
     async function loadCourses() {
       const token = localStorage.getItem("token");
+      console.log("Token dari localStorage:", token);
       if (!token) {
         alert("Silakan login terlebih dahulu.");
         window.location.href = "/auth/login";
@@ -38,11 +52,14 @@
         const response = await fetch("/api/courses/lists", {
           headers: {
             "Content-Type": "application/json",
-            "Authorization": token
-          }
+            "Authorization": `Bearer ${token}`
+          }          
         });
+        console.log("Status response:", response.status);
 
         if (!response.ok) {
+          const errorText = await response.text();
+          console.error("Error response body:", errorText);
           document.getElementById("message").textContent = "❌ Gagal memuat kursus.";
           return;
         }
@@ -64,8 +81,8 @@
             <td class="border px-4 py-2">${course.description}</td>
             <td class="border px-4 py-2">Rp ${course.price.toLocaleString()}</td>
             <td class="border px-4 py-2">${course.status}</td>
-            <td class="border px-4 py-2 space-x-2">
-              <button onclick="viewDetail('${course.id}')" class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600">Detail / Edit</button>
+            <td class="flex border px-4 py-4 space-x-2">
+              <button onclick="viewDetail('${course.id}')" class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600">Detail</button>
               <button onclick="deleteCourse('${course.id}')" class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">Hapus</button>
             </td>
           `;
@@ -91,7 +108,7 @@
         const res = await fetch(`/api/courses/${courseId}`, {
           method: "DELETE",
           headers: {
-            "Authorization": token
+            "Authorization": `Bearer ${token}`,
           }
         });
 
@@ -108,5 +125,6 @@
     
     loadCourses();
   </script>
+  <script th:src="@{/js/navbar.js}"></script>
 </body>
 </html>
