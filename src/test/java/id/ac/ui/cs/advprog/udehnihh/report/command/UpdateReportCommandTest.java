@@ -82,4 +82,18 @@ class UpdateReportCommandTest {
 
         assertThrows(NoSuchElementException.class, command::execute);
     }
+    @Test
+    void testExecuteThrowsIllegalArgumentExceptionIfNewDescriptionIsNull() {
+        UpdateReportCommand command = new UpdateReportCommand(
+                "reportId123", user, "Valid Title", null, repository);
+        assertThrows(IllegalArgumentException.class, command::execute);
+    }
+
+    @Test
+    void testExecuteThrowsIllegalArgumentExceptionIfNewDescriptionIsEmpty() {
+        UpdateReportCommand command = new UpdateReportCommand(
+                "reportId123", user, "Valid Title", "   ", repository);
+        assertThrows(IllegalArgumentException.class, command::execute);
+    }
+
 }

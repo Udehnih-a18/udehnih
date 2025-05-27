@@ -10,4 +10,9 @@ class UdehnihhApplicationTests {
     void contextLoads() {
     }
 
+    @Test
+    void mainMethodRunsWithoutExceptions() {
+        UdehnihhApplication.main(new String[]{});
+    }
+
 }
