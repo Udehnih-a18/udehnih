@@ -15,7 +15,10 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "enrollments")
+@Table(name = "enrollments", indexes = {
+    @Index(name = "idx_enrollment_student_course", columnList = "student_id, course_id", unique = true),
+    @Index(name = "idx_enrollment_student", columnList = "student_id")
+})
 public class Enrollment {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

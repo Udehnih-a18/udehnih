@@ -1,112 +1,109 @@
 package id.ac.ui.cs.advprog.udehnihh.course.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import id.ac.ui.cs.advprog.udehnihh.authentication.enums.Role;
+import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
+import id.ac.ui.cs.advprog.udehnihh.authentication.service.JwtService;
+import id.ac.ui.cs.advprog.udehnihh.course.dto.request.TutorApplicationRequest;
 import id.ac.ui.cs.advprog.udehnihh.course.model.TutorApplication;
+import id.ac.ui.cs.advprog.udehnihh.course.model.TutorApplication.ApplicationStatus;
 import id.ac.ui.cs.advprog.udehnihh.course.service.TutorApplicationServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.http.ResponseEntity;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
 
-import static id.ac.ui.cs.advprog.udehnihh.course.model.TutorApplication.ApplicationStatus;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import java.time.LocalDateTime;
+import java.util.UUID;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@SpringBootTest
+@AutoConfigureMockMvc
 class TutorApplicationControllerTest {
 
-    @Mock
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private JwtService jwtService;
+
+    @MockBean
     private TutorApplicationServiceImpl tutorApplicationService;
 
-    @InjectMocks
-    private TutorApplicationController tutorApplicationController;
+    @Autowired
+    private ObjectMapper objectMapper;
 
-    private final String testToken = "testToken123";
-    private final String authHeader = "Bearer " + testToken;
+    private String token;
+    private UUID userId;
+    private User user;
+    private TutorApplication application;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
+        userId = UUID.fromString("fcddf0e2-4faf-4952-8651-71a78c6840a9");
+        user = new User();
+        user.setId(userId);
+        user.setFullName("Test User");
+        user.setEmail("user@example.com");
+        user.setRole(Role.STUDENT);
+        token = jwtService.generateToken(user.getEmail(), user.getRole().name(), user.getFullName());
+
+        application = new TutorApplication();
+        application.setId(UUID.randomUUID());
+        application.setApplicant(user);
+        application.setMotivation("I love teaching");
+        application.setExperience("3 years experience");
+        application.setStatus(ApplicationStatus.PENDING);
+        application.setCreatedAt(LocalDateTime.now());
     }
 
     @Test
-    void testApply_Success() {
-        // Act
-        ResponseEntity<String> response = tutorApplicationController.apply(authHeader);
+    void testApplySuccess() throws Exception {
+        TutorApplicationRequest request = new TutorApplicationRequest();
+        request.setMotivation("I love teaching");
+        request.setExperience("3 years experience");
 
-        // Assert
-        assertEquals(200, response.getStatusCodeValue());
-        assertEquals("Application submitted successfully", response.getBody());
-        verify(tutorApplicationService, times(1)).createApplication(testToken);
+        Mockito.when(tutorApplicationService.createApplication(Mockito.eq(token), Mockito.any()))
+                .thenReturn(application);
+
+        mockMvc.perform(post("/api/tutor-applications/apply")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.applicantName").value("Test User"))
+                .andExpect(jsonPath("$.experience").value("3 years experience"))
+                .andExpect(jsonPath("$.motivation").value("I love teaching"))
+                .andExpect(jsonPath("$.status").value("PENDING"));
     }
 
     @Test
-    void testApply_WithoutBearerPrefix() {
-        // Arrange
-        String invalidAuthHeader = testToken;
+    void testGetApplicationStatusSuccess() throws Exception {
+        Mockito.when(tutorApplicationService.getApplication(Mockito.eq(token)))
+                .thenReturn(application);
 
-        // Act
-        ResponseEntity<String> response = tutorApplicationController.apply(invalidAuthHeader);
-
-        // Assert
-        assertEquals(200, response.getStatusCodeValue());
-        assertEquals("Application submitted successfully", response.getBody());
-        verify(tutorApplicationService, times(1)).createApplication(testToken);
+        mockMvc.perform(get("/api/tutor-applications/status")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.applicantId").value(userId.toString()))
+                .andExpect(jsonPath("$.status").value("PENDING"));
     }
 
     @Test
-    void testGetApplicationStatus_Success() {
-        // Arrange
-        TutorApplication mockApplication = new TutorApplication();
-        mockApplication.setStatus(ApplicationStatus.PENDING);
-        when(tutorApplicationService.getApplication(testToken)).thenReturn(mockApplication);
+    void testDeleteApplicationSuccess() throws Exception {
+        mockMvc.perform(delete("/api/tutor-applications/delete")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Application deleted successfully"));
 
-        // Act
-        ResponseEntity<TutorApplication> response = tutorApplicationController.getApplicationStatus(authHeader);
-
-        // Assert
-        assertEquals(200, response.getStatusCodeValue());
-        assertNotNull(response.getBody());
-        assertEquals(ApplicationStatus.PENDING, response.getBody().getStatus());
-        verify(tutorApplicationService, times(1)).getApplication(testToken);
-    }
-
-    @Test
-    void testGetApplicationStatus_NotFound() {
-        // Arrange
-        when(tutorApplicationService.getApplication(testToken)).thenReturn(null);
-
-        // Act
-        ResponseEntity<TutorApplication> response = tutorApplicationController.getApplicationStatus(authHeader);
-
-        // Assert
-        assertEquals(200, response.getStatusCodeValue());
-        assertNull(response.getBody());
-        verify(tutorApplicationService, times(1)).getApplication(testToken);
-    }
-
-    @Test
-    void testDeleteApplication_Success() {
-        // Act
-        ResponseEntity<String> response = tutorApplicationController.deleteApplication(authHeader);
-
-        // Assert
-        assertEquals(200, response.getStatusCodeValue());
-        assertEquals("Application deleted successfully", response.getBody());
-        verify(tutorApplicationService, times(1)).deleteApplication(testToken);
-    }
-
-    @Test
-    void testDeleteApplication_WithoutBearerPrefix() {
-        // Arrange
-        String invalidAuthHeader = testToken;
-
-        // Act
-        ResponseEntity<String> response = tutorApplicationController.deleteApplication(invalidAuthHeader);
-
-        // Assert
-        assertEquals(200, response.getStatusCodeValue());
-        assertEquals("Application deleted successfully", response.getBody());
-        verify(tutorApplicationService, times(1)).deleteApplication(testToken);
+        Mockito.verify(tutorApplicationService).deleteApplication(token);
     }
 }

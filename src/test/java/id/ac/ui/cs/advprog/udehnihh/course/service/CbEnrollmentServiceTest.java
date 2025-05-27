@@ -85,7 +85,7 @@ class CbEnrollmentServiceTest {
 
         assertEquals(enrollmentId, result);
         verify(enrollRepo).save(any(Enrollment.class));
-        verify(eventPublisher).publishEvent(any());
+        verify(eventPublisher).publishEvent(any(EnrollmentPaymentPendingEvent.class));
     }
 
     @Test
@@ -138,5 +138,22 @@ class CbEnrollmentServiceTest {
         assertEquals(2, result.size());
         assertTrue(result.stream().anyMatch(e -> e.courseName().equals("Free")));
         assertTrue(result.stream().anyMatch(e -> e.courseName().equals("Paid")));
+    }
+
+    @Test
+    void testEnroll_CourseNotFound_ThrowsException() {
+        User student = mock(User.class);
+        UUID courseId = UUID.randomUUID();
+
+        when(courseRepo.findById(courseId)).thenReturn(Optional.empty());
+
+        assertThrows(IllegalArgumentException.class, () -> cbEnrollmentService.enroll(student, courseId));
+    }
+
+    @Test
+    void testPublishPaymentPendingEventAsync_PublishesEvent() {
+        Enrollment enrollment = new Enrollment();
+        cbEnrollmentService.publishPaymentPendingEventAsync(enrollment);
+        verify(eventPublisher).publishEvent(any(EnrollmentPaymentPendingEvent.class));
     }
 }

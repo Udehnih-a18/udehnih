@@ -4,14 +4,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import id.ac.ui.cs.advprog.udehnihh.course.dto.CourseRequest;
+import id.ac.ui.cs.advprog.udehnihh.course.dto.request.CourseRequest;
 import id.ac.ui.cs.advprog.udehnihh.course.mapper.CourseMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import id.ac.ui.cs.advprog.udehnihh.course.enums.CourseStatus;
 import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
 import id.ac.ui.cs.advprog.udehnihh.authentication.repository.UserRepository;
-import id.ac.ui.cs.advprog.udehnihh.course.dto.CourseRequest;
 import id.ac.ui.cs.advprog.udehnihh.course.model.Course;
 
 import id.ac.ui.cs.advprog.udehnihh.course.repository.CourseCreationRepository;
@@ -40,11 +39,11 @@ public class CourseCreationService {
     @Transactional
     public Course createCourse(CourseRequest courseRequest) {
         Optional<User> tutor = userRepository.findById(courseRequest.getTutorId());
-        
+
         if (tutor.isEmpty()) {
             throw new IllegalArgumentException("Tutor not found");
         }
-        
+
         Course course = new Course();
         course.setName(courseRequest.getName());
         course.setDescription(courseRequest.getDescription());

@@ -1,73 +1,54 @@
 package id.ac.ui.cs.advprog.udehnihh.report.service;
 
+import id.ac.ui.cs.advprog.udehnihh.report.command.CreateReportCommand;
+import id.ac.ui.cs.advprog.udehnihh.report.command.UpdateReportCommand;
+import id.ac.ui.cs.advprog.udehnihh.report.command.DeleteReportCommand;
+import id.ac.ui.cs.advprog.udehnihh.report.command.GetAllReportsCommand;
+import id.ac.ui.cs.advprog.udehnihh.report.command.GetReportsByAuthorCommand;
+import id.ac.ui.cs.advprog.udehnihh.report.command.GetReportByIdCommand;
 import id.ac.ui.cs.advprog.udehnihh.report.model.Report;
 import id.ac.ui.cs.advprog.udehnihh.report.repository.ReportRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
 import org.springframework.stereotype.Service;
-import org.springframework.security.access.AccessDeniedException;
 
 import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.time.LocalDateTime;
-
 
 @Service
 public class ReportServiceImpl implements ReportService {
-    @Autowired
-    private ReportRepository reportRepository;
+
+    private final ReportRepository repository;
+
+    public ReportServiceImpl(ReportRepository repository) {
+        this.repository = repository;
+    }
 
     @Override
     public Report getReportById(String id) {
-        return reportRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Report not found"));
+        return new GetReportByIdCommand(id, repository).execute();
     }
 
     @Override
     public List<Report> getAllReports() {
-        return reportRepository.findAll();
+        return new GetAllReportsCommand(repository).executeAll();
     }
 
     @Override
-    public List<Report> getReportsByAuthor(String author) {
-        return reportRepository.findAllByAuthor(author);
+    public List<Report> getReportsByAuthor(User user) {
+        return new GetReportsByAuthorCommand(user, repository).executeList();
     }
 
     @Override
     public Report createReport(Report report) {
-        return reportRepository.save(report);
+        return new CreateReportCommand(report, repository).execute();
     }
 
     @Override
-    public Report updateReport(String reportId, String username, String title, String description) {
-        Optional<Report> optionalReport = reportRepository.findById(reportId);
-        if (optionalReport.isEmpty()) {
-            throw new NoSuchElementException("Report not found");
-        }
-
-        Report report = optionalReport.get();
-        if (!report.getCreatedBy().equals(username)) {
-            throw new AccessDeniedException("You can only update your own reports");
-        }
-
-        report.setTitle(title);
-        report.setDescription(description);
-        report.setUpdatedAt(LocalDateTime.now()); // Update the timestamp
-        return reportRepository.save(report);
+    public Report updateReport(String reportId, User user, String title, String description) {
+        return new UpdateReportCommand(reportId, user, title, description, repository).execute();
     }
 
     @Override
-    public void deleteReport(String id, String username) {
-        Optional<Report> optionalReport = reportRepository.findById(id);
-        if (optionalReport.isEmpty()) {
-            throw new NoSuchElementException("Report not found");
-        }
-
-        Report report = optionalReport.get();
-        if (!report.getCreatedBy().equals(username)) {
-            throw new AccessDeniedException("You can only delete your own reports");
-        }
-
-        reportRepository.deleteById(id);
+    public void deleteReport(String id, User user) {
+        new DeleteReportCommand(id, user, repository).execute();
     }
 }

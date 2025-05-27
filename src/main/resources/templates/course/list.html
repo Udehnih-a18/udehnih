@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Kursus - Udehnih</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://kit.fontawesome.com/a2e0e6a627.js" crossorigin="anonymous"></script>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <div th:insert="~{navbar :: navbar}"></div>
+
+    <div class="container mx-auto px-4 mt-6">
+        <h1 class="text-3xl font-bold mb-6 text-teal-600">🔍 Daftar Kursus</h1>
+
+        <div class="bg-white shadow-md rounded-lg p-6 mb-6">
+            <form id="searchForm" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <label for="searchQuery" class="block text-sm font-medium text-gray-700">Cari Kursus</label>
+                    <input type="text" id="searchQuery" name="q" placeholder="Nama kursus..." class="p-2 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-teal-500 focus:border-teal-500">
+                </div>
+                <div>
+                    <label for="minPrice" class="block text-sm font-medium text-gray-700">Harga Minimum</label>
+                    <input type="number" id="minPrice" name="minPrice" placeholder="0" min="0" class="p-2 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-teal-500 focus:border-teal-500">
+                </div>
+                <div>
+                    <label for="maxPrice" class="block text-sm font-medium text-gray-700">Harga Maksimum</label>
+                    <input type="number" id="maxPrice" name="maxPrice" placeholder="1000000" min="0" class="p-2 mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-teal-500 focus:border-teal-500">
+                </div>
+                <div class="flex items-end">
+                    <button type="submit" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2 px-4 rounded shadow">
+                        <i class="fas fa-search"></i> Cari
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div id="courseList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="col-span-full flex justify-center">
+                <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-teal-600 border-opacity-50"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                if (window.checkLoginStatus) {
+                    window.checkLoginStatus();
+                }
+            }, 100);
+            loadCourses();
+            document.getElementById('searchForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                loadCourses();
+            });
+        });
+
+        function loadCourses() {
+            const form = document.getElementById('searchForm');
+            const formData = new FormData(form);
+            const params = new URLSearchParams();
+            for (const [key, value] of formData.entries()) {
+                if (value.trim()) params.append(key, value);
+            }
+
+            fetch(`/api/cb/courses?${params}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Gagal memuat daftar kursus');
+                    return response.json();
+                })
+                .then(courses => renderCourses(courses))
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('courseList').innerHTML = 
+                        `<div class="col-span-full"><div class="bg-red-100 text-red-700 px-4 py-3 rounded">Gagal memuat kursus. Silakan refresh halaman.</div></div>`;
+                });
+        }
+
+        function renderCourses(courses) {
+            const courseList = document.getElementById('courseList');
+            if (courses.length === 0) {
+                courseList.innerHTML = `
+                    <div class="col-span-full">
+                        <div class="bg-blue-100 text-blue-700 px-4 py-3 rounded text-center">
+                            <i class="fas fa-info-circle"></i> Tidak ada kursus yang ditemukan
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            courseList.innerHTML = courses.map(course => `
+                <div class="bg-white shadow-md rounded-lg flex flex-col p-4">
+                    <h5 class="text-lg font-semibold text-teal-700 mb-1">${course.name}</h5>
+                    <p class="text-sm text-gray-500 mb-2"><i class="fas fa-user"></i> ${course.tutorName}</p>
+                    <p class="font-bold text-teal-600 mb-4">
+                        ${course.priceRp === 0 ? 'GRATIS' : `Rp ${course.priceRp.toLocaleString('id-ID')}`}
+                    </p>
+                    <div class="mt-auto">
+                        <a href="/courses/${course.id}" class="block text-center bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2 px-4 rounded">
+                            👀 Lihat Detail
+                        </a>
+                    </div>
+                </div>
+            `).join('');
+        }
+    </script>
+
+    <script>
+        window.updateNavbar = function() {
+            const token = localStorage.getItem('token');
+            const guestNav = document.getElementById('guestNav');
+            const userNav = document.getElementById('userNav');
+            const myCourseLink = document.getElementById('myCourseLink');
+            const applyAsTutorLink = document.getElementById('applyAsTutorLink');
+            const userWelcome = document.getElementById('userWelcome');
+
+            if (!guestNav || !userNav || !myCourseLink || !applyAsTutorLink || !userWelcome) {
+                setTimeout(window.updateNavbar, 100);
+                return;
+            }
+
+            if (token) {
+                guestNav.style.display = 'none';
+                userNav.style.display = 'flex';
+                myCourseLink.style.display = 'block';
+                applyAsTutorLink.style.display = 'block';
+                try {
+                    const payload = JSON.parse(atob(token.split('.')[1]));
+                    userWelcome.textContent = `👋 Hello, ${payload.fullName || payload.sub || 'User'}!`;
+                } catch (e) {
+                    userWelcome.textContent = '👋 Hello, User!';
+                }
+            } else {
+                guestNav.style.display = 'flex';
+                userNav.style.display = 'none';
+                myCourseLink.style.display = 'none';
+                applyAsTutorLink.style.display = 'none';
+            }
+        };
+
+        window.logout = function() {
+            localStorage.removeItem('token');
+            window.updateNavbar();
+            window.location.href = '/courses';
+        };
+
+        function waitForNavbar() {
+            const observer = new MutationObserver((mutations) => {
+                if (document.getElementById('guestNav')) {
+                    observer.disconnect();
+                    window.updateNavbar();
+                }
+            });
+            observer.observe(document.body, { childList: true, subtree: true });
+            setTimeout(() => window.updateNavbar(), 50);
+        }
+
+        waitForNavbar();
+    </script>
+    <script th:src="@{/js/navbar.js}"></script>
+</body>
+</html>

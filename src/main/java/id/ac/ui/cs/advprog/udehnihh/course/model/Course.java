@@ -14,7 +14,11 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
-@Table(name = "courses")
+@Table(name = "courses", indexes = {
+    @Index(name = "idx_course_name", columnList = "name"),
+    @Index(name = "idx_course_price", columnList = "price"),
+    @Index(name = "idx_course_status", columnList = "status")
+})
 public class Course {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

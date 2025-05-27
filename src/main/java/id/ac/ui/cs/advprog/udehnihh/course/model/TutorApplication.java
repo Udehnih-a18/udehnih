@@ -34,11 +34,16 @@ public class TutorApplication {
     @Column(name = "rejection_reason")
     private String rejectionReason;
 
+    @Column(name = "motivation", columnDefinition = "TEXT")
+    private String motivation;
+
+    @Column(name = "experience", columnDefinition = "TEXT")
+    private String experience;
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
     }
-
 
     public enum ApplicationStatus {
         PENDING,

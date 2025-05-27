@@ -2,13 +2,20 @@ package id.ac.ui.cs.advprog.udehnihh.course.service;
 
 import id.ac.ui.cs.advprog.udehnihh.authentication.enums.Role;
 import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
-import id.ac.ui.cs.advprog.udehnihh.authentication.repository.UserRepository;
 import id.ac.ui.cs.advprog.udehnihh.authentication.service.JwtService;
+import id.ac.ui.cs.advprog.udehnihh.authentication.repository.UserRepository;
+import id.ac.ui.cs.advprog.udehnihh.course.dto.request.TutorApplicationRequest;
 import id.ac.ui.cs.advprog.udehnihh.course.model.TutorApplication;
 import id.ac.ui.cs.advprog.udehnihh.course.repository.TutorApplicationRepository;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.*;
+import org.junit.jupiter.api.extension.ExtendWith;
+
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -16,10 +23,8 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-class TutorApplicationServiceTest {
-
-    @InjectMocks
-    private TutorApplicationServiceImpl tutorApplicationService;
+@ExtendWith(MockitoExtension.class)
+class TutorApplicationServiceImplTest {
 
     @Mock
     private TutorApplicationRepository tutorApplicationRepository;
@@ -30,104 +35,145 @@ class TutorApplicationServiceTest {
     @Mock
     private JwtService jwtService;
 
-    private User studentUser;
-    private final String token = "test.token";
-    private final String email = "student@example.com";
+    @InjectMocks
+    private TutorApplicationServiceImpl tutorApplicationService;
+
+    private String token;
+    private User user;
+    private TutorApplicationRequest request;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
+        token = "valid.jwt.token";
+        user = new User();
+        user.setId(UUID.randomUUID());
+        user.setEmail("user@example.com");
+        user.setRole(Role.STUDENT);
+        user.setFullName("Test User");
 
-        studentUser = new User();
-        studentUser.setId(UUID.randomUUID());
-        studentUser.setEmail(email);
-        studentUser.setRole(Role.STUDENT);
+        request = new TutorApplicationRequest();
+        request.setExperience("3 years experience");
+        request.setMotivation("I love teaching");
     }
 
     @Test
     void testCreateApplicationSuccess() {
-        when(jwtService.getEmailFromToken(token)).thenReturn(email);
-        when(userRepository.findByEmail(email)).thenReturn(Optional.of(studentUser));
-        when(tutorApplicationRepository.existsByApplicant(studentUser)).thenReturn(false);
-        when(tutorApplicationRepository.save(any(TutorApplication.class)))
-                .thenAnswer(invocation -> invocation.getArgument(0));
+        when(jwtService.getEmailFromToken(token)).thenReturn(user.getEmail());
+        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
+        when(tutorApplicationRepository.existsByApplicant(user)).thenReturn(false);
+        when(tutorApplicationRepository.save(Mockito.any())).thenAnswer(i -> i.getArgument(0));
 
-        TutorApplication app = tutorApplicationService.createApplication(token);
+        TutorApplication application = tutorApplicationService.createApplication(token, request);
 
-        assertNotNull(app);
-        assertEquals(studentUser, app.getApplicant());
-        assertEquals(TutorApplication.ApplicationStatus.PENDING, app.getStatus());
+        assertNotNull(application);
+        assertEquals(user, application.getApplicant());
+        assertEquals("3 years experience", application.getExperience());
+        assertEquals("I love teaching", application.getMotivation());
+        assertEquals(TutorApplication.ApplicationStatus.PENDING, application.getStatus());
     }
 
     @Test
-    void testCreateApplicationUserNotFound() {
-        when(jwtService.getEmailFromToken(token)).thenReturn(email);
-        when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
+    void testCreateApplicationFailsIfUserNotStudent() {
+        user.setRole(Role.TUTOR);
+        when(jwtService.getEmailFromToken(token)).thenReturn(user.getEmail());
+        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
 
-        assertThrows(IllegalStateException.class, () -> tutorApplicationService.createApplication(token));
+        Exception exception = assertThrows(IllegalStateException.class, () ->
+                tutorApplicationService.createApplication(token, request));
+
+        assertEquals("Only students can apply as tutor", exception.getMessage());
     }
 
     @Test
-    void testCreateApplicationAlreadyApplied() {
-        when(jwtService.getEmailFromToken(token)).thenReturn(email);
-        when(userRepository.findByEmail(email)).thenReturn(Optional.of(studentUser));
-        when(tutorApplicationRepository.existsByApplicant(studentUser)).thenReturn(true);
+    void testCreateApplicationFailsIfUserNotFound() {
+        when(jwtService.getEmailFromToken(token)).thenReturn(user.getEmail());
+        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.empty());
 
-        assertThrows(IllegalStateException.class, () -> tutorApplicationService.createApplication(token));
+        Exception exception = assertThrows(IllegalStateException.class, () ->
+                tutorApplicationService.createApplication(token, request));
+
+        assertEquals("User not found", exception.getMessage());
     }
 
     @Test
-    void testCreateApplicationNotAStudent() {
-        studentUser.setRole(Role.TUTOR);
-        when(jwtService.getEmailFromToken(token)).thenReturn(email);
-        when(userRepository.findByEmail(email)).thenReturn(Optional.of(studentUser));
+    void testCreateApplicationFailsIfAlreadyApplied() {
+        when(jwtService.getEmailFromToken(token)).thenReturn(user.getEmail());
+        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
+        when(tutorApplicationRepository.existsByApplicant(user)).thenReturn(true);
 
-        assertThrows(IllegalStateException.class, () -> tutorApplicationService.createApplication(token));
+        Exception exception = assertThrows(IllegalStateException.class, () ->
+                tutorApplicationService.createApplication(token, request));
+
+        assertEquals("User has already applied", exception.getMessage());
     }
 
     @Test
     void testGetApplicationSuccess() {
         TutorApplication app = new TutorApplication();
-        app.setApplicant(studentUser);
-
-        when(jwtService.getEmailFromToken(token)).thenReturn(email);
-        when(userRepository.findByEmail(email)).thenReturn(Optional.of(studentUser));
-        when(tutorApplicationRepository.findByApplicant(studentUser)).thenReturn(Optional.of(app));
+        app.setApplicant(user);
+        when(jwtService.getEmailFromToken(token)).thenReturn(user.getEmail());
+        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
+        when(tutorApplicationRepository.findByApplicant(user)).thenReturn(Optional.of(app));
 
         TutorApplication result = tutorApplicationService.getApplication(token);
-
         assertEquals(app, result);
     }
 
     @Test
-    void testGetApplicationNotFound() {
-        when(jwtService.getEmailFromToken(token)).thenReturn(email);
-        when(userRepository.findByEmail(email)).thenReturn(Optional.of(studentUser));
-        when(tutorApplicationRepository.findByApplicant(studentUser)).thenReturn(Optional.empty());
+    void testGetApplicationFailsIfUserNotFound() {
+        when(jwtService.getEmailFromToken(token)).thenReturn(user.getEmail());
+        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.empty());
 
-        assertThrows(IllegalStateException.class, () -> tutorApplicationService.getApplication(token));
+        Exception exception = assertThrows(IllegalStateException.class, () ->
+                tutorApplicationService.getApplication(token));
+
+        assertEquals("User not found", exception.getMessage());
+    }
+
+    @Test
+    void testGetApplicationFailsIfApplicationNotFound() {
+        when(jwtService.getEmailFromToken(token)).thenReturn(user.getEmail());
+        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
+        when(tutorApplicationRepository.findByApplicant(user)).thenReturn(Optional.empty());
+
+        Exception exception = assertThrows(IllegalStateException.class, () ->
+                tutorApplicationService.getApplication(token));
+
+        assertEquals("No application found", exception.getMessage());
     }
 
     @Test
     void testDeleteApplicationSuccess() {
         TutorApplication app = new TutorApplication();
-        app.setApplicant(studentUser);
-
-        when(jwtService.getEmailFromToken(token)).thenReturn(email);
-        when(userRepository.findByEmail(email)).thenReturn(Optional.of(studentUser));
-        when(tutorApplicationRepository.findByApplicant(studentUser)).thenReturn(Optional.of(app));
+        app.setApplicant(user);
+        when(jwtService.getEmailFromToken(token)).thenReturn(user.getEmail());
+        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
+        when(tutorApplicationRepository.findByApplicant(user)).thenReturn(Optional.of(app));
 
         tutorApplicationService.deleteApplication(token);
-
-        verify(tutorApplicationRepository, times(1)).delete(app);
+        verify(tutorApplicationRepository).delete(app);
     }
 
     @Test
-    void testDeleteApplicationApplicationNotFound() {
-        when(jwtService.getEmailFromToken(token)).thenReturn(email);
-        when(userRepository.findByEmail(email)).thenReturn(Optional.of(studentUser));
-        when(tutorApplicationRepository.findByApplicant(studentUser)).thenReturn(Optional.empty());
+    void testDeleteApplicationFailsIfUserNotFound() {
+        when(jwtService.getEmailFromToken(token)).thenReturn(user.getEmail());
+        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.empty());
 
-        assertThrows(IllegalStateException.class, () -> tutorApplicationService.deleteApplication(token));
+        Exception exception = assertThrows(IllegalStateException.class, () ->
+                tutorApplicationService.deleteApplication(token));
+
+        assertEquals("User not found", exception.getMessage());
+    }
+
+    @Test
+    void testDeleteApplicationFailsIfApplicationNotFound() {
+        when(jwtService.getEmailFromToken(token)).thenReturn(user.getEmail());
+        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
+        when(tutorApplicationRepository.findByApplicant(user)).thenReturn(Optional.empty());
+
+        Exception exception = assertThrows(IllegalStateException.class, () ->
+                tutorApplicationService.deleteApplication(token));
+
+        assertEquals("No application found", exception.getMessage());
     }
 }

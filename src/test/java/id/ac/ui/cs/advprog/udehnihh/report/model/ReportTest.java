@@ -1,63 +1,82 @@
 package id.ac.ui.cs.advprog.udehnihh.report.model;
 
+import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ReportTest {
 
-    private List<Report> reports;
+    private User dummyUser;
 
     @BeforeEach
     void setUp() {
-        this.reports = new ArrayList<>();
-
-        Report report1 = new Report("123", "Zufar",
-                "Problem", "Fitur pada aplikasi ini tidak berjalan dengan benar dan cenderung rusak. Tolong diperbaiki!");
-
-        Report report2 = new Report("456", "Rafli",
-                "Course tidak tersimpan!", "Fitur course pada aplikasi ini tidak berjalan dengan benar dan cenderung rusak. Tolong diperbaiki!");
-
-        this.reports.add(report1);
-        this.reports.add(report2);
+        dummyUser = User.builder()
+                .id(UUID.randomUUID())
+                .email("testuser@example.com")
+                .build();
     }
 
     @Test
-    void createReportWithValidValues() {
-        Report newReport = new Report("456", "Akhdan", "Ada bug di halaman utama.", "Baguss");
+    void testBuilderAndGetters() {
+        LocalDateTime now = LocalDateTime.now();
+        Report report = Report.builder()
+                .idReport("abc123")
+                .title("Bug Report")
+                .description("Ada bug di halaman dashboard")
+                .createdAt(now)
+                .updatedAt(now)
+                .createdBy(dummyUser)
+                .build();
 
-        assertEquals("456", newReport.getCreatedBy());
-        assertEquals("Ada bug di halaman utama.", newReport.getTitle());
-        assertEquals("Baguss", newReport.getDescription());
-        assertEquals("Akhdan", newReport.getAuthor());
-        assertNotNull(newReport.getIdReport());
-        assertNotNull(newReport.getCreatedAt());
-
+        assertEquals("abc123", report.getIdReport());
+        assertEquals("Bug Report", report.getTitle());
+        assertEquals("Ada bug di halaman dashboard", report.getDescription());
+        assertEquals(dummyUser, report.getCreatedBy());
+        assertEquals(now, report.getCreatedAt());
+        assertEquals(now, report.getUpdatedAt());
     }
 
     @Test
-    void updateReportWithValidValues() {
-        Report report = reports.get(0); // ambil report pertama (createdBy: "123")
-        report.setTitle("Fitur berjalan!");
-        report.setDescription("Update: Sudah diperbaiki di versi terbaru.");
+    void testPrePersistInitializesFields() {
+        Report report = new Report();
+        report.setCreatedBy(dummyUser);
+        report.setTitle("Bug Report");
+        report.setDescription("Testing pre-persist");
 
-        assertEquals("Fitur berjalan!", report.getTitle());
-        assertEquals("Update: Sudah diperbaiki di versi terbaru.", report.getDescription());
+        report.onCreate();
+
+        assertNotNull(report.getIdReport());
+        assertNotNull(report.getCreatedAt());
+        assertNotNull(report.getUpdatedAt());
+        assertEquals(report.getCreatedAt(), report.getUpdatedAt());
     }
 
     @Test
-    void createReportWithEmptyTitle() {
-        Report newReport = new Report("abc", "Zufar", null, "Bagus");
-        assertNull(newReport.getTitle());
-    }
+    void testPreUpdateChangesUpdatedAtOnly() {
+        Report report = new Report();
+        report.setCreatedBy(dummyUser);
+        report.setTitle("Bug Report");
+        report.setDescription("Testing pre-update");
+        report.onCreate(); // simulate initial save
 
-    @Test
-    void createReportWithEmptyDescription() {
-        Report newReport = new Report("abc", "Zufar", "Fitur keren", null);
-        assertNull(newReport.getDescription());
+        LocalDateTime initialCreatedAt = report.getCreatedAt();
+        LocalDateTime initialUpdatedAt = report.getUpdatedAt();
+
+        try {
+            TimeUnit.MILLISECONDS.sleep(10);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt(); // Restore interrupt status
+        }
+
+        report.onUpdate();
+
+        assertEquals(initialCreatedAt, report.getCreatedAt());
+        assertTrue(report.getUpdatedAt().isAfter(initialUpdatedAt));
     }
 }

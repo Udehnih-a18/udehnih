@@ -1,6 +1,6 @@
 package id.ac.ui.cs.advprog.udehnihh.dashboard.controller;
 
-import id.ac.ui.cs.advprog.udehnihh.course.dto.CourseRequest;
+import id.ac.ui.cs.advprog.udehnihh.course.dto.request.CourseRequest;
 import id.ac.ui.cs.advprog.udehnihh.dashboard.dto.TutorListRequest;
 import id.ac.ui.cs.advprog.udehnihh.dashboard.dto.TutorDetailRequest;
 import id.ac.ui.cs.advprog.udehnihh.course.model.Course;
