@@ -14,9 +14,6 @@ RUN chmod +x ./gradlew
 # Build the JAR file using Gradle
 RUN ./gradlew clean bootJar
 
-# Debug: List JAR files
-RUN ls -la build/libs/
-
 # ===========================
 # 2️⃣ Run Stage (Creates a lightweight container)
 # ===========================
@@ -39,15 +36,9 @@ WORKDIR /opt/eshop
 # Copy the JAR file from the builder stage
 COPY --from=builder --chown=${USER_UID}:${USER_GID} /src/eshop/build/libs/*.jar app.jar
 
-# Debug: Verify JAR file exists and is executable
-RUN ls -la app.jar
-
 # Expose the application port
 EXPOSE 8080
 
-# Add health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1
-
-# Run the application with proper JVM options
-ENTRYPOINT ["java", "-XX:+UseContainerSupport", "-XX:MaxRAMPercentage=75.0", "-jar", "app.jar"]
+# Run the application
+ENTRYPOINT ["java"]
+CMD ["-jar", "app.jar"]
