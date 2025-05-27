@@ -14,7 +14,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class UpdateReportCommandTest {
+class UpdateReportCommandTest {
 
     private ReportRepository repository;
     private User user;
@@ -60,6 +60,20 @@ public class UpdateReportCommandTest {
     }
 
     @Test
+    void testExecuteThrowsIllegalArgumentExceptionIfTitleIsNull() {
+        UpdateReportCommand command = new UpdateReportCommand(
+                report.getIdReport(), user, null, "Some description", repository);
+        assertThrows(IllegalArgumentException.class, command::execute);
+    }
+
+    @Test
+    void testExecuteThrowsIllegalArgumentExceptionIfTitleIsEmpty() {
+        UpdateReportCommand command = new UpdateReportCommand(
+                report.getIdReport(), user, "   ", "Some description", repository);
+        assertThrows(IllegalArgumentException.class, command::execute);
+    }
+
+    @Test
     void testExecuteThrowsNoSuchElementIfNotFound() {
         when(repository.findById("invalid-id")).thenReturn(Optional.empty());
 
@@ -68,4 +82,18 @@ public class UpdateReportCommandTest {
 
         assertThrows(NoSuchElementException.class, command::execute);
     }
+    @Test
+    void testExecuteThrowsIllegalArgumentExceptionIfNewDescriptionIsNull() {
+        UpdateReportCommand command = new UpdateReportCommand(
+                "reportId123", user, "Valid Title", null, repository);
+        assertThrows(IllegalArgumentException.class, command::execute);
+    }
+
+    @Test
+    void testExecuteThrowsIllegalArgumentExceptionIfNewDescriptionIsEmpty() {
+        UpdateReportCommand command = new UpdateReportCommand(
+                "reportId123", user, "Valid Title", "   ", repository);
+        assertThrows(IllegalArgumentException.class, command::execute);
+    }
+
 }

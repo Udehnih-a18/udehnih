@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Buat Ulasan - Udehnih</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+</head>
+<body class="bg-teal-50 min-h-screen">
+    <div th:insert="~{navbar :: navbar}"></div>
+
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <div class="flex items-center mb-6">
+                <button onclick="goBack()" class="text-teal-600 hover:text-teal-800 mr-4" aria-label="Kembali">
+                    <i class="fas fa-arrow-left text-xl"></i>
+                </button>
+                <h1 class="text-3xl font-bold text-gray-900">⭐ Buat Ulasan</h1>
+            </div>
+
+            <section id="courseInfo" class="mb-8 p-4 bg-gray-50 rounded-lg animate-pulse">
+                <div class="h-6 bg-gray-300 rounded w-3/4 mb-2"></div>
+                <div class="h-4 bg-gray-300 rounded w-1/2"></div>
+            </section>
+
+            <form id="reviewForm" class="space-y-6" novalidate>
+                <fieldset>
+                    <legend class="block text-lg font-medium text-gray-700 mb-3">Rating Kursus</legend>
+                    <div class="flex items-center space-x-2 mb-2" role="radiogroup" aria-label="Rating Kursus">
+                        <div class="flex space-x-1" id="starRating">
+                            <i class="fas fa-star text-gray-300 cursor-pointer text-3xl" data-rating="1" role="radio" aria-checked="false" tabindex="0"></i>
+                            <i class="fas fa-star text-gray-300 cursor-pointer text-3xl" data-rating="2" role="radio" aria-checked="false" tabindex="-1"></i>
+                            <i class="fas fa-star text-gray-300 cursor-pointer text-3xl" data-rating="3" role="radio" aria-checked="false" tabindex="-1"></i>
+                            <i class="fas fa-star text-gray-300 cursor-pointer text-3xl" data-rating="4" role="radio" aria-checked="false" tabindex="-1"></i>
+                            <i class="fas fa-star text-gray-300 cursor-pointer text-3xl" data-rating="5" role="radio" aria-checked="false" tabindex="-1"></i>
+                        </div>
+                        <span id="ratingText" class="text-gray-600 font-medium" aria-live="polite"></span>
+                    </div>
+                    <input type="hidden" id="ratingValue" required />
+                    <p class="text-sm text-gray-500">Klik bintang untuk memberikan rating</p>
+                </fieldset>
+
+                <div>
+                    <label for="comment" class="block text-lg font-medium text-gray-700 mb-3">Ulasan Anda</label>
+                    <textarea
+                        id="comment"
+                        rows="6"
+                        class="w-full p-4 border border-gray-300 rounded-lg focus:ring-teal-500 focus:border-teal-500 text-base"
+                        placeholder="Bagikan pengalaman Anda tentang kursus ini... Apa yang Anda suka? Apa yang bisa diperbaiki? Bagaimana kualitas materinya?"></textarea>
+                    <p class="text-sm text-gray-500 mt-2">Ulasan yang baik membantu calon peserta lain memahami kualitas kursus</p>
+                </div>
+
+                <div class="flex space-x-4 pt-4">
+                    <button
+                        type="submit"
+                        class="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-6 rounded-lg text-lg transition duration-200"
+                    >
+                        <i class="fas fa-paper-plane mr-2"></i>Kirim Ulasan
+                    </button>
+                    <button
+                        type="button"
+                        onclick="goBack()"
+                        class="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg text-lg transition duration-200"
+                    >
+                        <i class="fas fa-times mr-2"></i>Batal
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let currentRating = 0;
+        let courseId = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            courseId = window.location.pathname.split('/')[2];
+
+            const token = localStorage.getItem('token');
+            if (!token) {
+                alert('❌ Anda perlu login terlebih dahulu');
+                window.location.href = '/auth/login?redirect=' + encodeURIComponent(window.location.pathname);
+                return;
+            }
+
+            loadCourseInfo();
+            setupStarRating();
+            setupForm();
+        });
+
+        function loadCourseInfo() {
+            fetch(`/api/cb/courses/${courseId}`)
+                .then(res => {
+                    if (!res.ok) throw new Error('Kursus tidak ditemukan');
+                    return res.json();
+                })
+                .then(course => {
+                    const info = `
+                        <div class="flex items-start space-x-4">
+                            <div class="flex-1">
+                                <h3 class="text-xl font-bold text-gray-900 mb-2">${course.name}</h3>
+                                <p class="text-gray-600 mb-1">
+                                    <i class="fas fa-user mr-2"></i>Tutor: <strong>${course.tutorName}</strong>
+                                </p>
+                                <p class="text-gray-600">
+                                    <i class="fas fa-tag mr-2"></i>
+                                    ${
+                                        course.priceRp === 0
+                                            ? '<span class="text-teal-600 font-semibold">GRATIS</span>'
+                                            : `<span class="text-teal-600 font-semibold">Rp ${course.priceRp.toLocaleString('id-ID')}</span>`
+                                    }
+                                </p>
+                            </div>
+                            <a href="/courses/${course.id}" class="text-teal-600 hover:text-teal-800 text-sm" aria-label="Lihat Detail Kursus">
+                                <i class="fas fa-external-link-alt mr-1"></i>Lihat Detail
+                            </a>
+                        </div>`;
+                    const courseInfoEl = document.getElementById('courseInfo');
+                    courseInfoEl.classList.remove('animate-pulse');
+                    courseInfoEl.innerHTML = info;
+                })
+                .catch(() => {
+                    const courseInfoEl = document.getElementById('courseInfo');
+                    courseInfoEl.classList.remove('animate-pulse');
+                    courseInfoEl.innerHTML = '<div class="text-red-500 font-semibold">❌ Gagal memuat informasi kursus</div>';
+                });
+        }
+
+        function setupStarRating() {
+            const stars = document.querySelectorAll('#starRating i');
+            const ratingText = document.getElementById('ratingText');
+
+            function updateStars(rating) {
+                stars.forEach((star, i) => {
+                    star.className = i < rating ? 'fas fa-star text-yellow-400 cursor-pointer text-3xl' : 'fas fa-star text-gray-300 cursor-pointer text-3xl';
+                    star.setAttribute('aria-checked', i + 1 === rating ? 'true' : 'false');
+                    star.tabIndex = i + 1 === rating ? 0 : -1;
+                });
+            }
+
+            function updateText(rating) {
+                const descriptions = ['', '⭐ Sangat Buruk', '⭐⭐ Buruk', '⭐⭐⭐ Cukup', '⭐⭐⭐⭐ Bagus', '⭐⭐⭐⭐⭐ Sangat Bagus'];
+                ratingText.textContent = descriptions[rating] || '';
+            }
+
+            stars.forEach(star => {
+                star.addEventListener('click', () => {
+                    currentRating = parseInt(star.dataset.rating);
+                    document.getElementById('ratingValue').value = currentRating;
+                    updateStars(currentRating);
+                    updateText(currentRating);
+                });
+
+                star.addEventListener('mouseover', () => {
+                    const hoverRating = parseInt(star.dataset.rating);
+                    updateStars(hoverRating);
+                    updateText(hoverRating);
+                });
+
+                star.addEventListener('keydown', e => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        star.click();
+                    }
+                });
+            });
+
+            document.getElementById('starRating').addEventListener('mouseleave', () => {
+                updateStars(currentRating);
+                updateText(currentRating);
+            });
+        }
+
+        function setupForm() {
+            document.getElementById('reviewForm').addEventListener('submit', async e => {
+                e.preventDefault();
+
+                const rating = parseInt(document.getElementById('ratingValue').value);
+                const comment = document.getElementById('comment').value.trim();
+
+                if (!rating || rating < 1 || rating > 5) {
+                    alert('❌ Silakan pilih rating antara 1 sampai 5 bintang');
+                    return;
+                }
+
+                const submitBtn = e.target.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Mengirim...';
+                submitBtn.disabled = true;
+
+                try {
+                    const token = localStorage.getItem('token');
+                    const response = await fetch('/api/reviews', {
+                        method: 'POST',
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ courseId, rating, comment: comment || null }),
+                    });
+
+                    if (!response.ok) {
+                        const error = await response.json();
+                        throw new Error(error.message || 'Gagal menyimpan ulasan');
+                    }
+
+                    alert('✅ Ulasan berhasil dikirim! Terima kasih atas feedback Anda.');
+                    window.location.href = '/my-reviews';
+                } catch (error) {
+                    alert('❌ ' + error.message);
+                } finally {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                }
+            });
+        }
+
+        function goBack() {
+            if (confirm('Apakah Anda yakin ingin membatalkan pembuatan ulasan?')) {
+                history.back();
+            }
+        }
+    </script>
+    <script th:src="@{/js/navbar.js}"></script>
+</body>
+</html>

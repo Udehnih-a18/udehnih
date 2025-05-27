@@ -10,7 +10,6 @@ class ArticleTest {
 
     @Test
     void testArticleSettersAndGetters() {
-        // Arrange
         UUID articleId = UUID.randomUUID();
         String contentType = "Video";
         String contentUrl = "https://example.com/video";
@@ -22,7 +21,6 @@ class ArticleTest {
 
         Article article = new Article();
 
-        // Act
         article.setId(articleId);
         article.setContentType(contentType);
         article.setContentUrl(contentUrl);
@@ -43,10 +41,8 @@ class ArticleTest {
 
     @Test
     void testDefaultConstructor() {
-        // Act
         Article article = new Article();
 
-        // Assert
         assertNull(article.getId());
         assertNull(article.getContentType());
         assertNull(article.getContentUrl());
@@ -58,7 +54,6 @@ class ArticleTest {
 
     @Test
     void testAllArgsConstructor() {
-        // Arrange
         UUID articleId = UUID.randomUUID();
         String contentType = "Video";
         String contentUrl = "https://example.com/video";
@@ -68,17 +63,16 @@ class ArticleTest {
         Section section = new Section();
         section.setId(UUID.randomUUID());
 
-        // Act
-        Article article = new Article();
-        article.setId(articleId);
-        article.setContentType(contentType);
-        article.setContentUrl(contentUrl);
-        article.setContentDescription(contentDescription);
-        article.setContentTitle(contentTitle);
-        article.setContentText(contentText);
-        article.setSection(section);
+        Article article = new Article(
+            articleId,
+            contentType,
+            contentUrl,
+            contentDescription,
+            contentTitle,
+            contentText,
+            section
+        );
 
-        // Assert
         assertEquals(articleId, article.getId());
         assertEquals(contentType, article.getContentType());
         assertEquals(contentUrl, article.getContentUrl());

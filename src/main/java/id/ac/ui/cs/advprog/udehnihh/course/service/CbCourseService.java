@@ -18,7 +18,6 @@ public class CbCourseService {
 
     private final CbCourseRepository courseRepo;
 
-    // Bisa diakses tanpa login - untuk browsing kursus
     public List<CourseSummaryDto> search(String q, Double min, Double max) {
         Specification<Course> spec = Specification.where(
                 CourseSpecification.nameContains(q)
@@ -29,7 +28,6 @@ public class CbCourseService {
                 .toList();
     }
 
-    // Bisa diakses tanpa login - untuk melihat detail kursus sebelum daftar
     public CourseDetailDto getDetail(UUID id) {
         Course c = courseRepo.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Course not found"));

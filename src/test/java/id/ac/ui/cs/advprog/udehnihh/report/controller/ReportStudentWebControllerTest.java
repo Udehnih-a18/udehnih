@@ -1,41 +1,47 @@
 package id.ac.ui.cs.advprog.udehnihh.report.controller;
 
-import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import id.ac.ui.cs.advprog.udehnihh.authentication.config.JwtAuthenticationFilter;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
-@WebMvcTest(ReportWebController.class)
-@AutoConfigureMockMvc(addFilters = false)
-public class ReportWebControllerTest {
+@ExtendWith(MockitoExtension.class)
+class ReportStudentWebControllerTest {
 
-    @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @Mock
     private JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    @Test
-    @DisplayName("GET /student/reports should return student-reports-mainpage")
-    void testStudentReportsPage() throws Exception {
-        mockMvc.perform(get("/student/reports"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("student-reports-mainpage"));
+    private ReportStudentWebController reportWebController;
+
+    @BeforeEach
+    void setUp() {
+        reportWebController = new ReportStudentWebController();
+
+        mockMvc = MockMvcBuilders.standaloneSetup(reportWebController)
+                .build();
     }
 
     @Test
-    @DisplayName("GET /student/report-detail should return student-detail-report")
-    void testReportDetailPage() throws Exception {
-        mockMvc.perform(get("/student/report-detail"))
+    void testStudentReportsPage() throws Exception {
+        mockMvc.perform(get("/student/reports"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("student-detail-report"));
+                .andExpect(view().name("report/student-reports-mainpage"));
+    }
+
+    @Test
+    void testReportDetailPage() throws Exception {
+        mockMvc.perform(get("/student/reports/report-detail"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("report/detail-report"));
     }
 }

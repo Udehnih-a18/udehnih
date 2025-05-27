@@ -29,17 +29,15 @@ public class CourseServiceImpl implements CourseService{
     private final ArticleRepository articleRepository;
     private final UserRepository userRepository;
 
-    public CourseResponse createFullCourse(CourseRequest request) {
-        Optional<User> tutorOpt = userRepository.findById(request.getTutorId());
-        if (tutorOpt.isEmpty()) {
-            throw new IllegalArgumentException("Tutor not found");
-        }
+    public CourseResponse createFullCourse(CourseRequest request, UUID tutorId) {
+        User tutor = userRepository.findById(tutorId)
+                .orElseThrow(() -> new IllegalArgumentException("Tutor not found"));
 
         Course course = new Course();
         course.setName(request.getName());
         course.setDescription(request.getDescription());
         course.setPrice(request.getPrice());
-        course.setTutor(tutorOpt.get());
+        course.setTutor(tutor);
 
         course = courseRepository.save(course);
 

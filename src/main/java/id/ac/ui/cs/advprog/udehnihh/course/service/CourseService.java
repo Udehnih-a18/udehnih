@@ -6,7 +6,7 @@ import java.util.*;
 
 public interface CourseService {
 
-    CourseResponse createFullCourse(CourseRequest request);
+    CourseResponse createFullCourse(CourseRequest request, UUID tutorId);
     List<CourseResponse> getCoursesByTutor(UUID tutorId);
     Optional<CourseResponse> getCourseById(UUID courseId);
     CourseResponse updateCourse(UUID courseId, CourseRequest request);

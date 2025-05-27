@@ -5,7 +5,6 @@ import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
 import id.ac.ui.cs.advprog.udehnihh.authentication.enums.Role;
 import id.ac.ui.cs.advprog.udehnihh.authentication.repository.UserRepository;
 import id.ac.ui.cs.advprog.udehnihh.report.model.Report;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -18,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @ContextConfiguration(classes = UdehnihhApplication.class)
 @DataJpaTest
-public class ReportRepositoryTest {
+class ReportRepositoryTest {
 
     @Autowired
     private ReportRepository reportRepository;

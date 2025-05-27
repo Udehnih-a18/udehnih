@@ -5,7 +5,7 @@ import id.ac.ui.cs.advprog.udehnihh.report.repository.ReportRepository;
 
 import java.util.List;
 
-public class GetAllReportsCommand implements ReportCommand {
+public class GetAllReportsCommand implements ListReportCommand {
     private final ReportRepository repository;
 
     public GetAllReportsCommand(ReportRepository repository) {
@@ -13,11 +13,7 @@ public class GetAllReportsCommand implements ReportCommand {
     }
 
     @Override
-    public Report execute() {
-        throw new UnsupportedOperationException("Use executeAll() instead");
-    }
-
-    public List<Report> executeAll() {
+    public List<Report> execute() {
         return repository.findAll();
     }
 }

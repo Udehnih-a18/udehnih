@@ -13,12 +13,10 @@ public class ReportDto {
     private String idReport;
     private String title;
     private String description;
-
     private String authorId;
     private String authorEmail;
     private String authorFullName;
-
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-}
 
+}

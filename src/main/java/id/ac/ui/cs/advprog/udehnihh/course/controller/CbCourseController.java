@@ -19,8 +19,8 @@ public class CbCourseController {
 
     private final CbCourseService courseSvc;
     private final CbEnrollmentService enrollSvc;
+    private static final String NEED_LOGIN = "Anda perlu login terlebih dahulu";
 
-    // daftar & search - bisa diakses tanpa login
     @GetMapping("/courses")
     public List<CourseSummaryDto> list(
             @RequestParam(required = false) String q,
@@ -29,19 +29,17 @@ public class CbCourseController {
         return courseSvc.search(q, minPrice, maxPrice);
     }
 
-    // detail - bisa diakses tanpa login
     @GetMapping("/courses/{id}")
     public CourseDetailDto detail(@PathVariable UUID id) {
         return courseSvc.getDetail(id);
     }
 
-    // enroll - perlu login
     @PostMapping("/courses/{id}/enroll")
     public ResponseEntity<?> enroll(@PathVariable UUID id,
                                    @AuthenticationPrincipal User student) {
         if (student == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("Anda perlu login terlebih dahulu");
+                    .body(NEED_LOGIN);
         }
         
         try {
@@ -54,12 +52,22 @@ public class CbCourseController {
         }
     }
 
-    // daftar kursus yg sudah di‑enrol - perlu login
+    @GetMapping("/enrollments/me")
+    public ResponseEntity<?> myEnrollments(@AuthenticationPrincipal User student) {
+        if (student == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(NEED_LOGIN);
+        }
+        
+        List<EnrollmentDto> enrollments = enrollSvc.myCourses(student);
+        return ResponseEntity.ok(enrollments);
+    }
+
     @GetMapping("/my-courses")
     public ResponseEntity<?> myCourses(@AuthenticationPrincipal User student) {
         if (student == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body("Anda perlu login terlebih dahulu");
+                    .body(NEED_LOGIN);
         }
         
         List<EnrollmentDto> courses = enrollSvc.myCourses(student);
