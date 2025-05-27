@@ -2,12 +2,15 @@ package id.ac.ui.cs.advprog.udehnihh.payment.controller;
 
 import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
 import id.ac.ui.cs.advprog.udehnihh.course.repository.CbCourseRepository;
+import id.ac.ui.cs.advprog.udehnihh.payment.mapper.ObjectToMapMapper;
 import id.ac.ui.cs.advprog.udehnihh.payment.model.BankTransfer;
 import id.ac.ui.cs.advprog.udehnihh.payment.model.CreditCard;
 import id.ac.ui.cs.advprog.udehnihh.payment.model.Refund;
 import id.ac.ui.cs.advprog.udehnihh.payment.model.Transaction;
 import id.ac.ui.cs.advprog.udehnihh.payment.service.PaymentServiceImpl;
-import id.ac.ui.cs.advprog.udehnihh.payment.service.RefundService;
+import id.ac.ui.cs.advprog.udehnihh.payment.service.RefundServiceImpl;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -21,16 +24,18 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/payments")
+@RequiredArgsConstructor
 public class PaymentController {
 
     private final CbCourseRepository cbCourseRepository;
-    private final RefundService refundService;
-    private PaymentServiceImpl service;
 
-    public PaymentController(CbCourseRepository cbCourseRepository, RefundService refundService) {
-        this.cbCourseRepository = cbCourseRepository;
-        this.refundService = refundService;
-    }
+    @Autowired
+    private final RefundServiceImpl refundService;
+
+    @Autowired
+    private final PaymentServiceImpl service;
+
+    private final ObjectToMapMapper objectToMapMapper;
 
     // bank transfer payment - perlu login
     @PostMapping("/courses/{courseId}/payment/bank-transfer")
@@ -46,7 +51,10 @@ public class PaymentController {
             AvailableBanks bank = AvailableBanks.valueOf(newTransaction.get("bank"));
 
             BankTransfer bankTransfer = service.createBankTransfer(courseId, student, bank);
-            return ResponseEntity.status(HttpStatus.CREATED).body(bankTransfer.getTransactionId());
+
+            HashMap<String, String> responseBody = ObjectToMapMapper.mapToObject(bankTransfer);
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(responseBody);
         } catch (IllegalStateException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (IllegalArgumentException e) {
@@ -55,7 +63,7 @@ public class PaymentController {
     }
 
     // credit card payment - perlu login
-    @PostMapping("/courses/{courseId}/credit-card")
+    @PostMapping("/courses/{courseId}/payment/credit-card")
     public ResponseEntity<?> createCreditCard(@PathVariable UUID courseId,
                                     @AuthenticationPrincipal User student,
                                     @RequestBody HashMap<String, String> newTransaction) {
@@ -69,7 +77,10 @@ public class PaymentController {
             String cvc = newTransaction.get("cvc");
 
             CreditCard creditCard = service.createCreditCard(courseId, student, accountNumber, cvc);
-            return ResponseEntity.status(HttpStatus.CREATED).body(creditCard.getTransactionId());
+
+            HashMap<String, String> responseBody = ObjectToMapMapper.mapToObject(creditCard);
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(responseBody);
         } catch (IllegalStateException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (IllegalArgumentException e) {
@@ -93,6 +104,7 @@ public class PaymentController {
     @PostMapping("/transaction-history/{transactionId}/refund")
     public ResponseEntity<?> requestRefund(@PathVariable UUID transactionId,
                                            @AuthenticationPrincipal User student,
+                                           @RequestHeader("Authorization") String contentType,
                                            @RequestBody Map<String, String> refundRequest) {
         if (student == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -109,12 +121,19 @@ public class PaymentController {
 
             Refund refund = refundService.createRefund(transactionId, reasonForRefund);
 
-            return ResponseEntity.status(HttpStatus.CREATED).body(refund.getId());
+            HashMap<String, String> responseBody = objectToMapMapper.mapToObject(refund);
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(responseBody);
         } catch (IllegalStateException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @GetMapping("/test")
+    public ResponseEntity<String> test() {
+        return ResponseEntity.ok("API is working");
     }
 
 }

@@ -64,6 +64,13 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE, "/api/student/reports/{id}").hasRole("STUDENT")
                         .requestMatchers("/api/staff/reports/**").hasRole("STAFF")
                         .anyRequest().denyAll()
+
+                        // Payment Endpoints
+                        .requestMatchers(HttpMethod.POST, "/api/payments/courses/{courseId}/payment/bank-transfer").hasRole("STUDENT")
+                        .requestMatchers(HttpMethod.POST, "/api/payments/courses/{courseId}/payment/credit-card").hasRole("STUDENT")
+                        .requestMatchers(HttpMethod.GET, "/api/payments/courses/transaction-history").hasRole("STUDENT")
+                        .requestMatchers(HttpMethod.POST, "/api/payments/transaction-history/{transactionId}/refund").hasRole("STUDENT")
+                        .requestMatchers(HttpMethod.GET, "/api/payments/courses/test")
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
