@@ -2,6 +2,8 @@ package id.ac.ui.cs.advprog.udehnihh.course.dto.response;
 
 import lombok.Getter;
 import lombok.Setter;
+
+import java.math.BigDecimal;
 import java.util.UUID;
 
 import id.ac.ui.cs.advprog.udehnihh.course.model.Course;
@@ -12,7 +14,7 @@ public class CourseResponse {
     private UUID id;
     private String name;
     private String description;
-    private Double price;
+    private BigDecimal price;
     private UUID tutorId;
     private String tutorName;
     private String status;

@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import id.ac.ui.cs.advprog.udehnihh.authentication.service.JwtService;
@@ -36,37 +37,32 @@ public class CourseController {
             .toList();
     }
 
+    @PreAuthorize("hasRole('TUTOR')")
     @PostMapping("/create")
-    public ResponseEntity<CourseResponse> createFullCourse(@RequestBody CourseRequest request) {
-        CourseResponse response = courseService.createFullCourse(request);
+    public ResponseEntity<CourseResponse> createFullCourse(@RequestBody CourseRequest request,
+                                                        @RequestHeader("Authorization") String authHeader) {
+        User tutor = extractUserFromAuthHeader(authHeader);
+        if (tutor == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        CourseResponse response = courseService.createFullCourse(request, tutor.getId());
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasRole('TUTOR')")
     @GetMapping("/lists")
     public ResponseEntity<List<CourseResponse>> getCoursesByTutor(@RequestHeader("Authorization") String authHeader) {
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-        String token = authHeader.substring(7);
-
-        String email;
-        try {
-            email = jwtService.getEmailFromToken(token);
-        } catch (Exception e) {
+        User tutor = extractUserFromAuthHeader(authHeader);
+        if (tutor == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        Optional<User> tutorOpt = userRepository.findByEmail(email);
-        if (tutorOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
-        User tutor = tutorOpt.get();
         List<CourseResponse> responses = courseService.getCoursesByTutor(tutor.getId());
-
         return ResponseEntity.ok(responses);
     }
-
+    
+    @PreAuthorize("hasRole('TUTOR')")
     @GetMapping("/{courseId}")
     public ResponseEntity<CourseResponse> getCourseDetail(@PathVariable("courseId") UUID courseId) {
         return courseService.getCourseById(courseId)
@@ -74,6 +70,7 @@ public class CourseController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @PreAuthorize("hasRole('TUTOR')")
     @PutMapping("/{courseId}")
     public ResponseEntity<CourseResponse> updateCourse(@PathVariable("courseId") UUID courseId,
                                                        @RequestBody CourseRequest request) {
@@ -81,9 +78,27 @@ public class CourseController {
         return ResponseEntity.ok(updated);
     }
 
+    @PreAuthorize("hasRole('TUTOR')")
     @DeleteMapping("/{courseId}")
     public ResponseEntity<Void> deleteCourse(@PathVariable("courseId") UUID courseId) {
         courseService.deleteCourse(courseId);
         return ResponseEntity.noContent().build();
+    }
+    
+    private User extractUserFromAuthHeader(String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return null;
+        }
+
+        String token = authHeader.substring(7);
+        String email;
+
+        try {
+            email = jwtService.getEmailFromToken(token);
+        } catch (Exception e) {
+            return null;
+        }
+
+        return userRepository.findByEmail(email).orElse(null);
     }
 }

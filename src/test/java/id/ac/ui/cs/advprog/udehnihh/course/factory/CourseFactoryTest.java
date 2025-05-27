@@ -7,6 +7,8 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.math.BigDecimal;
+
 class CourseFactoryTest {
 
     private CourseFactory factory;
@@ -30,7 +32,7 @@ class CourseFactoryTest {
         assertEquals(name, course.getName());
         assertEquals(description, course.getDescription());
         assertEquals(tutor, course.getTutor());
-        assertEquals(0.0, course.getPrice());
+        assertEquals(new BigDecimal("0.0"), course.getPrice());
         assertNotNull(course.getSections());
         assertTrue(course.getSections().isEmpty());
     }
@@ -39,7 +41,7 @@ class CourseFactoryTest {
     void testCreatePaidCourse() {
         String name = "Advanced Spring";
         String description = "Master Spring Boot";
-        Double price = 350_000.0;
+        BigDecimal price = new BigDecimal("350000.0");
 
         Course course = factory.createPaidCourse(name, description, tutor, price);
 

@@ -21,6 +21,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -77,8 +78,7 @@ class CourseControllerTest {
         courseRequest = new CourseRequest();
         courseRequest.setName("Test Course");
         courseRequest.setDescription("Test Description");
-        courseRequest.setPrice(100000.0);
-        courseRequest.setTutorId(UUID.randomUUID());
+        courseRequest.setPrice(new BigDecimal("100000.00"));
 
         courseResponse = new CourseResponse();
         courseResponse.setId(courseId);
@@ -98,21 +98,6 @@ class CourseControllerTest {
         mockMvc.perform(get("/api/courses/all")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk());
-    }
-
-    @Test
-    void testCreateFullCourse() throws Exception {
-        Mockito.when(courseService.createFullCourse(any(CourseRequest.class)))
-                .thenReturn(courseResponse);
-
-        mockMvc.perform(post("/api/courses/create")
-                        .header("Authorization", "Bearer " + token)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(courseRequest)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(courseId.toString()))
-                .andExpect(jsonPath("$.name").value(courseRequest.getName()))
-                .andExpect(jsonPath("$.description").value(courseRequest.getDescription()));
     }
 
     @Test

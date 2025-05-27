@@ -3,6 +3,7 @@ package id.ac.ui.cs.advprog.udehnihh.course.model;
 import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -17,7 +18,7 @@ public class CourseTest {
         UUID id = UUID.randomUUID();
         String name = "Advanced Programming";
         String description = "This course is about Java and Spring Boot.";
-        Double price = 249_000.0;
+        BigDecimal price = new BigDecimal("250000.00");
 
         User tutor = new User();
         tutor.setEmail("tutor@example.com");

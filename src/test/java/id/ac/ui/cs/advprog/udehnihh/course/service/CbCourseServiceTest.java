@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.*;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -37,7 +38,7 @@ class CbCourseServiceTest {
         User tutor = new User();
         tutor.setFullName("Tutor Name");
         course.setTutor(tutor);
-        course.setPrice(10000.0);
+        course.setPrice(new BigDecimal("10000.0"));
 
         when(courseRepo.findAll(any(Specification.class))).thenReturn(List.of(course));
 
@@ -58,7 +59,7 @@ class CbCourseServiceTest {
         User tutor = new User();
         tutor.setFullName("Tutor Name");
         course.setTutor(tutor);
-        course.setPrice(0.0);
+        course.setPrice(new BigDecimal("0.0"));
         course.setSections(new ArrayList<>());
 
         when(courseRepo.findById(courseId)).thenReturn(Optional.of(course));
