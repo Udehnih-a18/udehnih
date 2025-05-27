@@ -41,7 +41,6 @@ class DtoTest {
                 List.of(section)
         );
 
-        // Validate accessors (getters)
         assertEquals(id, dto.id());
         assertEquals(name, dto.name());
         assertEquals(description, dto.description());

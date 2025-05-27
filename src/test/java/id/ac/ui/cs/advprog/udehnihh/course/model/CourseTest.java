@@ -111,7 +111,6 @@ public class CourseTest {
         Course course = new Course();
         assertThat(course.getStatus()).isEqualTo(Course.CourseStatus.PENDING);
 
-        // Cover enum values
         Course.CourseStatus[] statuses = Course.CourseStatus.values();
         assertThat(statuses).contains(Course.CourseStatus.APPROVED, Course.CourseStatus.REJECTED);
         assertThat(Course.CourseStatus.valueOf("PENDING")).isEqualTo(Course.CourseStatus.PENDING);

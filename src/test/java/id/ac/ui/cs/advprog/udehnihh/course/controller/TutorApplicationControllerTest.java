@@ -11,13 +11,13 @@ import id.ac.ui.cs.advprog.udehnihh.course.model.TutorApplication.ApplicationSta
 import id.ac.ui.cs.advprog.udehnihh.course.service.TutorApplicationServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -25,21 +25,19 @@ import java.util.UUID;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
-@AutoConfigureMockMvc
+@ExtendWith(MockitoExtension.class)
 class TutorApplicationControllerTest {
 
-    @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private JwtService jwtService;
-
-    @MockBean
+    @Mock
     private TutorApplicationServiceImpl tutorApplicationService;
 
-    @Autowired
+    @Mock
+    private JwtService jwtService;
+
     private ObjectMapper objectMapper;
+    private TutorApplicationController tutorApplicationController;
 
     private String token;
     private UUID userId;
@@ -48,13 +46,20 @@ class TutorApplicationControllerTest {
 
     @BeforeEach
     void setUp() {
+        objectMapper = new ObjectMapper();
+
+        tutorApplicationController = new TutorApplicationController(tutorApplicationService);
+
+        mockMvc = MockMvcBuilders.standaloneSetup(tutorApplicationController)
+                .build();
+
         userId = UUID.fromString("fcddf0e2-4faf-4952-8651-71a78c6840a9");
         user = new User();
         user.setId(userId);
         user.setFullName("Test User");
         user.setEmail("user@example.com");
         user.setRole(Role.STUDENT);
-        token = jwtService.generateToken(user.getEmail(), user.getRole().name(), user.getFullName());
+        token = "mock-jwt-token";
 
         application = new TutorApplication();
         application.setId(UUID.randomUUID());
@@ -87,9 +92,8 @@ class TutorApplicationControllerTest {
 
     @Test
     void testGetApplicationStatusSuccess() throws Exception {
-        Mockito.when(tutorApplicationService.getApplication(Mockito.eq(token)))
+        Mockito.when(tutorApplicationService.getApplication(token))
                 .thenReturn(application);
-
         mockMvc.perform(get("/api/tutor-applications/status")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
@@ -99,6 +103,8 @@ class TutorApplicationControllerTest {
 
     @Test
     void testDeleteApplicationSuccess() throws Exception {
+        Mockito.doNothing().when(tutorApplicationService).deleteApplication(token);
+
         mockMvc.perform(delete("/api/tutor-applications/delete")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())

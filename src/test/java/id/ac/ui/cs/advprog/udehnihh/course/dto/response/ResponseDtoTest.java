@@ -12,10 +12,10 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ResponseDtoTest {
+class ResponseDtoTest {
 
     @Test
-    public void testMapToCourseResponse() {
+    void testMapToCourseResponse() {
         UUID tutorId = UUID.randomUUID();
         UUID courseId = UUID.randomUUID();
 
@@ -43,7 +43,7 @@ public class ResponseDtoTest {
     }
 
     @Test
-    public void testTutorApplicationResponseGetterSetter() {
+    void testTutorApplicationResponseGetterSetter() {
         UUID id = UUID.randomUUID();
         UUID applicantId = UUID.randomUUID();
         String applicantName = "Ibnu";

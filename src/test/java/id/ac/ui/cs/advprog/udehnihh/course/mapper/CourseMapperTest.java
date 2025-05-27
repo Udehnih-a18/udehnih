@@ -14,7 +14,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class CourseMapperTest {
+class CourseMapperTest {
 
     @Test
     void testToSummary() {

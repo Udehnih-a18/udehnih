@@ -29,12 +29,12 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public List<Report> getAllReports() {
-        return new GetAllReportsCommand(repository).executeAll();
+        return new GetAllReportsCommand(repository).execute();
     }
 
     @Override
     public List<Report> getReportsByAuthor(User user) {
-        return new GetReportsByAuthorCommand(user, repository).executeList();
+        return new GetReportsByAuthorCommand(user, repository).execute();
     }
 
     @Override
