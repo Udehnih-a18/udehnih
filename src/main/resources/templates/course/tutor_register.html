@@ -29,6 +29,31 @@
   </div>
 
   <script>
+    document.addEventListener("DOMContentLoaded", async function () {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      try {
+        const response = await fetch("/api/tutor-applications/status", {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.status === "PENDING") {
+            window.location.href = "/courses/tutor/applicant";
+          }
+        }
+      } catch (err) {
+        console.error("Gagal cek status aplikasi tutor:", err);
+      }
+    });
+  </script>
+
+  <script>
     document.getElementById("tutorRegisterForm").addEventListener("submit", async function (e) {
       e.preventDefault();
       const motivation = document.getElementById("motivation").value;

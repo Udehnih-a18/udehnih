@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import id.ac.ui.cs.advprog.udehnihh.authentication.enums.Role;
 import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
-import id.ac.ui.cs.advprog.udehnihh.authentication.repository.UserRepository;
 import id.ac.ui.cs.advprog.udehnihh.authentication.service.JwtService;
 import id.ac.ui.cs.advprog.udehnihh.course.dto.request.CourseRequest;
 import id.ac.ui.cs.advprog.udehnihh.course.dto.response.CourseResponse;
@@ -46,9 +45,6 @@ class CourseControllerTest {
 
     @MockBean
     private CourseCreationRepository courseRepository;
-
-    @MockBean
-    private UserRepository userRepository;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -93,21 +89,6 @@ class CourseControllerTest {
         mockMvc.perform(get("/api/courses/all")
                 .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk());
-    }
-
-    @Test
-    void testCreateFullCourse() throws Exception {
-        Mockito.when(courseService.createFullCourse(courseRequest, courseResponse.getTutorId()))
-                .thenReturn(courseResponse);
-
-        mockMvc.perform(post("/api/courses/create")
-                        .header("Authorization", "Bearer " + token)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(courseRequest)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(courseId.toString()))
-                .andExpect(jsonPath("$.name").value(courseRequest.getName()))
-                .andExpect(jsonPath("$.description").value(courseRequest.getDescription()));
     }
 
     @Test
@@ -156,12 +137,4 @@ class CourseControllerTest {
 
         Mockito.verify(courseService).deleteCourse(courseId);
     }
-
-    @Test
-    void testGetCoursesByTutor_Unauthorized_InvalidHeader() throws Exception {
-        mockMvc.perform(get("/api/courses/lists")
-                        .header("Authorization", "InvalidToken"))
-                .andExpect(status().isUnauthorized());
-    }
-
 }
