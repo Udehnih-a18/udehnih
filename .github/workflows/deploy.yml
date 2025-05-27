@@ -44,4 +44,8 @@ jobs:
             docker run -d \
               --name=web_server \
               -p 8080:8080 \
-              ${{ secrets.DOCKER_HUB_USERNAME1 }}/${{ secrets.DOCKER_HUB_REPO_NAME1 }}:latest
+            -e DB_HOST=${{ secrets.DB_HOST }} \
+            -e DB_NAME=${{ secrets.DB_NAME }} \
+            -e DB_USERNAME=${{ secrets.DB_USERNAME }} \
+            -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+            ${{ secrets.DOCKER_HUB_USERNAME1 }}/${{ secrets.DOCKER_HUB_REPO_NAME1 }}:latest
