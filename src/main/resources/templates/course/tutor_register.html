@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <title>Daftar Sebagai Tutor | Udehnih</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-teal-50 min-h-screen">
+  <div th:insert="~{navbar :: navbar}"></div>
+
+  <div class="flex items-center justify-center mt-5">
+    <div class="max-w-md w-full bg-white p-8 rounded-xl shadow-lg border border-teal-300">
+      <h2 class="text-2xl font-bold text-teal-700 mb-6 text-center">📋 Daftar sebagai Tutor</h2>
+      <form id="tutorRegisterForm" class="space-y-4">
+        <div>
+          <label class="block font-semibold text-teal-700 mb-1">Motivasi</label>
+          <textarea id="motivation" required class="w-full border border-teal-300 rounded-md p-2"></textarea>
+        </div>
+        <div>
+          <label class="block font-semibold text-teal-700 mb-1">Pengalaman</label>
+          <textarea id="experience" required class="w-full border border-teal-300 rounded-md p-2"></textarea>
+        </div>
+        <button type="submit" class="w-full bg-teal-600 text-white py-2 rounded-md hover:bg-teal-700 transition">
+          Kirim Pendaftaran ✍️
+        </button>
+      </form>
+      <div id="resultMessage" class="text-center mt-4 text-sm"></div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", async function () {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      try {
+        const response = await fetch("/api/tutor-applications/status", {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.status === "PENDING") {
+            window.location.href = "/courses/tutor/applicant";
+          }
+        }
+      } catch (err) {
+        console.error("Gagal cek status aplikasi tutor:", err);
+      }
+    });
+  </script>
+
+  <script>
+    document.getElementById("tutorRegisterForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const motivation = document.getElementById("motivation").value;
+      const experience = document.getElementById("experience").value;
+      const token = localStorage.getItem("token");
+
+      try {
+        const response = await fetch("/api/tutor-applications/apply", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        },
+          body: JSON.stringify({ motivation, experience }),
+        });
+
+        const result = document.getElementById("resultMessage");
+        if (response.ok) {
+          result.textContent = "✅ Pendaftaran berhasil dikirim!";
+          result.className = "text-green-600";
+        } else {
+          const data = await response.json();
+          result.textContent = `❌ Gagal: ${data.message || "Terjadi kesalahan"}`;
+          result.className = "text-red-600";
+        }
+      } catch (err) {
+        document.getElementById("resultMessage").textContent = "❌ Error: " + err.message;
+        document.getElementById("resultMessage").className = "text-red-600";
+      }
+    });
+  </script>
+  <script th:src="@{/js/navbar.js}"></script>
+</body>
+</html>
