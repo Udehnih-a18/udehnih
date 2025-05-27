@@ -3,6 +3,7 @@ window.updateNavbar = function() {
     const guestNav = document.getElementById('guestNav');
     const userNav = document.getElementById('userNav');
     const myCourseLink = document.getElementById('myCourseLink');
+    const myReviewLink = document.getElementById('myReviewLink');
     const applyAsTutorLink = document.getElementById('applyAsTutorLink');
     const seeReportLink = document.getElementById('seeReportLink');
     const userWelcome = document.getElementById('userWelcome');
@@ -16,6 +17,7 @@ window.updateNavbar = function() {
         guestNav.style.display = 'none';
         userNav.style.display = 'flex';
         myCourseLink.style.display = 'block';
+        myReviewLink.style.display = 'block';
         applyAsTutorLink.style.display = 'block';
         seeReportLink.style.display = 'block';
         try {
@@ -35,6 +37,7 @@ window.updateNavbar = function() {
         guestNav.style.display = 'flex';
         userNav.style.display = 'none';
         myCourseLink.style.display = 'none';
+        myReviewLink.style.display = 'none';
         applyAsTutorLink.style.display = 'none';
         seeReportLink.style.display = 'none';
     }

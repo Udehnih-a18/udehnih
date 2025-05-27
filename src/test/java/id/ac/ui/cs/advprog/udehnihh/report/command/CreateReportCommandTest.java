@@ -2,39 +2,68 @@ package id.ac.ui.cs.advprog.udehnihh.report.command;
 
 import id.ac.ui.cs.advprog.udehnihh.report.model.Report;
 import id.ac.ui.cs.advprog.udehnihh.report.repository.ReportRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.time.LocalDateTime;
-import java.util.UUID;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
-public class CreateReportCommandTest {
+@ExtendWith(MockitoExtension.class)
+class CreateReportCommandTest {
 
+    @Mock
     private ReportRepository repository;
+
+    @Mock
     private Report report;
 
-    @BeforeEach
-    void setUp() {
-        repository = mock(ReportRepository.class);
-        report = Report.builder()
-                .idReport(UUID.randomUUID().toString())
-                .title("Create Title")
-                .description("Create Description")
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .build();
+    @Test
+    void testExecute_shouldThrowException_whenTitleIsNull() {
+        when(report.getTitle()).thenReturn(null);
+        CreateReportCommand command = new CreateReportCommand(report, repository);
+
+        assertThrows(IllegalArgumentException.class, command::execute);
     }
 
     @Test
-    void testExecuteCreatesReportSuccessfully() {
+    void testExecute_shouldThrowException_whenTitleIsEmpty() {
+        when(report.getTitle()).thenReturn("   ");
+        CreateReportCommand command = new CreateReportCommand(report, repository);
+
+        assertThrows(IllegalArgumentException.class, command::execute);
+    }
+
+    @Test
+     void testExecute_shouldThrowException_whenDescriptionIsNull() {
+        when(report.getTitle()).thenReturn("Valid Title");
+        when(report.getDescription()).thenReturn(null);
+        CreateReportCommand command = new CreateReportCommand(report, repository);
+
+        assertThrows(IllegalArgumentException.class, command::execute);
+    }
+
+    @Test
+     void testExecute_shouldThrowException_whenDescriptionIsEmpty() {
+        when(report.getTitle()).thenReturn("Valid Title");
+        when(report.getDescription()).thenReturn("   ");
+        CreateReportCommand command = new CreateReportCommand(report, repository);
+
+        assertThrows(IllegalArgumentException.class, command::execute);
+    }
+
+    @Test
+     void testExecute_shouldReturnSavedReport_whenInputIsValid() {
+        when(report.getTitle()).thenReturn("Valid Title");
+        when(report.getDescription()).thenReturn("Valid Description");
         when(repository.save(report)).thenReturn(report);
+
         CreateReportCommand command = new CreateReportCommand(report, repository);
         Report result = command.execute();
 
-        assertEquals(report.getTitle(), result.getTitle());
+        assertEquals(report, result);
         verify(repository, times(1)).save(report);
     }
 }

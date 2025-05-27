@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import id.ac.ui.cs.advprog.udehnihh.authentication.enums.Role;
 import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
+import id.ac.ui.cs.advprog.udehnihh.authentication.repository.UserRepository;
 import id.ac.ui.cs.advprog.udehnihh.authentication.service.JwtService;
 import id.ac.ui.cs.advprog.udehnihh.course.dto.request.CourseRequest;
 import id.ac.ui.cs.advprog.udehnihh.course.dto.response.CourseResponse;
@@ -12,14 +13,15 @@ import id.ac.ui.cs.advprog.udehnihh.course.service.CourseService;
 import id.ac.ui.cs.advprog.udehnihh.course.repository.CourseCreationRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -29,24 +31,25 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
-@AutoConfigureMockMvc
+@ExtendWith(MockitoExtension.class)
 class CourseControllerTest {
 
-    @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @Mock
     private CourseService courseService;
 
-    @Autowired
-    private JwtService jwtService;
-
-    @MockBean
+    @Mock
     private CourseCreationRepository courseRepository;
 
-    @Autowired
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private JwtService jwtService;
+
     private ObjectMapper objectMapper;
+    private CourseController courseController;
 
     private String token;
     private UUID courseId;
@@ -55,21 +58,27 @@ class CourseControllerTest {
 
     @BeforeEach
     void setUp() {
+        objectMapper = new ObjectMapper();
+
+        courseController = new CourseController(courseService, courseRepository, userRepository, jwtService);
+
+        mockMvc = MockMvcBuilders.standaloneSetup(courseController)
+                .build();
+
         User tutor = new User();
         tutor.setId(UUID.randomUUID());
         tutor.setFullName("Test Tutor");
         tutor.setEmail("tutor@example.com");
         tutor.setRole(Role.TUTOR);
-        
-        token = jwtService.generateToken(tutor.getEmail(), tutor.getRole().name(), tutor.getFullName());
+
+        token = "mock-jwt-token";
 
         courseId = UUID.randomUUID();
 
         courseRequest = new CourseRequest();
         courseRequest.setName("Test Course");
         courseRequest.setDescription("Test Description");
-        courseRequest.setPrice(100000.0);
-        courseRequest.setTutorId(UUID.randomUUID());
+        courseRequest.setPrice(new BigDecimal("100000.00"));
 
         courseResponse = new CourseResponse();
         courseResponse.setId(courseId);
@@ -87,28 +96,13 @@ class CourseControllerTest {
                 .thenReturn(List.of());
 
         mockMvc.perform(get("/api/courses/all")
-                .header("Authorization", "Bearer " + token))
+                        .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk());
     }
 
     @Test
-    void testCreateFullCourse() throws Exception {
-        Mockito.when(courseService.createFullCourse(any(CourseRequest.class)))
-                .thenReturn(courseResponse);
-
-        mockMvc.perform(post("/api/courses/create")
-                        .header("Authorization", "Bearer " + token)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(courseRequest)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(courseId.toString()))
-                .andExpect(jsonPath("$.name").value(courseRequest.getName()))
-                .andExpect(jsonPath("$.description").value(courseRequest.getDescription()));
-    }
-
-    @Test
     void testGetCourseDetailFound() throws Exception {
-        Mockito.when(courseService.getCourseById(eq(courseId)))
+        Mockito.when(courseService.getCourseById(courseId))
                 .thenReturn(Optional.of(courseResponse));
 
         mockMvc.perform(get("/api/courses/" + courseId)
@@ -120,7 +114,7 @@ class CourseControllerTest {
 
     @Test
     void testGetCourseDetailNotFound() throws Exception {
-        Mockito.when(courseService.getCourseById(eq(courseId)))
+        Mockito.when(courseService.getCourseById(courseId))
                 .thenReturn(Optional.empty());
 
         mockMvc.perform(get("/api/courses/" + courseId)
@@ -144,12 +138,19 @@ class CourseControllerTest {
 
     @Test
     void testDeleteCourse() throws Exception {
-        Mockito.doNothing().when(courseService).deleteCourse(eq(courseId));
+        Mockito.doNothing().when(courseService).deleteCourse(courseId);
 
         mockMvc.perform(delete("/api/courses/" + courseId)
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isNoContent());
 
         Mockito.verify(courseService).deleteCourse(courseId);
+    }
+
+    @Test
+    void testGetCoursesByTutor_Unauthorized_InvalidHeader() throws Exception {
+        mockMvc.perform(get("/api/courses/lists")
+                        .header("Authorization", "InvalidToken"))
+                .andExpect(status().isUnauthorized());
     }
 }

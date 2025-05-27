@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8" />
   <title>Daftar Kursus | Udehnih</title>
@@ -79,7 +79,7 @@
           row.innerHTML = `
             <td class="border px-4 py-2">${course.name}</td>
             <td class="border px-4 py-2">${course.description}</td>
-            <td class="border px-4 py-2">Rp ${course.price.toLocaleString()}</td>
+            <td class="p-2">Rp ${course.price.toLocaleString()}</td>
             <td class="border px-4 py-2">${course.status}</td>
             <td class="flex border px-4 py-4 space-x-2">
               <button onclick="viewDetail('${course.id}')" class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600">Detail</button>

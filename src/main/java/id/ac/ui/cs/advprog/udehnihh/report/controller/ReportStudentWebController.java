@@ -6,19 +6,18 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/student")
-public class ReportWebController {
+@RequestMapping("/student/reports")
+public class ReportStudentWebController {
 
-    @GetMapping("/reports")
+    @GetMapping("")
     public String studentReportsPage() {
-        return "student-reports-mainpage";
+        return "report/student-reports-mainpage";
     }
 
     @GetMapping("/report-detail")
     public String reportDetailPage() {
-        return "student-detail-report";
+        return "report/detail-report";
     }
-
 
 }
 

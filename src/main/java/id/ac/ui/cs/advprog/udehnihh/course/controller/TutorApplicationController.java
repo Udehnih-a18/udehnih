@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 public class TutorApplicationController {
 
     private final TutorApplicationServiceImpl tutorApplicationService;
+    private static final String BEARER = "Bearer ";
 
     @Autowired
     public TutorApplicationController(TutorApplicationServiceImpl tutorApplicationService) {
@@ -24,7 +25,7 @@ public class TutorApplicationController {
             @RequestHeader("Authorization") String authorizationHeader,
             @RequestBody TutorApplicationRequest request) {
         
-        String token = authorizationHeader.replace("Bearer ", "");
+        String token = authorizationHeader.replace(BEARER, "");
 
         TutorApplication application = tutorApplicationService.createApplication(token, request);
 
@@ -37,7 +38,7 @@ public class TutorApplicationController {
     public ResponseEntity<TutorApplicationResponse> getApplicationStatus(
             @RequestHeader("Authorization") String authorizationHeader) {
         
-        String token = authorizationHeader.replace("Bearer ", "");
+        String token = authorizationHeader.replace(BEARER, "");
 
         TutorApplication application = tutorApplicationService.getApplication(token);
 
@@ -51,7 +52,7 @@ public class TutorApplicationController {
 
     @DeleteMapping("/delete")
     public ResponseEntity<String> deleteApplication(@RequestHeader("Authorization") String authorizationHeader) {
-        String token = authorizationHeader.replace("Bearer ", "");
+        String token = authorizationHeader.replace(BEARER, "");
 
         tutorApplicationService.deleteApplication(token);
 

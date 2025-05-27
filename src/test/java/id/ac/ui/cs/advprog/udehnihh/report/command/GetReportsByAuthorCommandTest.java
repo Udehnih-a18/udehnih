@@ -13,7 +13,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class GetReportsByAuthorCommandTest {
+class GetReportsByAuthorCommandTest {
 
     private ReportRepository repository;
     private User user;
@@ -38,7 +38,7 @@ public class GetReportsByAuthorCommandTest {
         when(repository.findAllByCreatedBy(user)).thenReturn(List.of(report));
 
         GetReportsByAuthorCommand command = new GetReportsByAuthorCommand(user, repository);
-        List<Report> result = command.executeList();
+        List<Report> result = command.execute();
 
         assertNotNull(result);
         assertEquals(1, result.size());

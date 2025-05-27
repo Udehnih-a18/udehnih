@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -12,7 +13,11 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
-@Table(name = "courses")
+@Table(name = "courses", indexes = {
+    @Index(name = "idx_course_name", columnList = "name"),
+    @Index(name = "idx_course_price", columnList = "price"),
+    @Index(name = "idx_course_status", columnList = "status")
+})
 public class Course {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -29,7 +34,7 @@ public class Course {
     private User tutor;
 
     @Column(nullable = false)
-    private Double price;
+    private BigDecimal price;
 
     @Enumerated(EnumType.STRING)
     private CourseStatus status = CourseStatus.PENDING;

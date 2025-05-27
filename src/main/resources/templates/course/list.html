@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://kit.fontawesome.com/a2e0e6a627.js" crossorigin="anonymous"></script>
 </head>
-<body class="bg-gray-50 text-gray-800">
+<body class="bg-teal-50 text-gray-800">
 
     <div th:insert="~{navbar :: navbar}"></div>
 
@@ -91,74 +91,52 @@
                 return;
             }
 
-            courseList.innerHTML = courses.map(course => `
-                <div class="bg-white shadow-md rounded-lg flex flex-col p-4">
-                    <h5 class="text-lg font-semibold text-teal-700 mb-1">${course.name}</h5>
-                    <p class="text-sm text-gray-500 mb-2"><i class="fas fa-user"></i> ${course.tutorName}</p>
-                    <p class="font-bold text-teal-600 mb-4">
-                        ${course.priceRp === 0 ? 'GRATIS' : `Rp ${course.priceRp.toLocaleString('id-ID')}`}
-                    </p>
-                    <div class="mt-auto">
-                        <a href="/courses/${course.id}" class="block text-center bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2 px-4 rounded">
-                            👀 Lihat Detail
-                        </a>
+            // Load review stats for each course
+            const coursePromises = courses.map(course => 
+                fetch(`/api/reviews/course/${course.id}/stats`)
+                    .then(res => res.ok ? res.json() : { averageRating: 0, totalReviews: 0 })
+                    .then(stats => ({ ...course, reviewStats: stats }))
+                    .catch(() => ({ ...course, reviewStats: { averageRating: 0, totalReviews: 0 } }))
+            );
+
+            Promise.all(coursePromises).then(coursesWithStats => {
+                courseList.innerHTML = coursesWithStats.map(course => `
+                    <div class="bg-white shadow-md rounded-lg flex flex-col p-4">
+                        <h5 class="text-lg font-semibold text-teal-700 mb-1">${course.name}</h5>
+                        <p class="text-sm text-gray-500 mb-2"><i class="fas fa-user"></i> ${course.tutorName}</p>
+                        
+                        <div class="flex items-center mb-2">
+                            <div class="flex text-yellow-400 text-sm mr-2">
+                                ${generateStarsForList(Math.round(course.reviewStats.averageRating))}
+                            </div>
+                            <span class="text-xs text-gray-500">
+                                ${course.reviewStats.totalReviews > 0 
+                                    ? `${course.reviewStats.averageRating.toFixed(1)} (${course.reviewStats.totalReviews} ulasan)`
+                                    : 'Belum ada ulasan'
+                                }
+                            </span>
+                        </div>
+                        
+                        <p class="font-bold text-teal-600 mb-4">
+                            ${course.priceRp === 0 ? 'GRATIS' : `Rp ${course.priceRp.toLocaleString('id-ID')}`}
+                        </p>
+                        <div class="mt-auto">
+                            <a href="/courses/${course.id}" class="block text-center bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2 px-4 rounded">
+                                👀 Lihat Detail
+                            </a>
+                        </div>
                     </div>
-                </div>
-            `).join('');
-        }
-    </script>
-
-    <script>
-        window.updateNavbar = function() {
-            const token = localStorage.getItem('token');
-            const guestNav = document.getElementById('guestNav');
-            const userNav = document.getElementById('userNav');
-            const myCourseLink = document.getElementById('myCourseLink');
-            const applyAsTutorLink = document.getElementById('applyAsTutorLink');
-            const userWelcome = document.getElementById('userWelcome');
-
-            if (!guestNav || !userNav || !myCourseLink || !applyAsTutorLink || !userWelcome) {
-                setTimeout(window.updateNavbar, 100);
-                return;
-            }
-
-            if (token) {
-                guestNav.style.display = 'none';
-                userNav.style.display = 'flex';
-                myCourseLink.style.display = 'block';
-                applyAsTutorLink.style.display = 'block';
-                try {
-                    const payload = JSON.parse(atob(token.split('.')[1]));
-                    userWelcome.textContent = `👋 Hello, ${payload.fullName || payload.sub || 'User'}!`;
-                } catch (e) {
-                    userWelcome.textContent = '👋 Hello, User!';
-                }
-            } else {
-                guestNav.style.display = 'flex';
-                userNav.style.display = 'none';
-                myCourseLink.style.display = 'none';
-                applyAsTutorLink.style.display = 'none';
-            }
-        };
-
-        window.logout = function() {
-            localStorage.removeItem('token');
-            window.updateNavbar();
-            window.location.href = '/courses';
-        };
-
-        function waitForNavbar() {
-            const observer = new MutationObserver((mutations) => {
-                if (document.getElementById('guestNav')) {
-                    observer.disconnect();
-                    window.updateNavbar();
-                }
+                `).join('');
             });
-            observer.observe(document.body, { childList: true, subtree: true });
-            setTimeout(() => window.updateNavbar(), 50);
         }
 
-        waitForNavbar();
+        function generateStarsForList(rating) {
+            let stars = '';
+            for (let i = 1; i <= 5; i++) {
+                stars += `<i class="fas fa-star ${i <= rating ? 'text-yellow-400' : 'text-gray-300'}"></i>`;
+            }
+            return stars;
+        }
     </script>
     <script th:src="@{/js/navbar.js}"></script>
 </body>

@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.*;
 import org.springframework.context.ApplicationEventPublisher;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -45,7 +46,7 @@ class CbEnrollmentServiceTest {
 
         Course course = new Course();
         course.setId(courseId);
-        course.setPrice(0.0);
+        course.setPrice(new BigDecimal("0.0"));
 
         when(courseRepo.findById(courseId)).thenReturn(Optional.of(course));
         when(enrollRepo.existsByStudentIdAndCourseId(studentId, courseId)).thenReturn(false);
@@ -71,7 +72,7 @@ class CbEnrollmentServiceTest {
 
         Course course = new Course();
         course.setId(courseId);
-        course.setPrice(10000.0);
+        course.setPrice(new BigDecimal("10000.0"));
 
         when(courseRepo.findById(courseId)).thenReturn(Optional.of(course));
         when(enrollRepo.existsByStudentIdAndCourseId(studentId, courseId)).thenReturn(false);
@@ -110,12 +111,12 @@ class CbEnrollmentServiceTest {
         Course freeCourse = new Course();
         freeCourse.setId(UUID.randomUUID());
         freeCourse.setName("Free");
-        freeCourse.setPrice(0.0);
+        freeCourse.setPrice(new BigDecimal("0.0"));
 
         Course paidCourse = new Course();
         paidCourse.setId(UUID.randomUUID());
         paidCourse.setName("Paid");
-        paidCourse.setPrice(10000.0);
+        paidCourse.setPrice(new BigDecimal("10000.0"));
 
         Enrollment paidEnrollment = new Enrollment();
         paidEnrollment.setId(UUID.randomUUID());
@@ -138,5 +139,22 @@ class CbEnrollmentServiceTest {
         assertEquals(2, result.size());
         assertTrue(result.stream().anyMatch(e -> e.courseName().equals("Free")));
         assertTrue(result.stream().anyMatch(e -> e.courseName().equals("Paid")));
+    }
+
+    @Test
+    void testEnroll_CourseNotFound_ThrowsException() {
+        User student = mock(User.class);
+        UUID courseId = UUID.randomUUID();
+
+        when(courseRepo.findById(courseId)).thenReturn(Optional.empty());
+
+        assertThrows(IllegalArgumentException.class, () -> cbEnrollmentService.enroll(student, courseId));
+    }
+
+    @Test
+    void testPublishPaymentPendingEventAsync_PublishesEvent() {
+        Enrollment enrollment = new Enrollment();
+        cbEnrollmentService.publishPaymentPendingEventAsync(enrollment);
+        verify(eventPublisher).publishEvent(any(EnrollmentPaymentPendingEvent.class));
     }
 }

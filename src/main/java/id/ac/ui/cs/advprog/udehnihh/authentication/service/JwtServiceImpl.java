@@ -11,7 +11,7 @@ import java.util.Date;
 public class JwtServiceImpl implements JwtService {
 
     private final Key jwtSecret = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-    private final long jwtExpirationMs = 3600000; // 1 hour
+    private final long jwtExpirationMs = 3600000;
 
     public String generateToken(String email, String role, String fullName) {
         return Jwts.builder()

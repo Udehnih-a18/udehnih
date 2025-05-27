@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Udehnih - Report Detail</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen text-gray-800">
+<div th:insert="~{navbar :: navbar}"></div>
+
+<div class="max-w-3xl mx-auto mt-10 px-4">
+    <div class="bg-white p-6 rounded-lg shadow border border-gray-200">
+        <h2 class="text-2xl font-semibold text-teal-700 mb-4">📝 Report Detail</h2>
+        <div id="toast" class="fixed top-4 right-4 z-50 hidden px-4 py-2 rounded shadow text-white"></div>
+        <div id="reportDetail" class="space-y-2"></div>
+    </div>
+</div>
+
+<div id="editModal" class="hidden fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-40">
+    <div class="bg-white rounded-lg shadow-lg max-w-md w-full">
+        <form id="editForm" class="p-6 space-y-4">
+            <div class="flex justify-between items-center mb-2">
+                <h5 class="text-lg font-bold text-teal-700">Edit Report</h5>
+                <button type="button" onclick="closeModal('editModal')" class="text-gray-500 hover:text-gray-800">✕</button>
+            </div>
+            <div>
+                <label for="editTitle" class="block text-sm font-medium">Title</label>
+                <input type="text" id="editTitle" class="mt-1 w-full border rounded px-3 py-2" required />
+            </div>
+            <div>
+                <label for="editDescription" class="block text-sm font-medium">Description</label>
+                <textarea id="editDescription" class="mt-1 w-full border rounded px-3 py-2" required></textarea>
+            </div>
+            <div id="editMessage" class="text-red-500 text-sm"></div>
+            <div class="flex justify-end space-x-3 mt-4">
+                <button type="button" onclick="closeModal('editModal')" class="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded">Batalkan</button>
+                <button type="submit" class="px-4 py-2 bg-teal-600 text-white hover:bg-teal-700 rounded">Update</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="confirmDeleteModal" class="hidden fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-40">
+    <div class="bg-white rounded-lg shadow-lg max-w-md w-full p-6">
+        <h5 class="text-lg font-bold text-red-600 mb-4">Konfirmasi Hapus</h5>
+        <p class="mb-6">Apakah kamu yakin ingin menghapus laporan ini?</p>
+        <div class="flex justify-end space-x-3">
+            <button onclick="closeModal('confirmDeleteModal')" class="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded">Cancel</button>
+            <button onclick="confirmDeleteReport()" class="px-4 py-2 bg-red-600 text-white hover:bg-red-700 rounded">Yes, Delete</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const token = localStorage.getItem("token");
+    const reportId = new URLSearchParams(window.location.search).get("id");
+    const reportDetail = document.getElementById("reportDetail");
+    const toast = document.getElementById("toast");
+
+    function setupNavbar() {
+        const guestNav = document.getElementById("guestNav");
+        const userNav = document.getElementById("userNav");
+        const userWelcome = document.getElementById("userWelcome");
+
+        if (token) {
+            guestNav.classList.add("hidden");
+            userNav.classList.remove("hidden");
+
+            try {
+                const payload = token.split('.')[1];
+                const decoded = JSON.parse(atob(payload));
+                userWelcome.textContent = `👋 Hello, ${decoded.fullName || 'User'}!`;
+            } catch {
+                userWelcome.textContent = "👋 Hello!";
+            }
+        }
+    }
+
+    function logout() {
+        localStorage.removeItem("token");
+        window.location.href = "/auth/login";
+    }
+
+    function showToast(message, isSuccess = true) {
+        toast.className = `fixed top-4 right-4 z-50 px-4 py-2 rounded shadow text-white ${isSuccess ? 'bg-teal-600' : 'bg-red-600'}`;
+        toast.textContent = message;
+        toast.classList.remove("hidden");
+        setTimeout(() => toast.classList.add("hidden"), 3000);
+    }
+
+    function closeModal(id) {
+        document.getElementById(id).classList.add("hidden");
+    }
+
+    function openModal(id) {
+        document.getElementById(id).classList.remove("hidden");
+    }
+
+    function getUserRoles() {
+        if (!token) return [];
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            return payload.roles || [];
+        } catch {
+            return [];
+        }
+    }
+
+    async function loadReportDetail() {
+        const res = await fetch(`/api/student/reports/${reportId}`, {
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+        const data = await res.json();
+        const report = data.report;
+
+        const roles = getUserRoles();
+        const isStaff = roles.includes("STAFF");
+
+        reportDetail.innerHTML = `
+        <h5 class="text-xl font-semibold text-teal-700">${report.title}</h5>
+        <p>${report.description}</p>
+        <p class="text-sm text-gray-500">Author: ${report.authorFullName}</p>
+        <p class="text-sm text-gray-500">Created at: ${new Date(report.createdAt).toLocaleString()}</p>
+        <p class="text-sm text-gray-500">Updated at: ${new Date(report.updatedAt).toLocaleString()}</p>
+        ${isStaff ? '' : `
+        <div class="mt-4 flex gap-3">
+            <button onclick="openEditModal('${report.title}', \`${report.description}\`)" class="px-3 py-1 border border-teal-600 text-teal-600 rounded hover:bg-teal-50">✏️ Edit</button>
+            <button onclick="openModal('confirmDeleteModal')" class="px-3 py-1 border border-red-600 text-red-600 rounded hover:bg-red-50">🗑️ Delete</button>
+        </div>
+        `}
+        `;
+    }
+
+    function openEditModal(title, description) {
+        document.getElementById("editTitle").value = title;
+        document.getElementById("editDescription").value = description;
+        openModal("editModal");
+    }
+
+    document.getElementById("editForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const newTitle = document.getElementById("editTitle").value;
+        const newDesc = document.getElementById("editDescription").value;
+        const editMessage = document.getElementById("editMessage");
+
+        try {
+            const res = await fetch(`/api/student/reports/${reportId}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({ title: newTitle, description: newDesc })
+            });
+            const result = await res.json();
+
+            if (res.ok) {
+                closeModal("editModal");
+                showToast("✅ Report updated successfully!");
+                loadReportDetail();
+            } else {
+                editMessage.textContent = result.message || "⚠️ Failed to update";
+            }
+        } catch (err) {
+            editMessage.textContent = "❌ Error: " + err.message;
+        }
+    });
+
+    async function confirmDeleteReport() {
+        closeModal("confirmDeleteModal");
+
+        const res = await fetch(`/api/student/reports/${reportId}`, {
+            method: "DELETE",
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        if (res.ok) {
+            showToast("✅ Report deleted successfully.");
+            setTimeout(() => window.location.href = "/student/reports", 1000);
+        } else {
+            showToast("❌ Failed to delete report.", false);
+        }
+    }
+
+    setupNavbar();
+    loadReportDetail();
+</script>
+
+<script th:src="@{/js/navbar.js}"></script>
+</body>
+</html>

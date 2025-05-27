@@ -6,6 +6,7 @@ import id.ac.ui.cs.advprog.udehnihh.course.model.Course;
 import id.ac.ui.cs.advprog.udehnihh.course.model.Section;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -20,7 +21,7 @@ public class CourseTest {
         UUID id = UUID.randomUUID();
         String name = "Advanced Programming";
         String description = "This course is about Java and Spring Boot.";
-        Double price = 249_000.0;
+        BigDecimal price = new BigDecimal("250000.00");
 
         User tutor = new User();
         tutor.setEmail("tutor@example.com");
@@ -106,5 +107,15 @@ public class CourseTest {
                 a.getContentType().equals("link") &&
                 a.getContentUrl().contains("docs")
         );
+    }
+
+    @Test
+    void testDefaultCourseStatusAndEnumValues() {
+        Course course = new Course();
+        assertThat(course.getStatus()).isEqualTo(Course.CourseStatus.PENDING);
+
+        Course.CourseStatus[] statuses = Course.CourseStatus.values();
+        assertThat(statuses).contains(Course.CourseStatus.APPROVED, Course.CourseStatus.REJECTED);
+        assertThat(Course.CourseStatus.valueOf("PENDING")).isEqualTo(Course.CourseStatus.PENDING);
     }
 }

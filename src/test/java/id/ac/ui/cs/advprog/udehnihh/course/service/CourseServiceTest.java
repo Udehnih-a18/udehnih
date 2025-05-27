@@ -21,6 +21,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -70,8 +71,7 @@ class CourseServiceTest {
         courseRequest = new CourseRequest();
         courseRequest.setName("Test Course");
         courseRequest.setDescription("Course Description");
-        courseRequest.setPrice(100000.0);
-        courseRequest.setTutorId(tutorId);
+        courseRequest.setPrice(new BigDecimal("100000.00"));
         courseRequest.setSections(List.of(sectionRequest));
     }
 
@@ -82,7 +82,7 @@ class CourseServiceTest {
         when(sectionRepository.save(any(Section.class))).thenAnswer(i -> i.getArgument(0));
         when(articleRepository.save(any(Article.class))).thenAnswer(i -> i.getArgument(0));
 
-        CourseResponse response = courseService.createFullCourse(courseRequest);
+        CourseResponse response = courseService.createFullCourse(courseRequest, tutorId);
 
         assertNotNull(response);
         assertEquals("Test Course", response.getName());
@@ -96,7 +96,7 @@ class CourseServiceTest {
         when(userRepository.findById(tutorId)).thenReturn(Optional.empty());
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            courseService.createFullCourse(courseRequest);
+            courseService.createFullCourse(courseRequest, tutorId);
         });
 
         assertEquals("Tutor not found", exception.getMessage());
@@ -155,12 +155,12 @@ class CourseServiceTest {
         CourseRequest updateRequest = new CourseRequest();
         updateRequest.setName("New Name");
         updateRequest.setDescription("New Desc");
-        updateRequest.setPrice(200000.0);
+        updateRequest.setPrice(new BigDecimal("200000.0"));
 
         CourseResponse response = courseService.updateCourse(courseId, updateRequest);
 
         assertEquals("New Name", response.getName());
-        assertEquals(200000.0, response.getPrice());
+        assertEquals(new BigDecimal("200000.0"), response.getPrice());
     }
 
     @Test
@@ -171,7 +171,7 @@ class CourseServiceTest {
         CourseRequest updateRequest = new CourseRequest();
         updateRequest.setName("Update");
         updateRequest.setDescription("Desc");
-        updateRequest.setPrice(150000.0);
+        updateRequest.setPrice(new BigDecimal("150000.00"));
 
         Exception exception = assertThrows(IllegalArgumentException.class, () ->
                 courseService.updateCourse(courseId, updateRequest));
