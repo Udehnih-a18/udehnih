@@ -14,34 +14,34 @@ jobs:
       - name: Log in to Docker Hub
         uses: docker/login-action@v1
         with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+          username: ${{ secrets.DOCKER_HUB_USERNAME1 }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN1 }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
           push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPO_NAME }}:latest
+          tags: ${{ secrets.DOCKER_HUB_USERNAME1 }}/${{ secrets.DOCKER_HUB_REPO_NAME1 }}:latest
       - name: Releasing New Version
         uses: appleboy/ssh-action@v1.2.0
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_KEY }}
+          host: ${{ secrets.SSH_HOST1 }}
+          username: ${{ secrets.SSH_USERNAME1 }}
+          key: ${{ secrets.SSH_KEY1 }}
           script: |
             # Stop dan hapus container jika ada
             docker stop web_server || true
             docker rm web_server || true
 
             # Hapus image lama (jangan semua image, cukup targetnya aja)
-            docker rmi ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPO_NAME }}:latest || true
+            docker rmi ${{ secrets.DOCKER_HUB_USERNAME1 }}/${{ secrets.DOCKER_HUB_REPO_NAME }}:latest || true
 
             # Login dan pull image baru
-            docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} -p ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-            docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPO_NAME }}:latest
+            docker login -u ${{ secrets.DOCKER_HUB_USERNAME1 }} -p ${{ secrets.DOCKER_HUB_ACCESS_TOKEN1 }}
+            docker pull ${{ secrets.DOCKER_HUB_USERNAME1 }}/${{ secrets.DOCKER_HUB_REPO_NAME1 }}:latest
 
             # Jalankan container baru
             docker run -d \
               --name=web_server \
               -p 8080:8080 \
-              ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPO_NAME }}:latest
+              ${{ secrets.DOCKER_HUB_USERNAME1 }}/${{ secrets.DOCKER_HUB_REPO_NAME1 }}:latest
