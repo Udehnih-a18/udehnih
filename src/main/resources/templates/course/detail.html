@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -65,7 +65,7 @@
                             <p>${course.description}</p>
                         </div>
                     </div>
-                    <div id="enrollCard">
+                    <div id="enrollCard" class="card">
                         <div class="bg-white shadow rounded p-6 text-center">
                             <h5 class="text-lg font-semibold mb-2">Daftar Sekarang</h5>
                             <p class="mb-4">
@@ -170,6 +170,42 @@
             })
             .catch(() => {});
         }
+    </script>
+    <script>
+    window.hideEnrollCardIfTutor = function() {
+        const token = localStorage.getItem('token');
+        const enrollCard = document.getElementById('enrollCard');
+
+        if (!enrollCard) {
+            setTimeout(window.hideEnrollCardIfTutor, 100);
+            return;
+        }
+
+        if (token) {
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                if (payload.role === 'TUTOR') {
+                    enrollCard.style.display = 'none';
+                }
+            } catch (e) {
+                console.warn('Invalid token payload:', e);
+            }
+        }
+    };
+
+    function waitForEnrollCard() {
+        const observer = new MutationObserver(() => {
+            if (document.getElementById('enrollCard')) {
+                observer.disconnect();
+                window.hideEnrollCardIfTutor();
+            }
+        });
+
+        observer.observe(document.body, { childList: true, subtree: true });
+        setTimeout(() => window.hideEnrollCardIfTutor(), 50);
+    }
+
+    waitForEnrollCard();
     </script>
     <script th:src="@{/js/navbar.js}"></script>
 </body>
