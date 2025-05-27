@@ -262,49 +262,81 @@
 
         // Enroll course
         function enrollCourse(courseId) {
-            fetch('/api/enrollments', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({courseId})
+            if (!confirm('Apakah Anda yakin ingin mendaftar ke kursus ini?')) return;
+            
+            const token = localStorage.getItem('token');
+            const headers = { 
+                'Content-Type': 'application/json', 
+                'X-Requested-With': 'XMLHttpRequest' 
+            };
+            
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+            
+            fetch(`/api/cb/courses/${courseId}/enroll`, {
+                method: 'POST', 
+                headers
             })
-            .then(res => {
-                if (res.ok) {
-                    alert('Berhasil mendaftar kursus.');
+            .then(response => {
+                if (response.status === 401 || response.status === 403) {
+                    alert('❌ Anda perlu login terlebih dahulu');
+                    window.location.replace('/auth/login?redirect=' + encodeURIComponent(window.location.pathname));
+                    return;
+                }
+                if (response.ok) {
+                    alert('✅ Berhasil mendaftar ke kursus!');
                     loadUserEnrollments(courseId);
+                } else if (response.status === 400) {
+                    return response.text().then(text => { 
+                        throw new Error(text || 'Gagal mendaftar'); 
+                    });
                 } else if (res.status === 401) {
                     alert('Anda harus login terlebih dahulu.');
                     window.location.href = '/auth/login';
                 } else {
-                    return res.json().then(data => Promise.reject(data.message || 'Gagal mendaftar kursus.'));
+                    throw new Error('Gagal mendaftar ke kursus');
                 }
             })
-            .catch(err => alert(err));
+            .catch(error => {
+                console.error('Enrollment error:', error);
+                alert('❌ ' + error.message);
+            });
         }
 
         // Load user enrollments to disable enroll button if already enrolled
         function loadUserEnrollments(courseId) {
-            fetch('/api/enrollments')
-                .then(res => {
-                    if (!res.ok) throw new Error();
-                    return res.json();
-                })
-                .then(enrollments => {
-                    userEnrollments = enrollments;
-                    if (userEnrollments.some(en => en.courseId === courseId)) {
-                        disableEnrollButton();
-                    }
-                })
-                .catch(() => {
-                    // User not logged in or no enrollments
-                });
+            const token = localStorage.getItem('token');
+            if (!token) return;
+
+            fetch('/api/cb/enrollments/me', {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(res => res.ok ? res.json() : [])
+            .then(enrollments => {
+                userEnrollments = enrollments;
+                
+                const alreadyEnrolled = enrollments.some(e => e.courseId === courseId);
+                if (alreadyEnrolled) {
+                    disableEnrollButton();
+                }
+            })
+            .catch(() => {
+                userEnrollments = [];
+                console.log('Could not load user enrollments - user may not be logged in');
+            });
         }
 
         function disableEnrollButton() {
             const enrollBtn = document.querySelector('#enrollCard button');
             if (enrollBtn) {
                 enrollBtn.disabled = true;
+                enrollBtn.classList.remove('bg-teal-600', 'hover:bg-teal-700');
                 enrollBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
-                enrollBtn.textContent = 'Sudah Terdaftar';
+                enrollBtn.textContent = '✅ Sudah Terdaftar';
             }
         }
 
