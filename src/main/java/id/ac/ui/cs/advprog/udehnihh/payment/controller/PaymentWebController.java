@@ -32,7 +32,7 @@ public class PaymentWebController {
     }
 
     @GetMapping("/transaction/{transactionId}/refund")
-    public String showRefundForm(UUID transactionId) {
+    public String showRefundForm(@PathVariable UUID transactionId) {
         Transaction transaction = transactionRepository.getReferenceById(transactionId);
         return "payment/refund";
     }

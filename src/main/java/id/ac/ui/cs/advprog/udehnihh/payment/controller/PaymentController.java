@@ -1,6 +1,7 @@
 package id.ac.ui.cs.advprog.udehnihh.payment.controller;
 
 import id.ac.ui.cs.advprog.udehnihh.authentication.model.User;
+import id.ac.ui.cs.advprog.udehnihh.authentication.service.AuthService;
 import id.ac.ui.cs.advprog.udehnihh.course.repository.CbCourseRepository;
 import id.ac.ui.cs.advprog.udehnihh.payment.mapper.ObjectToMapMapper;
 import id.ac.ui.cs.advprog.udehnihh.payment.model.BankTransfer;
@@ -13,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import id.ac.ui.cs.advprog.udehnihh.payment.enums.AvailableBanks;
 
@@ -36,12 +36,15 @@ public class PaymentController {
     private final PaymentServiceImpl service;
 
     private final ObjectToMapMapper objectToMapMapper;
+    @Autowired
+    private AuthService authService;
 
     // bank transfer payment - perlu login
-    @PostMapping("/courses/{courseId}/payment/bank-transfer")
+    @PostMapping("/courses/{courseId}/bank-transfer/{transactionId}")
     public ResponseEntity<?> createBankTransfer(@PathVariable UUID courseId,
-                                    @AuthenticationPrincipal User student,
+                                    @PathVariable UUID transactionId,
                                     @RequestBody HashMap<String, String> newTransaction) {
+        User student = authService.getCurrentUser();
         if (student == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body("Anda perlu login terlebih dahulu");
@@ -50,9 +53,9 @@ public class PaymentController {
         try {
             AvailableBanks bank = AvailableBanks.valueOf(newTransaction.get("bank"));
 
-            BankTransfer bankTransfer = service.createBankTransfer(courseId, student, bank);
+            BankTransfer bankTransfer = service.createBankTransfer(transactionId, courseId, student, bank);
 
-            HashMap<String, String> responseBody = ObjectToMapMapper.mapToObject(bankTransfer);
+            HashMap<String, Object> responseBody = ObjectToMapMapper.mapToObject(bankTransfer);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(responseBody);
         } catch (IllegalStateException e) {
@@ -63,10 +66,12 @@ public class PaymentController {
     }
 
     // credit card payment - perlu login
-    @PostMapping("/courses/{courseId}/payment/credit-card")
+    @PostMapping("/courses/{courseId}/credit-card/{transactionId}")
     public ResponseEntity<?> createCreditCard(@PathVariable UUID courseId,
-                                    @AuthenticationPrincipal User student,
+                                    @PathVariable UUID transactionId,
                                     @RequestBody HashMap<String, String> newTransaction) {
+
+        User student = authService.getCurrentUser();
         if (student == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body("Anda perlu login terlebih dahulu");
@@ -76,9 +81,9 @@ public class PaymentController {
             String accountNumber = newTransaction.get("accountNumber");
             String cvc = newTransaction.get("cvc");
 
-            CreditCard creditCard = service.createCreditCard(courseId, student, accountNumber, cvc);
+            CreditCard creditCard = service.createCreditCard(transactionId, courseId, student, accountNumber, cvc);
 
-            HashMap<String, String> responseBody = ObjectToMapMapper.mapToObject(creditCard);
+            HashMap<String, Object> responseBody = ObjectToMapMapper.mapToObject(creditCard);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(responseBody);
         } catch (IllegalStateException e) {
@@ -90,7 +95,8 @@ public class PaymentController {
 
     // riwayat payment - perlu login
     @GetMapping("/transaction-history")
-    public ResponseEntity<?> paymentHistory(@AuthenticationPrincipal User student) {
+    public ResponseEntity<?> paymentHistory() {
+        User student = authService.getCurrentUser();
         if (student == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body("Anda perlu login terlebih dahulu");
@@ -103,9 +109,10 @@ public class PaymentController {
     // minta refund - perlu login
     @PostMapping("/transaction-history/{transactionId}/refund")
     public ResponseEntity<?> requestRefund(@PathVariable UUID transactionId,
-                                           @AuthenticationPrincipal User student,
                                            @RequestHeader("Authorization") String contentType,
                                            @RequestBody Map<String, String> refundRequest) {
+
+        User student = authService.getCurrentUser();
         if (student == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body("Anda perlu login terlebih dahulu");
@@ -121,7 +128,7 @@ public class PaymentController {
 
             Refund refund = refundService.createRefund(transactionId, reasonForRefund);
 
-            HashMap<String, String> responseBody = objectToMapMapper.mapToObject(refund);
+            HashMap<String, Object> responseBody = objectToMapMapper.mapToObject(refund);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(responseBody);
         } catch (IllegalStateException e) {
@@ -129,11 +136,6 @@ public class PaymentController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
-    }
-
-    @GetMapping("/test")
-    public ResponseEntity<String> test() {
-        return ResponseEntity.ok("API is working");
     }
 
 }

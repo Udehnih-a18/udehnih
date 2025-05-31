@@ -9,6 +9,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import id.ac.ui.cs.advprog.udehnihh.payment.enums.RefundStatus;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
+import java.util.UUID;
+
 public class RefundTest {
     @Test
     public void constructorTest() {
@@ -16,11 +19,11 @@ public class RefundTest {
         User tutor = new User();
 
         Course course = new Course();
-        course.setPrice(5.0);
+        course.setPrice(BigDecimal.TEN);
         course.setTutor(tutor);
         course.setName("Restauratn");
 
-        BankTransfer transaction = new BankTransfer(course, student, AvailableBanks.BANK_SENDIRI);
+        BankTransfer transaction = new BankTransfer(UUID.randomUUID(), course, student, AvailableBanks.BANK_SENDIRI);
         Refund refund = new Refund(transaction, "salah coursee :(");
 
         assertEquals(refund.getTransaction().getTransactionId(), transaction.getTransactionId());

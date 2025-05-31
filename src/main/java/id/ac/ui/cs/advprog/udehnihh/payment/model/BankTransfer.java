@@ -8,6 +8,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.UUID;
+
 // Bank Transfer specific model
 @Entity
 @DiscriminatorValue("BANK_TRANSFER")
@@ -23,8 +25,8 @@ public class BankTransfer extends Transaction {
         super();
     }
 
-    public BankTransfer(Course course, User student, AvailableBanks bank) {
-        super(course, student);
+    public BankTransfer(UUID transactionId, Course course, User student, AvailableBanks bank) {
+        super(transactionId, course, student);
         this.bank = bank;
     }
 

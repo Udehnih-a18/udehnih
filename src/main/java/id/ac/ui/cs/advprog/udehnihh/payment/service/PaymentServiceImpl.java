@@ -58,7 +58,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     }
 
-    public BankTransfer createBankTransfer(UUID courseId, User student, AvailableBanks bank) {
+    public BankTransfer createBankTransfer(UUID transactionId, UUID courseId, User student, AvailableBanks bank) {
         validateData(courseId, student);
 
         Optional<AvailableBanks> bankOpt = AvailableBanks.getAvailableBankByName(bank.name());
@@ -67,11 +67,11 @@ public class PaymentServiceImpl implements PaymentService {
         }
 
         Course course = cbCourseRepository.getById(courseId);
-        BankTransfer transfer = new BankTransfer(course, student, bank);
+        BankTransfer transfer = new BankTransfer(transactionId, course, student, bank);
         return (BankTransfer) transactionRepository.save(transfer);
     }
 
-    public CreditCard createCreditCard(UUID courseId, User student, String accountNumber, String cvc) {
+    public CreditCard createCreditCard(UUID transactionId, UUID courseId, User student, String accountNumber, String cvc) {
         validateData(courseId, student);
 
         if (accountNumber == null || accountNumber.isBlank()) {
@@ -91,9 +91,8 @@ public class PaymentServiceImpl implements PaymentService {
         }
 
         Course course = cbCourseRepository.getById(courseId);
-        CreditCard card = new CreditCard(course, student, accountNumber, cvc);
+        CreditCard card = new CreditCard(transactionId, course, student, accountNumber, cvc);
 
-        card.setStatus(TransactionStatus.PAID);
         return (CreditCard) transactionRepository.save(card);
     }
 

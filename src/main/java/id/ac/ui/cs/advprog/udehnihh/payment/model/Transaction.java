@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -24,7 +25,6 @@ import java.util.UUID;
 public abstract class Transaction {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID transactionId;
 
     @Column(name = "course_id", nullable = false)
@@ -37,7 +37,7 @@ public abstract class Transaction {
     private String tutorName;
 
     @Column(name = "price", nullable = false)
-    private double price;
+    private BigDecimal price;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
@@ -58,13 +58,14 @@ public abstract class Transaction {
         this.status = TransactionStatus.PENDING;
     }
 
-    public Transaction(Course course, User student) {
-        this();
+    public Transaction(UUID transactionId, Course course, User student) {
+        this.transactionId = transactionId;
         this.courseId = course.getId();
         this.courseName = course.getName();
         this.tutorName = course.getTutor().getFullName();
         this.price = course.getPrice();
         this.student = student;
+        this.status = TransactionStatus.PENDING;
     }
 
     // Abstract method to get payment method

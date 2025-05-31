@@ -65,30 +65,20 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/tutor-applications/apply").hasRole(Role.STUDENT.name())
                 .requestMatchers(HttpMethod.DELETE, "/api/tutor-applications/delete").hasRole(Role.STUDENT.name())
 
-                        // Report Endpoints
-                        .requestMatchers("/student/reports/**").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/student/reports/**").hasRole("STUDENT")
-                        .requestMatchers(HttpMethod.POST, "/api/student/reports").hasRole("STUDENT")
-                        .requestMatchers(HttpMethod.PUT, "/api/student/reports/{id}").hasRole("STUDENT")
-                        .requestMatchers(HttpMethod.DELETE, "/api/student/reports/{id}").hasRole("STUDENT")
-                            .requestMatchers("/api/staff/reports/**").hasRole(Role.STAFF.name())
-                        .anyRequest().denyAll()
+                // Payment Endpoints
+                .requestMatchers(HttpMethod.POST, "/api/payments/courses/{courseId}/bank-transfer/{transactionId}").hasRole(Role.STUDENT.name())
+                .requestMatchers(HttpMethod.POST, "/api/payments/courses/{courseId}/credit-card/{transactionId}").hasRole(Role.STUDENT.name())
+                .requestMatchers(HttpMethod.GET, "/api/payments/transaction-history").hasRole(Role.STUDENT.name())
+                .requestMatchers(HttpMethod.POST, "/api/payments/transaction-history/{transactionId}/refund").hasRole(Role.STUDENT.name())
+                .requestMatchers(HttpMethod.GET, "/api/payments/test").permitAll()
 
-                        // Payment Endpoints
-                        .requestMatchers(HttpMethod.POST, "/api/payments/courses/{courseId}/payment/bank-transfer").hasRole("STUDENT")
-                        .requestMatchers(HttpMethod.POST, "/api/payments/courses/{courseId}/payment/credit-card").hasRole("STUDENT")
-                        .requestMatchers(HttpMethod.GET, "/api/payments/courses/transaction-history").hasRole("STUDENT")
-                        .requestMatchers(HttpMethod.POST, "/api/payments/transaction-history/{transactionId}/refund").hasRole("STUDENT")
-                        .requestMatchers(HttpMethod.GET, "/api/payments/courses/test")
-                )
-                .sessionManagement(session -> session
+                // Report Endpoints
                 .requestMatchers("/student/reports/**").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/student/reports/**").hasRole(Role.STUDENT.name())
                 .requestMatchers(HttpMethod.POST, "/api/student/reports").hasRole(Role.STUDENT.name())
                 .requestMatchers(HttpMethod.PUT, "/api/student/reports/{id}").hasRole(Role.STUDENT.name())
                 .requestMatchers(HttpMethod.DELETE, "/api/student/reports/{id}").hasRole(Role.STUDENT.name())
-                .requestMatchers("/api/staff/reports/**").hasRole(Role.STAFF.name())
-                .anyRequest().denyAll()
+                .requestMatchers("/api/staff/reports/**").hasRole(Role.STAFF.name()).anyRequest().denyAll()
             )
             .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

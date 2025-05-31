@@ -10,6 +10,8 @@ import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.UUID;
+
 // Credit Card specific model
 @Entity
 @DiscriminatorValue("CREDIT_CARD")
@@ -32,8 +34,8 @@ public class CreditCard extends Transaction {
         super();
     }
 
-    public CreditCard(Course course, User student, String accountNumber, String cvc) {
-        super(course, student);
+    public CreditCard(UUID transactionId, Course course, User student, String accountNumber, String cvc) {
+        super(transactionId, course, student);
         this.accountNumber = accountNumber;
         this.cvc = cvc;
         this.maskedAccountNumber = maskAccountNumber(accountNumber);

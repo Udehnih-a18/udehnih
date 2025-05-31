@@ -1,10 +1,48 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Request Refund</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
+<body class="bg-gray-50">
+<!-- Include navbar -->
+<div th:insert="~{navbar :: navbar}"></div>
 
+<div class="max-w-4xl mx-auto py-10 px-4">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-8">
+        <h2 class="text-2xl font-semibold">Request a Refund</h2>
+        <a href="/my-courses" class="text-gray-500 hover:underline">Back to My Courses</a>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- Refund Form -->
+        <div>
+            <form th:action="@{/transactions/{id}/refund(id=${transactionId})}" method="post" class="bg-white p-6 rounded-lg shadow-md">
+                <label for="reason" class="block text-sm font-medium text-gray-700 mb-2">Reason for Refund</label>
+                <textarea id="reason" name="reason" rows="6" required
+                          class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-transparent"
+                          placeholder="Please explain why you're requesting a refund..."></textarea>
+                <button type="submit"
+                        class="mt-4 w-full bg-purple-600 text-white py-2 rounded hover:bg-purple-700 transition">
+                    Submit Refund Request
+                </button>
+            </form>
+        </div>
+
+        <!-- Transaction Summary -->
+        <div>
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h3 class="text-xl font-semibold mb-2" th:text="${courseTitle}">Course Title</h3>
+                <p class="text-gray-600 mb-2">Purchased by: <span th:text="${userName}">John Doe</span></p>
+                <p class="text-gray-600 mb-2">Instructor: <span th:text="${instructorName}">Angela Yu</span></p>
+                <p class="text-gray-600 mb-2">Purchase Date: <span th:text="${purchaseDate}">2025-05-24</span></p>
+                <p class="text-gray-600 mb-2">Transaction ID: <span th:text="${transactionId}">TXN123456</span></p>
+                <h4 class="text-lg font-bold mt-4">Amount Paid: <span th:text="${amount}">Rp129,000</span></h4>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>

@@ -9,13 +9,13 @@ import java.util.Map;
 @Component
 public class ObjectToMapMapper {
 
-    public static <T> HashMap<String, String> mapToObject(T object) {
-        HashMap<String, String> map = new HashMap<>();
+    public static <T> HashMap<String, Object> mapToObject(T object) {
+        HashMap<String, Object> map = new HashMap<>();
         if (object != null) {
             for (Field field : object.getClass().getDeclaredFields()) {
                 field.setAccessible(true);
                 try {
-                    map.put(field.getName().toString(), field.get(object).toString());
+                    map.put(field.getName().toString(), field.get(object));
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }
